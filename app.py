@@ -15,8 +15,8 @@ external_stylesheets = [dbc.themes.CERULEAN]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
-H = pd.read_csv('processed_collapsed_data.csv', sep='\t')
-Hv = pd.read_csv('processed_collapsed_data2.csv', sep='\t')
+H = pd.read_csv('processed_collapsed_data.csv', sep=',')
+Hv = pd.read_csv('processed_collapsed_data2.csv', sep=',')
 
 NS, NC, NY = 72, 49, 26
 N, Ntot = NS*NC, NS*NC*NY

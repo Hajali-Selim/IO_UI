@@ -215,31 +215,31 @@ app.layout = html.Div(children=[
     		dbc.Row(dcc.Graph(figure={}, id='waves5'))]
     		, title='Waves'),
     	
-    	dbc.AccordionItem(
-    		dbc.Tabs([dbc.Tab([
-    			dbc.Row([dbc.Col(dcc.Markdown('**select year**', style={'textAlign':'right'}), width=2),
-    				dbc.Col(dcc.Dropdown(range(1995,2021), '2000', id='year6_c'))]),
-    			dbc.Row([dbc.Col(dcc.Markdown('**select metric1 (vulnerability as node color)**', style={'textAlign':'right'}), width=2),
-    				dbc.Col(dcc.Dropdown(vulnerability_list, 'gas', id='metric6_c'), width=2)],),
-    			dbc.Row([dbc.Col(dcc.Markdown('**select metric2 (node size)**', style={'textAlign':'right'}), width=2),
-    				dbc.Col(dcc.Dropdown(['out-degree (export)', 'in-degree (import)', 'betweenness'], 'betweenness', id='nsize6_c'))]),
-    			dbc.Row([dbc.Col(dcc.Markdown('**select metric2 (edge size)**', style={'textAlign':'right'}), width=2),
-    				dbc.Col(dcc.Dropdown(['Monetary importance', 'Structural importance'], 'Monetary importance', id='esize6_c'))]),
-    			dbc.Row(dcc.Graph(figure={}, id='network6_c'))],
-    			label='Countries', activeTabClassName='fw-bold'),
+    	#dbc.AccordionItem(
+    	#	dbc.Tabs([dbc.Tab([
+    	#		dbc.Row([dbc.Col(dcc.Markdown('**select year**', style={'textAlign':'right'}), width=2),
+    	#			dbc.Col(dcc.Dropdown(range(1995,2021), '2000', id='year6_c'))]),
+    	#		dbc.Row([dbc.Col(dcc.Markdown('**select metric1 (vulnerability as node color)**', style={'textAlign':'right'}), width=2),
+    	#			dbc.Col(dcc.Dropdown(vulnerability_list, 'gas', id='metric6_c'), width=2)],),
+    	#		dbc.Row([dbc.Col(dcc.Markdown('**select metric2 (node size)**', style={'textAlign':'right'}), width=2),
+    	#			dbc.Col(dcc.Dropdown(['out-degree (export)', 'in-degree (import)', 'betweenness'], 'betweenness', id='nsize6_c'))]),
+    	#		dbc.Row([dbc.Col(dcc.Markdown('**select metric2 (edge size)**', style={'textAlign':'right'}), width=2),
+    	#			dbc.Col(dcc.Dropdown(['Monetary importance', 'Structural importance'], 'Monetary importance', id='esize6_c'))]),
+    	#		dbc.Row(dcc.Graph(figure={}, id='network6_c'))],
+    	#		label='Countries', activeTabClassName='fw-bold'),
     			
-    			dbc.Tab([
-    			dbc.Row([dbc.Col(dcc.Markdown('**select year**', style={'textAlign':'right'}), width=2),
-    				dbc.Col(dcc.Dropdown(range(1995,2021), '2000', id='year6_s'))]),
-    			dbc.Row([dbc.Col(dcc.Markdown('**select metric1 (vulnerability as node color)**', style={'textAlign':'right'}), width=2),
-    				dbc.Col(dcc.Dropdown(vulnerability_list, 'gas', id='metric6_s'), width=2)],),
-    			dbc.Row([dbc.Col(dcc.Markdown('**select metric2 (node size)**', style={'textAlign':'right'}), width=2),
-    				dbc.Col(dcc.Dropdown(['out-degree (export)', 'in-degree (import)', 'betweenness'], 'betweenness', id='nsize6_s'))]),
-    			dbc.Row([dbc.Col(dcc.Markdown('**select metric2 (edge size)**', style={'textAlign':'right'}), width=2),
-    				dbc.Col(dcc.Dropdown(['Monetary importance', 'Structural importance'], 'Monetary importance', id='esize6_s'))]),
-    			dbc.Row(dcc.Graph(figure={}, id='network6_s'))],
-    			label='Sectors', activeTabClassName='fw-bold')],)
-    		, title='Network view')
+    	#		dbc.Tab([
+    	#		dbc.Row([dbc.Col(dcc.Markdown('**select year**', style={'textAlign':'right'}), width=2),
+    	#			dbc.Col(dcc.Dropdown(range(1995,2021), '2000', id='year6_s'))]),
+    	#		dbc.Row([dbc.Col(dcc.Markdown('**select metric1 (vulnerability as node color)**', style={'textAlign':'right'}), width=2),
+    	#			dbc.Col(dcc.Dropdown(vulnerability_list, 'gas', id='metric6_s'), width=2)],),
+    	#		dbc.Row([dbc.Col(dcc.Markdown('**select metric2 (node size)**', style={'textAlign':'right'}), width=2),
+    	#			dbc.Col(dcc.Dropdown(['out-degree (export)', 'in-degree (import)', 'betweenness'], 'betweenness', id='nsize6_s'))]),
+    	#		dbc.Row([dbc.Col(dcc.Markdown('**select metric2 (edge size)**', style={'textAlign':'right'}), width=2),
+    	#			dbc.Col(dcc.Dropdown(['Monetary importance', 'Structural importance'], 'Monetary importance', id='esize6_s'))]),
+    	#		dbc.Row(dcc.Graph(figure={}, id='network6_s'))],
+    	#		label='Sectors', activeTabClassName='fw-bold')],)
+    	#	, title='Network view')
     			
 			], flush=True)
 			])

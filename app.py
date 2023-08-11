@@ -39,20 +39,27 @@ ordering_list = ['original', 'descending', 'ascending']
 
 H[metrics_list], Hv[metrics_list] = H[metrics_list].astype(float), Hv[metrics_list].astype(float)
 for s in ['year','transition']+units_list:
-    units = list(range(1995,2023))*(s=='year') + regions_list*int(s=='region') + countries_list*(s=='country') + sectors_list*(s=='sector') + ['circle','square','diamond']*(s=='transition')
+    units = list(range(1995,1995+NY))*(s=='year') + regions_list*int(s=='region') + countries_list*(s=='country') + sectors_list*(s=='sector') + ['circle','square','diamond']*(s=='transition')
     H[s], Hv[s] = H[s].astype('category').cat.set_categories(units, ordered=True), Hv[s].astype('category').cat.set_categories(units, ordered=True)
 
 data_cavg = H.groupby(['year','country'])[metrics_list].mean().reset_index().sort_values(['year','country'])
 data_s1avg = H.groupby(['year','sector'])[metrics_list].mean().reset_index().sort_values(['year','sector'])
 data_s2avg = {c[0]:c[1].groupby(['year','sector'])[metrics_list].mean().reset_index().sort_values(['year','sector']) for c in H.groupby('region')}
 
+year_NYlist, sector_NYlist = np.array([1995+y for k in range(3) for y in range(NY)]), np.array([s for s in ['oil','gas','coal'] for i in range(NY)])
+data_cvuln = {}
+for c in countries:
+    data_cvuln[c] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg[data_cavg['country']==c][['oil','gas','coal']].unstack().values)).T, columns=['year','sector','vulnerability'])
+    data_cvuln[c]['year'], data_cvuln[c]['sector'], data_cvuln[c]['vulnerability'] = data_cvuln[c]['year'].astype(int), data_cvuln[c]['sector'].astype(str), data_cvuln[c]['vulnerability'].astype(float)
+
 sector_groups = ['Agriculture', 'Extraction and mining', 'Manufacture', 'Utilities', 'Services']
 sector_groupmap = {'Agriculture':[0], 'Extraction and mining':list(range(1,16)), 'Manufacture':list(range(16,48)), 'Utilities':list(range(48,64)), 'Services':list(range(64,72))}
 data_y = {'standard':{int(c[0]):c[1] for c in H.groupby(['year'])[units_list+metrics_list]}, 'yearly variation':{int(c[0]):c[1] for c in Hv.groupby(['year'])[units_list+metrics_list]}}
-height, width = {'country':17, 'sector':16.5, 'region':16.5}, {'country':26*25, 'sector':26*30, 'region':26*75}
+height, width = {'country':17, 'sector':16.5, 'region':16.5}, {'country':NY*25, 'sector':NY*30, 'region':NY*75}
 
 app.layout = html.Div([
     dcc.Markdown('''# visualizing vulnerability''', style={'textAlign':'center'}),
+    dcc.Markdown('11/08/2023 (13:30) update: addition of \'waves\' figure'),
     html.Hr(),
     dbc.Accordion([
     	dbc.AccordionItem(
@@ -204,8 +211,11 @@ app.layout = html.Div([
     		dbc.Row(dcc.Graph(figure={}, id='bubble4')), ], title='Bubble plots'),
     	
     	dbc.AccordionItem([
-    			
-    			], title='Waves: national vulnerability trends'),
+    		dbc.Row([dbc.Col(dcc.Markdown('**select country**', style={'textAlign':'right'}), width=2),
+			dbc.Col(dcc.Dropdown(countries_list, 'Germany', id='unit5'), width=2)]),
+    		dbc.Row(dcc.Graph(figure={}, id='waves5'))
+    		
+    			], title='Waves'),
 			], flush=True)
 			])
 
@@ -230,7 +240,7 @@ def update_cheatmap(metric2_c,order2_c,unit2_c):
     order = (order2_c=='original')*'trace' + (order2_c=='descending')*'total descending' + (order2_c=='ascending')*'total ascending'
     cinds = [country_to_idx[c] for c in unit2_c]
     data_c = deepcopy(data_cavg.iloc[sorted([k*NC+i for k in range(NY) for i in cinds])])
-    return px.density_heatmap(data_c, x='year', y='country', z=metric2_c, height=height['country']*len(cinds), width=width['country'], labels={'x':'year','y':'country'}, nbinsx=NY+1, nbinsy=len(unit2_c)).update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':15}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)'})
+    return px.density_heatmap(data_c, x='year', y='country', z=metric2_c, height=height['country']*len(cinds), width=width['country'], labels={'x':'year','y':'country'}, nbinsx=NY, nbinsy=len(unit2_c)).update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':15}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)'})
 
 @callback(Output('heatmap2_s1', 'figure'), [Input(s, 'value') for s in ['metric2_s1','group2_s1', 'order2_s1','unit2_s1']])
 def update_s1heatmap(metric2_s1,group2_s1,order2_s1,unit2_s1):
@@ -238,7 +248,7 @@ def update_s1heatmap(metric2_s1,group2_s1,order2_s1,unit2_s1):
     g1inds = sum([sector_groupmap[g] for g in group2_s1],[])
     s1inds = list(set([sector_to_idx[s] for s in unit2_s1]) & set(g1inds))
     data_s1 = deepcopy(data_s1avg.iloc[sorted([k*NS+i for k in range(NY) for i in s1inds])])
-    return px.density_heatmap(data_s1, x='year', y='sector', z=metric2_s1, height=height['sector']*len(s1inds), width=width['sector'], labels={'x':'year','y':'sector'}, nbinsx=NY+1, nbinsy=len(s1inds)).update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':15}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)'})
+    return px.density_heatmap(data_s1, x='year', y='sector', z=metric2_s1, height=height['sector']*len(s1inds), width=width['sector'], labels={'x':'year','y':'sector'}, nbinsx=NY, nbinsy=len(s1inds)).update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':15}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)'})
 
 @callback(Output('heatmap2_s2', 'figure'), [Input(s, 'value') for s in ['metric2_s2','group2_s2','order2_s2','unit2_s2']])
 def update_s2heatmap(metric2_s2,group2_s2,order2_s2,unit2_s2):
@@ -249,7 +259,7 @@ def update_s2heatmap(metric2_s2,group2_s2,order2_s2,unit2_s2):
     fig = make_subplots(rows=1, cols=5, horizontal_spacing=.005, shared_yaxes=True, subplot_titles=tuple(regions_list))
     for r_idx in range(len(regions_list)):
         r = regions_list[r_idx]
-        fig.add_trace(px.density_heatmap(data_s2[r], x='year', y='sector', z=metric2_s2, nbinsx=NY+1, nbinsy=len(s2inds)).data[0], row=1, col=r_idx+1)
+        fig.add_trace(px.density_heatmap(data_s2[r], x='year', y='sector', z=metric2_s2, nbinsx=NY, nbinsy=len(s2inds)).data[0], row=1, col=r_idx+1)
     fig.update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(height=height['region']*len(s2inds), width=width['region'], font={'size':15}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)'})
     return fig
 
@@ -274,7 +284,7 @@ def update_s2line(metric3_s2,unit3_s2):
     return px.line(H[H['country']==unit3_s2], x='year', y=metric3_s2, color='sector', labels={'x':'year', 'y':metric3_s2+' vulnerability (%)'*int(metric3_s2 in vulnerability_list), 'color':'country'}, markers=True, hover_name='sector').update_xaxes(tickvals= np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font= {'size':15}, height=700, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10})
 
 @callback(Output('bubble4', 'figure'), [Input(s, 'value') for s in ['metric4t','metric4v', 'unit4','year4']])
-def update_bubble(metric4t,metric4v,unit4,year4):#,marker_size4):
+def update_bubble(metric4t,metric4v,unit4,year4):
     if metric4t == 'Monetary importance':
         xlabel, ylabel = 'backward linkage', 'forward linkage'
     elif metric4t == 'Structural importance':
@@ -282,11 +292,16 @@ def update_bubble(metric4t,metric4v,unit4,year4):#,marker_size4):
     country_dataset, zlabel = H[H['country']==unit4], metric4v
     xmin, xmax, ymin, ymax, zmin, zmax = country_dataset[xlabel].min(), country_dataset[xlabel].max(), country_dataset[ylabel].min(), country_dataset[ylabel].max(), country_dataset[zlabel].min(), country_dataset[zlabel].max()
     dataset = country_dataset[country_dataset['year']==year4]
-    fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=zlabel, labels={'x':xlabel, 'y':ylabel}, range_x=[xmin-.1,xmax+.1], range_y=[ymin-.1,ymax+.1], range_color=[zmin-.02, zmax+.02], hover_name='sector', symbol='transition', opacity=.8).update_layout(width=1200, height=800, font={'size':20}, coloraxis_colorbar={'title':'vulnerability (%)'}, hoverlabel={'font_size':18}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}).update_traces(marker_line_width=dataset['abate']*3, marker_line_color='red')#, marker={'size':marker_size4*dataset[zlabel]})
+    fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=zlabel, labels={'x':xlabel, 'y':ylabel}, range_x=[xmin-.1,xmax+.1], range_y=[ymin-.1,ymax+.1], range_color=[zmin-.02, zmax+.02], hover_name='sector', symbol='transition', opacity=.8).update_layout(width=1200, height=800, font={'size':20}, coloraxis_colorbar={'title':'vulnerability (%)'}, hoverlabel={'font_size':18}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}).update_traces(marker_line_width=dataset['abate']*3, marker_line_color='red')
     for i,j in enumerate(legend_names):
         fig.data[i].name=legend_names[j]
     if metric4t == 'Monetary importance':
         fig.add_hline(y=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).add_vline(x=1, line_width=3, line_dash='dash', line_color='red', opacity=.7)
+    return fig
+
+@callback(Output('waves5', 'figure'), [Input(s, 'value') for s in ['unit5']])
+def update_waves(unit5):
+    fig = px.area(data_cvuln[unit5], x='year', y='vulnerability', color='sector')
     return fig
 
 @app.callback(Output('canvas2_c', 'is_open'), Input('open_canvas2_c', 'n_clicks'), State('canvas2_c', 'is_open'))

@@ -52,6 +52,23 @@ for c in countries:
     data_cvuln[c] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg[data_cavg['country']==c][['oil','gas','coal']].unstack().values)).T, columns=['year','sector','vulnerability'])
     data_cvuln[c]['year'], data_cvuln[c]['sector'], data_cvuln[c]['vulnerability'] = data_cvuln[c]['year'].astype(int), data_cvuln[c]['sector'].astype(str), data_cvuln[c]['vulnerability'].astype(float)
 
+#ZCs, ZSs = pickle.load(open('Dataset/Collapsed_data/NC/ZC.txt','rb')), pickle.load(open('Dataset/Collapsed_data/NS/ZS.txt','rb'))
+#ZCs, ZSs = pd.read_csv('ZCs.csv', sep=','), pd.read_csv('ZSs.csv', sep=',')
+ZCs, ZSs = pickle.load(open('ZC.txt','rb')), pickle.load(open('ZS.txt','rb'))
+
+networktext_NC, networktext_NS = {}, {}
+for y in range(1995,2021):
+    networktext_NC[y], networktext_NS[y] = {}, {}
+    rfl_NC, rbl_NC, rout_NC, rin_NC = np.array(np.round(data_cavg[data_cavg['year']==y]['forward linkage'],2)), np.array(np.round(data_cavg[data_cavg['year']==y]['backward linkage'],2)), np.array(np.round(data_cavg[data_cavg['year']==y]['out-degree'],1)), np.array(np.round(data_cavg[data_cavg['year']==y]['in-degree'],1))
+    rfl_NS, rbl_NS, rout_NS, rin_NS = np.array(np.round(data_s1avg[data_s1avg['year']==y]['forward linkage'],2)), np.array(np.round(data_s1avg[data_s1avg['year']==y]['backward linkage'],2)), np.array(np.round(data_s1avg[data_s1avg['year']==y]['out-degree'],1)), np.array(np.round(data_s1avg[data_s1avg['year']==y]['in-degree'],1))
+    for fuel in ['coal','gas','oil','all three fossil fuels']:
+        rvuln_NC, rvuln_NS = np.array(np.round(data_cavg[data_cavg['year']==y][fuel],2)), np.array(np.round(data_s1avg[data_s1avg['year']==y][fuel],2))
+        networktext_NC[y][fuel], networktext_NS[y][fuel] = [], []
+        for c in range(NC):
+            networktext_NC[y][fuel].append('<b>'+str(countries[c])+'</b><br>'+str(fuel)+' vulnerability = '+str(rvuln_NC[c])+'<br>forward linkage = '+str(rfl_NC[c])+'<br>backward linkage = '+str(rbl_NC[c])+'<br>out-degree = '+str(rout_NC[c])+'<br>in-degree = '+str(rin_NC[c]))
+        for s in range(NS):
+            networktext_NS[y][fuel].append('<b>'+str(sectors[s])+'</b><br>'+str(fuel)+' vulnerability = '+str(rvuln_NS[s])+'<br>forward linkage = '+str(rfl_NS[s])+'<br>backward linkage = '+str(rbl_NS[s])+'<br>out-degree = '+str(rout_NS[s])+'<br>in-degree = '+str(rin_NS[s]))
+
 sector_groups = ['Agriculture', 'Extraction and mining', 'Manufacture', 'Utilities', 'Services']
 sector_groupmap = {'Agriculture':[0], 'Extraction and mining':list(range(1,16)), 'Manufacture':list(range(16,48)), 'Utilities':list(range(48,64)), 'Services':list(range(64,72))}
 data_y = {'standard':{int(c[0]):c[1] for c in H.groupby(['year'])[units_list+metrics_list]}, 'yearly variation':{int(c[0]):c[1] for c in Hv.groupby(['year'])[units_list+metrics_list]}}
@@ -61,12 +78,15 @@ app.layout = html.Div(children=[
     dcc.Markdown('''# visualizing vulnerability''', style={'textAlign':'center'}),
     html.Div('11/08/2023 (13:30) update: addition of \'waves\' figure'),
     html.Div('11/08/2023 (15:30) update: new colormap and corrected forward linkages'),
+    html.Div('18/08/2023 (07:00) update: addition of \'network-representation\' figure'),
+    html.Div('comment: I have no idea why does a diagonal appear in the upper-right corner,'),
+    html.Div('in the meantime, please select the window you want to observe and discard it.'),
+    html.Div('18/08/2023 (07:30) update: new year-selection slider for \'bubble plots\''),
     html.Hr(),
     dbc.Accordion([
     	dbc.AccordionItem(
     	dbc.Tabs([
-    		dbc.Tab([
-    		html.Br(),
+    		dbc.Tab([html.Br(),
     		dbc.Row([# row of data selection (parameter+ordering)
     		dbc.Col(# column of parameter selection
     		dbc.Table(html.Tbody([
@@ -84,8 +104,7 @@ app.layout = html.Div(children=[
     			]),
     		dcc.Graph(figure={}, id='hist1v'), ], label='Vulnerability', activeTabClassName='fw-bold'),
     		
-    		dbc.Tab([
-    		html.Br(),
+    		dbc.Tab([html.Br(),
     		dbc.Row([# row of data selection (parameter+ordering)
     		dbc.Col(# column of parameter selection
     		dbc.Table(html.Tbody([
@@ -102,8 +121,7 @@ app.layout = html.Div(children=[
     		dbc.Col(dcc.RadioItems(ordering_list, 'original', id='order1s', inputStyle={'margin-right':'10px', 'margin-left':'30px'}), width=6)]),]),
     		dcc.Graph(figure={}, id='hist1s'), ], label='Structural importance', activeTabClassName='fw-bold'),
     		
-    		dbc.Tab([
-    		html.Br(),
+    		dbc.Tab([html.Br(),
     		dbc.Row([# row of data selection (parameter+ordering)
     		dbc.Col(dbc.Table(html.Tbody([
     				html.Tr([html.Td(dcc.Markdown('**select type**', style={'textAlign':'right'})),
@@ -205,7 +223,10 @@ app.layout = html.Div(children=[
     		dbc.Row([dbc.Col(dcc.Markdown('**select country**', style={'textAlign':'right'}), width=2),
     			dbc.Col(dcc.Dropdown(countries, 'Australia', id='unit4'), width=2)]),
     		dbc.Row([dbc.Col(dcc.Markdown('**select year**', style={'textAlign':'right'}), width=2),
-    			dbc.Col(dcc.Slider(1995, 2020, 1, marks={y:str(y) for y in range(1995,2021)}, updatemode='drag', value=1996, id='year4'))]),
+    			#dbc.Col(dcc.Slider(1995, 2020, 1, marks={y:str(y) for y in range(1995,2021)}, updatemode='drag', value=1996, id='year4'))]),
+    			#dbc.Col(daq.Slider(min=1995, max=2020, step=1, value=1998, handleLabel={'showCurrentValue'==True, 'label'=='year'}, id='year4'))]),
+    			dbc.Col([html.Br(), html.Br(),
+    				daq.Slider(min=1995, max=2020, step=1, value=1998, labelPosition='bottom', handleLabel={'showCurrentValue':True, 'label':' ', 'color':'#3e7cc8'}, size=500, id='year4')])]),
     		dbc.Row(dcc.Graph(figure={}, id='bubble4'))]
     		, title='Bubble plots'),
     	
@@ -215,31 +236,43 @@ app.layout = html.Div(children=[
     		dbc.Row(dcc.Graph(figure={}, id='waves5'))]
     		, title='Waves'),
     	
-    	#dbc.AccordionItem(
-    	#	dbc.Tabs([dbc.Tab([
-    	#		dbc.Row([dbc.Col(dcc.Markdown('**select year**', style={'textAlign':'right'}), width=2),
-    	#			dbc.Col(dcc.Dropdown(range(1995,2021), '2000', id='year6_c'))]),
-    	#		dbc.Row([dbc.Col(dcc.Markdown('**select metric1 (vulnerability as node color)**', style={'textAlign':'right'}), width=2),
-    	#			dbc.Col(dcc.Dropdown(vulnerability_list, 'gas', id='metric6_c'), width=2)],),
-    	#		dbc.Row([dbc.Col(dcc.Markdown('**select metric2 (node size)**', style={'textAlign':'right'}), width=2),
-    	#			dbc.Col(dcc.Dropdown(['out-degree (export)', 'in-degree (import)', 'betweenness'], 'betweenness', id='nsize6_c'))]),
-    	#		dbc.Row([dbc.Col(dcc.Markdown('**select metric2 (edge size)**', style={'textAlign':'right'}), width=2),
-    	#			dbc.Col(dcc.Dropdown(['Monetary importance', 'Structural importance'], 'Monetary importance', id='esize6_c'))]),
-    	#		dbc.Row(dcc.Graph(figure={}, id='network6_c'))],
-    	#		label='Countries', activeTabClassName='fw-bold'),
+    	dbc.AccordionItem([
+    		dbc.Tabs([dbc.Tab([
+    			dbc.Row([dbc.Col(dcc.Markdown('**select year**', style={'textAlign':'right'}), width=3),
+    				dbc.Col(dcc.Dropdown(list(range(1995,2021)), 2000, id='year6_c'), width=1)]),
+    			dbc.Row([dbc.Col(dcc.Markdown('**select vulnerability (color)**', style={'textAlign':'right'}), width=3),
+    				dbc.Col(dcc.Dropdown(vulnerability_list, 'gas', id='metric6_c'), width=2)]),
+    			dbc.Row([dbc.Col(dcc.Markdown('**select linkage (size)**', style={'textAlign':'right'}), width=3),
+    				dbc.Col(dcc.RadioItems(monetary_list, 'forward linkage', inline=False, inputStyle={'margin-right':'10px', 'margin-bottom':'10px'}, id='mode6_c'), width=2)]),
+    			dbc.Row([dbc.Col(dcc.Markdown('''**select binarization threshold
+    					quantile (connectedness)**''', style={'textAlign':'right'}), width=3),
+    				dbc.Col(dcc.Input(debounce=True, min=.8, max=.99, value=.9, step=.01, type='number', id='quantile6_c'))]),
+    			dbc.Row([dbc.Col(dcc.Markdown('**log2-scaled vulnerability**', style={'textAlign':'right'}), width=3),
+    				dbc.Col(daq.BooleanSwitch(on=True, color='#3e7cc8', id='scale6_c'), width=1)
+    				]),
+    				
+    			dbc.Row(dcc.Graph(figure={}, id='network6_c'))]
+    			, label='Countries', activeTabClassName='fw-bold'),
     			
-    	#		dbc.Tab([
-    	#		dbc.Row([dbc.Col(dcc.Markdown('**select year**', style={'textAlign':'right'}), width=2),
-    	#			dbc.Col(dcc.Dropdown(range(1995,2021), '2000', id='year6_s'))]),
-    	#		dbc.Row([dbc.Col(dcc.Markdown('**select metric1 (vulnerability as node color)**', style={'textAlign':'right'}), width=2),
-    	#			dbc.Col(dcc.Dropdown(vulnerability_list, 'gas', id='metric6_s'), width=2)],),
-    	#		dbc.Row([dbc.Col(dcc.Markdown('**select metric2 (node size)**', style={'textAlign':'right'}), width=2),
-    	#			dbc.Col(dcc.Dropdown(['out-degree (export)', 'in-degree (import)', 'betweenness'], 'betweenness', id='nsize6_s'))]),
-    	#		dbc.Row([dbc.Col(dcc.Markdown('**select metric2 (edge size)**', style={'textAlign':'right'}), width=2),
-    	#			dbc.Col(dcc.Dropdown(['Monetary importance', 'Structural importance'], 'Monetary importance', id='esize6_s'))]),
-    	#		dbc.Row(dcc.Graph(figure={}, id='network6_s'))],
-    	#		label='Sectors', activeTabClassName='fw-bold')],)
-    	#	, title='Network view')
+    			dbc.Tab([
+    			dbc.Row([dbc.Col(dcc.Markdown('**select year**', style={'textAlign':'right'}), width=3),
+    				dbc.Col(dcc.Dropdown(list(range(1995,2021)), 2000, id='year6_s'), width=1)]),
+    			dbc.Row([dbc.Col(dcc.Markdown('**select vulnerability (color)**', style={'textAlign':'right'}), width=3),
+    				dbc.Col(dcc.Dropdown(vulnerability_list, 'gas', id='metric6_s'), width=2)]),
+    			dbc.Row([dbc.Col(dcc.Markdown('**select linkage (size)**', style={'textAlign':'right'}), width=3),
+    				dbc.Col(dcc.RadioItems(monetary_list, 'forward linkage', inline=False, inputStyle={'margin-right':'10px', 'margin-bottom':'10px'}, id='mode6_s'), width=2)]),
+    			dbc.Row([dbc.Col(dcc.Markdown('''**select binarization threshold
+    					quantile (connectedness)**''', style={'textAlign':'right'}), width=3),
+    				dbc.Col(dcc.Input(debounce=True, min=.8, max=.99, value=.9, step=.01, type='number', id='quantile6_s'))]),
+    			dbc.Row([dbc.Col(dcc.Markdown('**log2-scaled vulnerability**', style={'textAlign':'right'}), width=3),
+    				dbc.Col(daq.BooleanSwitch(on=True, color='#3e7cc8', id='scale6_s'), width=1)
+    				]),
+    			dbc.Row(dcc.Graph(figure={}, id='network6_s'))]
+    			, label='Sectors', activeTabClassName='fw-bold')
+    				])
+    			]
+    		, title='Network representation')
+
     			
 			], flush=True)
 			])
@@ -265,7 +298,7 @@ def update_cheatmap(metric2_c,order2_c,unit2_c):
     order = (order2_c=='original')*'trace' + (order2_c=='descending')*'total descending' + (order2_c=='ascending')*'total ascending'
     cinds = [country_to_idx[c] for c in unit2_c]
     data_c = deepcopy(data_cavg.iloc[sorted([k*NC+i for k in range(NY) for i in cinds])])
-    return px.density_heatmap(data_c, x='year', y='country', z=metric2_c, height=height['country']*len(cinds), width=width['country'], labels={'x':'year','y':'country'}, nbinsx=NY, nbinsy=len(unit2_c), color_continuous_scale='Turbo').update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':15}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)'})
+    return px.density_heatmap(data_c, x='year', y='country', z=metric2_c, height=height['country']*len(cinds), width=width['country'], labels={'x':'year','y':'country'}, nbinsx=NY, nbinsy=len(unit2_c), color_continuous_scale='Turbo').update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':15}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v'})
 
 @callback(Output('heatmap2_s1', 'figure'), [Input(s, 'value') for s in ['metric2_s1','group2_s1', 'order2_s1','unit2_s1']])
 def update_s1heatmap(metric2_s1,group2_s1,order2_s1,unit2_s1):
@@ -273,7 +306,7 @@ def update_s1heatmap(metric2_s1,group2_s1,order2_s1,unit2_s1):
     g1inds = sum([sector_groupmap[g] for g in group2_s1],[])
     s1inds = list(set([sector_to_idx[s] for s in unit2_s1]) & set(g1inds))
     data_s1 = deepcopy(data_s1avg.iloc[sorted([k*NS+i for k in range(NY) for i in s1inds])])
-    return px.density_heatmap(data_s1, x='year', y='sector', z=metric2_s1, height=height['sector']*len(s1inds), width=width['sector'], labels={'x':'year','y':'sector'}, nbinsx=NY, nbinsy=len(s1inds), color_continuous_scale='Jet').update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':15}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)'})
+    return px.density_heatmap(data_s1, x='year', y='sector', z=metric2_s1, height=height['sector']*len(s1inds), width=width['sector'], labels={'x':'year','y':'sector'}, nbinsx=NY, nbinsy=len(s1inds), color_continuous_scale='Jet').update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':15}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v'})
 
 @callback(Output('heatmap2_s2', 'figure'), [Input(s, 'value') for s in ['metric2_s2','group2_s2','order2_s2','unit2_s2']])
 def update_s2heatmap(metric2_s2,group2_s2,order2_s2,unit2_s2):
@@ -285,7 +318,7 @@ def update_s2heatmap(metric2_s2,group2_s2,order2_s2,unit2_s2):
     for r_idx in range(len(regions_list)):
         r = regions_list[r_idx]
         fig.add_trace(px.density_heatmap(data_s2[r], x='year', y='sector', z=metric2_s2, nbinsx=NY, nbinsy=len(s2inds)).data[0], row=1, col=r_idx+1)
-    fig.update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(height=height['region']*len(s2inds), width=width['region'], font={'size':15}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)'}, coloraxis={'colorscale':'Jet'})
+    fig.update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(height=height['region']*len(s2inds), width=width['region'], font={'size':15}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v'}, coloraxis={'colorscale':'Jet'})
     return fig
 
 @callback(Output('lines3_c1', 'figure'), [Input(s, 'value') for s in ['metric3_c1','region3_c1']])
@@ -317,7 +350,7 @@ def update_bubble(metric4t,metric4v,unit4,year4):
     country_dataset, zlabel = H[H['country']==unit4], metric4v
     xmin, xmax, ymin, ymax, zmin, zmax = country_dataset[xlabel].min(), country_dataset[xlabel].max(), country_dataset[ylabel].min(), country_dataset[ylabel].max(), country_dataset[zlabel].min(), country_dataset[zlabel].max()
     dataset = country_dataset[country_dataset['year']==year4]
-    fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=zlabel, labels={'x':xlabel, 'y':ylabel}, range_x=[xmin-.1,xmax+.1], range_y=[ymin-.1,ymax+.1], range_color=[zmin-.02, zmax+.02], hover_name='sector', symbol='transition', opacity=.8, color_continuous_scale='Jet').update_layout(width=1200, height=800, font={'size':20}, coloraxis_colorbar={'title':'vulnerability (%)'}, hoverlabel={'font_size':18}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}).update_traces(marker_line_width=dataset['abate']*3, marker_line_color='red')
+    fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=zlabel, labels={'x':xlabel, 'y':ylabel}, range_x=[xmin-.1,xmax+.1], range_y=[ymin-.1,ymax+.1], range_color=[zmin-.02, zmax+.02], hover_name='sector', symbol='transition', opacity=.8, color_continuous_scale='Jet').update_layout(width=1200, height=800, font={'size':20}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v'}, hoverlabel={'font_size':18}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}).update_traces(marker_line_width=dataset['abate']*3, marker_line_color='red')
     for i,j in enumerate(legend_names):
         fig.data[i].name=legend_names[j]
     if metric4t == 'Monetary importance':
@@ -326,7 +359,61 @@ def update_bubble(metric4t,metric4v,unit4,year4):
 
 @callback(Output('waves5', 'figure'), Input('unit5', 'value'))
 def update_waves(unit5):
-    fig = px.area(data_cvuln[unit5], x='year', y='vulnerability', color='sector')
+    fig = px.area(data_cvuln[unit5], x='year', y='vulnerability', color='sector', width=1000, height=600)
+    return fig
+
+@callback(Output('network6_c', 'figure'), [Input(s, 'value') for s in ['year6_c', 'metric6_c', 'mode6_c', 'quantile6_c']]+[Input('scale6_c','on')])
+def update_cnetwork(year6, metric6, mode6, quantile6, scale6):
+    global ZCs, networktext_NC
+    dataset = data_cavg[data_cavg['year']==year6]
+    linkage, vulnerability = np.array(dataset[mode6]), np.array(dataset[metric6])
+    tickvals = [2**i for i in range(-3,round(np.log2(vulnerability.max())))]
+    
+    Q = np.quantile(ZCs[year6-1995], quantile6)
+    Z = np.where(ZCs[year6-1995]>Q,1,0)
+    G = nx.from_numpy_matrix(Z)
+    zero_deg = [i for i in G if G.degree(i)==0]
+    nonzero_deg = [i for i in G if G.degree(i)]
+    G.remove_nodes_from(zero_deg)
+    G = nx.relabel_nodes(G, {i:countries[i] for i in range(NC)})
+    pos = nx.kamada_kawai_layout(G)
+    
+    edge_x, edge_y = list(chain.from_iterable([(pos[i][0],pos[j][0],None) for i,j in G.edges()])), list(chain.from_iterable([(pos[i][1],pos[j][1],None) for i,j in G.edges()]))
+    edge_trace = go.Scatter(x=edge_x, y=edge_y, line=dict(width=.5, color='#888'), mode='lines')
+    node_x, node_y = [pos[i][0] for i in G], [pos[i][1] for i in G]
+    if scale6:
+        node_trace = go.Scatter(x=node_x, y=node_y, mode='markers', marker=dict(showscale=True, colorscale='Jet', color=np.log2(vulnerability), size=20*linkage**2, colorbar=dict(thickness=15, xanchor='left', titleside='right', tickvals=np.log2(tickvals), ticktext=tickvals), line_width=2), text=networktext_NC[year6][metric6], hovertemplate='<extra></extra>%{text}', hoverlabel={'font_size':20}, line={'width':0.5, 'color':'black'})
+    else:
+        node_trace = go.Scatter(x=node_x, y=node_y, mode='markers', marker=dict(showscale=True, colorscale='Jet', color=vulnerability, size=20*linkage**2, colorbar=dict(thickness=15, xanchor='left', titleside='right'), line_width=2), text=networktext_NC[year6][metric6], hovertemplate='<extra></extra>%{text}', hoverlabel={'font_size':20}, line={'width':0.5, 'color':'black'})
+    
+    fig = go.Figure(data=[edge_trace, node_trace], layout=go.Layout(titlefont_size=16, showlegend=False, xaxis=dict(showgrid=False, zeroline=False, showticklabels=False), yaxis=dict(showgrid=False, zeroline=False, showticklabels=False), annotations=[dict(showarrow=True)])).update_layout(width=1000, height=800)
+    return fig
+
+@callback(Output('network6_s', 'figure'), [Input(s, 'value') for s in ['year6_s', 'metric6_s', 'mode6_s', 'quantile6_s']]+[Input('scale6_s','on')])
+def update_snetwork(year6, metric6, mode6, quantile6, scale6):
+    global ZSs, networktext_NS
+    dataset = data_s1avg[data_s1avg['year']==year6]
+    linkage, vulnerability = np.array(dataset[mode6]), np.array(dataset[metric6])
+    tickvals = [2**i for i in range(-3,round(np.log2(vulnerability.max())))]
+    
+    Q = np.quantile(ZSs[year6-1995],quantile6)
+    Z = np.where(ZSs[year6-1995]>Q,1,0)
+    G = nx.from_numpy_matrix(Z)
+    zero_deg = [i for i in G if G.degree(i)==0]
+    nonzero_deg = [i for i in G if G.degree(i)]
+    G.remove_nodes_from(zero_deg)
+    G = nx.relabel_nodes(G, {i:sectors[i] for i in range(NS)})
+    pos = nx.kamada_kawai_layout(G)
+    
+    edge_x, edge_y = list(chain.from_iterable([(pos[i][0],pos[j][0],None) for i,j in G.edges()])), list(chain.from_iterable([(pos[i][1],pos[j][1],None) for i,j in G.edges()]))
+    edge_trace = go.Scatter(x=edge_x, y=edge_y, line=dict(width=.5, color='#888'), mode='lines')
+    node_x, node_y = [pos[i][0] for i in G], [pos[i][1] for i in G]
+    if scale6:
+        node_trace = go.Scatter(x=node_x, y=node_y, mode='markers', marker=dict(showscale=True, colorscale='Jet', color=np.log2(vulnerability+.01), size=20*linkage**2, colorbar=dict(thickness=15, xanchor='left', titleside='right', tickvals=np.log2(tickvals), ticktext=tickvals), line_width=2), text=networktext_NS[year6][metric6], hovertemplate='<extra></extra>%{text}', hoverlabel={'font_size':20}, line={'width':0.5, 'color':'black'})
+    else:
+        node_trace = go.Scatter(x=node_x, y=node_y, mode='markers', marker=dict(showscale=True, colorscale='Jet', color=vulnerability, size=20*linkage**2, colorbar=dict(thickness=15, xanchor='left', titleside='right'), line_width=2), text=networktext_NS[year6][metric6], hovertemplate='<extra></extra>%{text}', hoverlabel={'font_size':20}, line={'width':0.5, 'color':'black'})
+    
+    fig = go.Figure(data=[edge_trace, node_trace], layout=go.Layout(titlefont_size=16, showlegend=False, xaxis=dict(showgrid=False, zeroline=False, showticklabels=False), yaxis=dict(showgrid=False, zeroline=False, showticklabels=False), annotations=[dict(showarrow=True)])).update_layout(width=1000, height=800)
     return fig
 
 @app.callback(Output('canvas2_c', 'is_open'), Input('open_canvas2_c', 'n_clicks'), State('canvas2_c', 'is_open'))
@@ -349,6 +436,3 @@ def toggle_s2canvas(n, is_open):
 
 if __name__ == '__main__':
     app.run_server(debug=True)
-
-
-

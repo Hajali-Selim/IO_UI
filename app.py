@@ -76,7 +76,7 @@ data_y = {'standard':{int(c[0]):c[1] for c in H.groupby(['year'])[units_list+met
 height, width = {'country':17, 'sector':16.5, 'region':16.5}, {'country':27*25, 'sector':27*30, 'region':27*75}
 
 app.layout = html.Div(children=[
-    dcc.Markdown('''# visualizing vulnerability''', style={'textAlign':'center'}),
+    dcc.Markdown('''# visualizing vulnerability v2.0''', style={'textAlign':'center'}),
     html.Div('11/08/2023 (13:30) update: addition of \'waves\' figure'),
     html.Div('11/08/2023 (15:30) update: new colormap and corrected forward linkages'),
     html.Div('18/08/2023 (07:00) update: addition of \'network-representation\' figure'),

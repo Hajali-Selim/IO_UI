@@ -11,13 +11,15 @@ import plotly.graph_objects as go
 from scipy.stats import zscore
 from plotly.subplots import make_subplots
 from copy import deepcopy
+import networkx as nx
+from itertools import chain
+
 
 external_stylesheets = [dbc.themes.CERULEAN]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
-H = pd.read_csv('processed_collapsed_data.csv', sep=',')
-Hv = pd.read_csv('processed_collapsed_data2.csv', sep=',')
+H, Hv = pd.read_csv('processed_collapsed_data.csv', sep=','), pd.read_csv('processed_collapsed_data2.csv', sep=',')
 
 NS, NC, NY = 72, 49, 26
 N, Ntot = NS*NC, NS*NC*NY
@@ -437,3 +439,4 @@ def toggle_s2canvas(n, is_open):
 
 if __name__ == '__main__':
     app.run_server(debug=True)
+

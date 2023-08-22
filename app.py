@@ -14,7 +14,6 @@ from copy import deepcopy
 import networkx as nx
 from itertools import chain
 
-
 external_stylesheets = [dbc.themes.CERULEAN]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
@@ -55,8 +54,6 @@ for c in countries:
     data_cvuln[c] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg[data_cavg['country']==c][['oil','gas','coal']].unstack().values)).T, columns=['year','sector','vulnerability'])
     data_cvuln[c]['year'], data_cvuln[c]['sector'], data_cvuln[c]['vulnerability'] = data_cvuln[c]['year'].astype(int), data_cvuln[c]['sector'].astype(str), data_cvuln[c]['vulnerability'].astype(float)
 
-#ZCs, ZSs = pickle.load(open('Dataset/Collapsed_data/NC/ZC.txt','rb')), pickle.load(open('Dataset/Collapsed_data/NS/ZS.txt','rb'))
-#ZCs, ZSs = pd.read_csv('ZCs.csv', sep=','), pd.read_csv('ZSs.csv', sep=',')
 ZCs, ZSs = pickle.load(open('ZC.txt','rb')), pickle.load(open('ZS.txt','rb'))
 
 networktext_NC, networktext_NS = {}, {}
@@ -76,7 +73,6 @@ sector_groups = ['Agriculture', 'Extraction and mining', 'Manufacture', 'Utiliti
 sector_groupmap = {'Agriculture':[0], 'Extraction and mining':list(range(1,16)), 'Manufacture':list(range(16,48)), 'Utilities':list(range(48,64)), 'Services':list(range(64,72))}
 data_y = {'standard':{int(c[0]):c[1] for c in H.groupby(['year'])[units_list+metrics_list]}, 'yearly variation':{int(c[0]):c[1] for c in Hv.groupby(['year'])[units_list+metrics_list]}}
 height, width = {'country':17, 'sector':16.5, 'region':16.5}, {'country':27*25, 'sector':27*30, 'region':27*75}
-
 
 app.layout = html.Div(children=[
     dcc.Markdown('''# visualizing vulnerability v2.0''', style={'textAlign':'center'}),
@@ -275,11 +271,12 @@ app.layout = html.Div(children=[
     				])
     			]
     		, title='Network representation'),
+	
     	dbc.AccordionItem([
     		dbc.Row([dbc.Col(dcc.Markdown('**select vulnerability**', style={'textAlign':'right'}), width=2),
     			dbc.Col(dcc.Dropdown(vulnerability_list, 'gas', id='metric7_c'), width=2)]),
     		dbc.Row([dbc.Col(dcc.Markdown('**select year range**', style={'textAlign':'right'}), width=2),
-    			dbc.Col(dcc.RangeSlider(1995, 2020, 1, None, [1995,2020], tooltip={"placement": "bottom", "always_visible": True}, verticalHeight=100, id='year7_c'), width=5)]),
+    			dbc.Col(dcc.RangeSlider(1995, 2020, 1, None, [1995,2020], tooltip={"placement": "bottom", "always_visible": True}, verticalHeight=100, id='year7_c'), width=4)]),
     		dbc.Row([dbc.Col(dcc.Markdown('**select number of limit cases**', style={'textAlign':'right'}), width=2),
     			dbc.Col(dcc.Input(debounce=True, min=1, max=10, value=5, step=1, type='number', id='nb_units7_c'))]),
     		dbc.Row(dcc.Graph(figure={}, id='rows7_c'))]
@@ -428,8 +425,8 @@ def update_crows(metric7, year7, nb_units7):
     year7i, year7f = year7
     dataset = (data_cavg[data_cavg['year']==year7f][metric7].reset_index(drop=True).subtract(data_cavg[data_cavg['year']==year7i][metric7].reset_index(drop=True))).sort_values()
     pos_units, neg_units = countries[dataset[-nb_units7:].index], countries[dataset[:nb_units7].index]
-    pos_data, neg_data = np.round(all_pos_data(pos_units,year7i,year7f,metric7),2), np.round(all_neg_data(neg_units,year7i,year7f,metric7),2)
-    return px.bar(neg_data._append(pos_data), y='country', x='length', color='sector', orientation='h', custom_data=['country','sector','length'], text_auto='.2s', height=(nb_units7+1.5)*100).update_layout(font_size=14, hoverlabel={'font_size':22}).update_traces(hovertemplate='<extra></extra><b>%{customdata[0]}: %{customdata[1]},</b><br>contribution to overall<br><b>'+metric7+'</b> vulnerability: %{customdata[2]}')
+    pos_data, neg_data = np.round(all_pos_data_c(pos_units,year7i,year7f,metric7),2), np.round(all_neg_data_c(neg_units,year7i,year7f,metric7),2)
+    return px.bar(neg_data._append(pos_data), y='country', x='length', color='sector', orientation='h', custom_data=['country','sector','length'], text_auto='.2s', height=(nb_units7+1.5)*100).update_layout(font_size=14, hoverlabel={'font_size':22}).update_traces(hovertemplate='<extra></extra>%{customdata[0]}: <b>%{customdata[1]},</b><br>contribution to overall<br><b>'+metric7+'</b> vulnerability: %{customdata[2]}')
 
 @app.callback(Output('canvas2_c', 'is_open'), Input('open_canvas2_c', 'n_clicks'), State('canvas2_c', 'is_open'))
 def toggle_ccanvas(n, is_open):

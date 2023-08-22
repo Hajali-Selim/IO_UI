@@ -457,7 +457,7 @@ def all_pos_data(pos_units,y1_,y2_,fuel_):
         avg, std = data_c[fuel_].mean(), data_c[fuel_].std()
         pos_subunits = data_c[data_c[fuel_]>avg+std].reset_index(drop=True).sort_values(fuel_, ascending=False)
         leftover_vuln = NS*avg-pos_subunits[fuel_].sum()
-        pos_subunits.loc[len(pos_subunits)] = [c,'leftover',leftover_vuln]
+        pos_subunits.loc[len(pos_subunits)] = [c,'Others',leftover_vuln]
         total_vuln = sum(abs(pos_subunits[fuel_]))
         if pos_subunits.iloc[-1,-1]<0:
             total_vuln_pos = sum([i for i in pos_subunits[fuel_] if i>0])

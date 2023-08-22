@@ -77,6 +77,7 @@ sector_groupmap = {'Agriculture':[0], 'Extraction and mining':list(range(1,16)),
 data_y = {'standard':{int(c[0]):c[1] for c in H.groupby(['year'])[units_list+metrics_list]}, 'yearly variation':{int(c[0]):c[1] for c in Hv.groupby(['year'])[units_list+metrics_list]}}
 height, width = {'country':17, 'sector':16.5, 'region':16.5}, {'country':27*25, 'sector':27*30, 'region':27*75}
 
+
 app.layout = html.Div(children=[
     dcc.Markdown('''# visualizing vulnerability v2.0''', style={'textAlign':'center'}),
     html.Div('11/08/2023 (13:30) update: addition of \'waves\' figure'),
@@ -85,6 +86,7 @@ app.layout = html.Div(children=[
     html.Div('comment: I have no idea why does a diagonal appear in the upper-right corner,'),
     html.Div('in the meantime, please select the window you want to observe and discard it.'),
     html.Div('18/08/2023 (07:30) update: new year-selection slider for \'bubble plots\''),
+    html.Div('22/08/2023 (11:30) update: addition of \'decomposed rows\' figure'),
     html.Hr(),
     dbc.Accordion([
     	dbc.AccordionItem(
@@ -226,8 +228,6 @@ app.layout = html.Div(children=[
     		dbc.Row([dbc.Col(dcc.Markdown('**select country**', style={'textAlign':'right'}), width=2),
     			dbc.Col(dcc.Dropdown(countries, 'Australia', id='unit4'), width=2)]),
     		dbc.Row([dbc.Col(dcc.Markdown('**select year**', style={'textAlign':'right'}), width=2),
-    			#dbc.Col(dcc.Slider(1995, 2020, 1, marks={y:str(y) for y in range(1995,2021)}, updatemode='drag', value=1996, id='year4'))]),
-    			#dbc.Col(daq.Slider(min=1995, max=2020, step=1, value=1998, handleLabel={'showCurrentValue'==True, 'label'=='year'}, id='year4'))]),
     			dbc.Col([html.Br(), html.Br(),
     				daq.Slider(min=1995, max=2020, step=1, value=1998, labelPosition='bottom', handleLabel={'showCurrentValue':True, 'label':' ', 'color':'#3e7cc8'}, size=500, id='year4')])]),
     		dbc.Row(dcc.Graph(figure={}, id='bubble4'))]
@@ -274,8 +274,16 @@ app.layout = html.Div(children=[
     			, label='Sectors', activeTabClassName='fw-bold')
     				])
     			]
-    		, title='Network representation')
-
+    		, title='Network representation'),
+    	dbc.AccordionItem([
+    		dbc.Row([dbc.Col(dcc.Markdown('**select vulnerability**', style={'textAlign':'right'}), width=2),
+    			dbc.Col(dcc.Dropdown(vulnerability_list, 'gas', id='metric7_c'), width=2)]),
+    		dbc.Row([dbc.Col(dcc.Markdown('**select year range**', style={'textAlign':'right'}), width=2),
+    			dbc.Col(dcc.RangeSlider(1995, 2020, 1, None, [1995,2020], tooltip={"placement": "bottom", "always_visible": True}, verticalHeight=100, id='year7_c'), width=5)]),
+    		dbc.Row([dbc.Col(dcc.Markdown('**select number of limit cases**', style={'textAlign':'right'}), width=2),
+    			dbc.Col(dcc.Input(debounce=True, min=1, max=10, value=5, step=1, type='number', id='nb_units7_c'))]),
+    		dbc.Row(dcc.Graph(figure={}, id='rows7_c'))]
+    		, title='Decomposed rows'),
     			
 			], flush=True)
 			])
@@ -398,7 +406,6 @@ def update_snetwork(year6, metric6, mode6, quantile6, scale6):
     dataset = data_s1avg[data_s1avg['year']==year6]
     linkage, vulnerability = np.array(dataset[mode6]), np.array(dataset[metric6])
     tickvals = [2**i for i in range(-3,round(np.log2(vulnerability.max())))]
-    
     Q = np.quantile(ZSs[year6-1995],quantile6)
     Z = np.where(ZSs[year6-1995]>Q,1,0)
     G = nx.from_numpy_matrix(Z)
@@ -407,7 +414,6 @@ def update_snetwork(year6, metric6, mode6, quantile6, scale6):
     G.remove_nodes_from(zero_deg)
     G = nx.relabel_nodes(G, {i:sectors[i] for i in range(NS)})
     pos = nx.kamada_kawai_layout(G)
-    
     edge_x, edge_y = list(chain.from_iterable([(pos[i][0],pos[j][0],None) for i,j in G.edges()])), list(chain.from_iterable([(pos[i][1],pos[j][1],None) for i,j in G.edges()]))
     edge_trace = go.Scatter(x=edge_x, y=edge_y, line=dict(width=.5, color='#888'), mode='lines')
     node_x, node_y = [pos[i][0] for i in G], [pos[i][1] for i in G]
@@ -415,9 +421,15 @@ def update_snetwork(year6, metric6, mode6, quantile6, scale6):
         node_trace = go.Scatter(x=node_x, y=node_y, mode='markers', marker=dict(showscale=True, colorscale='Jet', color=np.log2(vulnerability+.01), size=20*linkage**2, colorbar=dict(thickness=15, xanchor='left', titleside='right', tickvals=np.log2(tickvals), ticktext=tickvals), line_width=2), text=networktext_NS[year6][metric6], hovertemplate='<extra></extra>%{text}', hoverlabel={'font_size':20}, line={'width':0.5, 'color':'black'})
     else:
         node_trace = go.Scatter(x=node_x, y=node_y, mode='markers', marker=dict(showscale=True, colorscale='Jet', color=vulnerability, size=20*linkage**2, colorbar=dict(thickness=15, xanchor='left', titleside='right'), line_width=2), text=networktext_NS[year6][metric6], hovertemplate='<extra></extra>%{text}', hoverlabel={'font_size':20}, line={'width':0.5, 'color':'black'})
-    
-    fig = go.Figure(data=[edge_trace, node_trace], layout=go.Layout(titlefont_size=16, showlegend=False, xaxis=dict(showgrid=False, zeroline=False, showticklabels=False), yaxis=dict(showgrid=False, zeroline=False, showticklabels=False), annotations=[dict(showarrow=True)])).update_layout(width=1000, height=800)
-    return fig
+    return go.Figure(data=[edge_trace, node_trace], layout=go.Layout(titlefont_size=16, showlegend=False, xaxis=dict(showgrid=False, zeroline=False, showticklabels=False), yaxis=dict(showgrid=False, zeroline=False, showticklabels=False), annotations=[dict(showarrow=True)])).update_layout(width=1000, height=800)
+
+@app.callback(Output('rows7_c', 'figure'), [Input(s, 'value') for s in ['metric7_c', 'year7_c', 'nb_units7_c']])
+def update_crows(metric7, year7, nb_units7):
+    year7i, year7f = year7
+    dataset = (data_cavg[data_cavg['year']==year7f][metric7].reset_index(drop=True).subtract(data_cavg[data_cavg['year']==year7i][metric7].reset_index(drop=True))).sort_values()
+    pos_units, neg_units = countries[dataset[-nb_units7:].index], countries[dataset[:nb_units7].index]
+    pos_data, neg_data = np.round(all_pos_data(pos_units,year7i,year7f,metric7),2), np.round(all_neg_data(neg_units,year7i,year7f,metric7),2)
+    return px.bar(neg_data._append(pos_data), y='country', x='length', color='sector', orientation='h', custom_data=['country','sector','length'], text_auto='.2s', height=(nb_units7+1.5)*100).update_layout(font_size=14, hoverlabel={'font_size':22}).update_traces(hovertemplate='<extra></extra><b>%{customdata[0]}: %{customdata[1]},</b><br>contribution to overall<br><b>'+metric7+'</b> vulnerability: %{customdata[2]}')
 
 @app.callback(Output('canvas2_c', 'is_open'), Input('open_canvas2_c', 'n_clicks'), State('canvas2_c', 'is_open'))
 def toggle_ccanvas(n, is_open):
@@ -437,6 +449,44 @@ def toggle_s2canvas(n, is_open):
         return not is_open
     return is_open
 
+def all_pos_data(pos_units,y1_,y2_,fuel_):
+    all_pos_units = pd.DataFrame()
+    for c in pos_units:
+        data_c = deepcopy(H[(H['country']==c)&(H['year']==y2_)][['country','sector',fuel_]].reset_index(drop=True))
+        data_c[fuel_] -= H[(H['country']==c)&(H['year']==y1_)][fuel_].reset_index(drop=True)
+        avg, std = data_c[fuel_].mean(), data_c[fuel_].std()
+        pos_subunits = data_c[data_c[fuel_]>avg+std].reset_index(drop=True).sort_values(fuel_, ascending=False)
+        leftover_vuln = NS*avg-pos_subunits[fuel_].sum()
+        pos_subunits.loc[len(pos_subunits)] = [c,'leftover',leftover_vuln]
+        total_vuln = sum(abs(pos_subunits[fuel_]))
+        if pos_subunits.iloc[-1,-1]<0:
+            total_vuln_pos = sum([i for i in pos_subunits[fuel_] if i>0])
+            pos_subunits['length_ratio'] = [i/total_vuln_pos for i in pos_subunits[fuel_][:-1]] + [total_vuln_pos/total_vuln -1]
+        else:
+            pos_subunits['length_ratio'] = [i/total_vuln for i in pos_subunits[fuel_]]
+        pos_subunits['length'] = pos_subunits['length_ratio']*avg
+        all_pos_units = all_pos_units._append(pos_subunits, ignore_index=True)
+    return all_pos_units
+
+def all_neg_data(neg_units,y1_,y2_,fuel_):
+    all_neg_units = pd.DataFrame()
+    for c in neg_units:
+        data_c = deepcopy(H[(H['country']==c)&(H['year']==y2_)][['country','sector',fuel_]].reset_index(drop=True))
+        data_c[fuel_] -= H[(H['country']==c)&(H['year']==y1_)][fuel_].reset_index(drop=True)
+        avg, std = data_c[fuel_].mean(), data_c[fuel_].std()
+        neg_subunits = data_c[data_c[fuel_]<avg-std].reset_index(drop=True).sort_values(fuel_)
+        leftover_vuln = NS*avg-neg_subunits[fuel_].sum()
+        neg_subunits.loc[len(neg_subunits)] = [c,'leftover',leftover_vuln]
+        total_vuln = -sum(abs(neg_subunits[fuel_]))
+        if neg_subunits.iloc[-1,-1]>0:
+            total_vuln_neg = sum([i for i in neg_subunits[fuel_] if i<0])
+            neg_subunits['length_ratio'] = [i/total_vuln_neg for i in neg_subunits[fuel_][:-1]] + [total_vuln_neg/total_vuln -1]
+        else:
+            neg_subunits['length_ratio'] = [i/total_vuln for i in neg_subunits[fuel_]]
+        neg_subunits['length'] = neg_subunits['length_ratio']*avg
+        all_neg_units = all_neg_units._append(neg_subunits, ignore_index=True)
+    return all_neg_units
+
+
 if __name__ == '__main__':
     app.run_server(debug=True)
-

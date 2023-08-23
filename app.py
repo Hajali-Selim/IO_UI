@@ -55,8 +55,6 @@ for c in countries:
     data_cvuln[c] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg[data_cavg['country']==c][['oil','gas','coal']].unstack().values)).T, columns=['year','sector','vulnerability'])
     data_cvuln[c]['year'], data_cvuln[c]['sector'], data_cvuln[c]['vulnerability'] = data_cvuln[c]['year'].astype(int), data_cvuln[c]['sector'].astype(str), data_cvuln[c]['vulnerability'].astype(float)
 
-#ZCs, ZSs = pickle.load(open('Dataset/Collapsed_data/NC/ZC.txt','rb')), pickle.load(open('Dataset/Collapsed_data/NS/ZS.txt','rb'))
-#ZCs, ZSs = pd.read_csv('ZCs.csv', sep=','), pd.read_csv('ZSs.csv', sep=',')
 ZCs, ZSs = pickle.load(open('ZC.txt','rb')), pickle.load(open('ZS.txt','rb'))
 
 networktext_NC, networktext_NS = {}, {}
@@ -80,12 +78,21 @@ height, width = {'country':17, 'sector':16.5, 'region':16.5}, {'country':27*25, 
 app.layout = html.Div(children=[
     dcc.Markdown('''# visualizing vulnerability v2.0''', style={'textAlign':'center'}),
     html.Div('11/08/2023 (13:30) update: addition of \'waves\' figure'),
+    html.Br(),
     html.Div('11/08/2023 (15:30) update: new colormap and corrected forward linkages'),
+    html.Br(),
     html.Div('18/08/2023 (07:00) update: addition of \'network-representation\' figure'),
-    html.Div('comment: I have no idea why does a diagonal appear in the upper-right corner,'),
+    html.Div('Comment: I have no idea why does a diagonal appear in the upper-right corner,'),
     html.Div('in the meantime, please select the window you want to observe and discard it.'),
+    html.Br(),
     html.Div('18/08/2023 (07:30) update: new year-selection slider for \'bubble plots\''),
+    html.Br(),
     html.Div('22/08/2023 (11:30) update: addition of \'decomposed rows\' figure'),
+    html.Div('Comment from 23/08/2023 (11:00): the \'decomposed rows\' is not functional online yet... but I promise, it does work on my laptop.'),
+    html.Div('I believe this is due to the weak CPU available for free online deployments. That figure, unlike previous ones, requires extensive computations'),
+    html.Div('(relative to the chosen year range) which take, on my laptop 3s and apparently >30s online which causes it to crash in the latter case,'),
+    html.Div('I will explore two solutions: (1) making these computations a lot faster (if doable), (2) generate all the possible combinations on my laptop'),
+    html.Div('and plugging them directly into the app (if importing such a huge new dataset doesn\'t also slow things down).'),
     html.Hr(),
     dbc.Accordion([
     	dbc.AccordionItem(

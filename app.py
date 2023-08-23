@@ -14,6 +14,7 @@ from copy import deepcopy
 import networkx as nx
 from itertools import chain
 
+
 external_stylesheets = [dbc.themes.CERULEAN]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
@@ -54,6 +55,8 @@ for c in countries:
     data_cvuln[c] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg[data_cavg['country']==c][['oil','gas','coal']].unstack().values)).T, columns=['year','sector','vulnerability'])
     data_cvuln[c]['year'], data_cvuln[c]['sector'], data_cvuln[c]['vulnerability'] = data_cvuln[c]['year'].astype(int), data_cvuln[c]['sector'].astype(str), data_cvuln[c]['vulnerability'].astype(float)
 
+#ZCs, ZSs = pickle.load(open('Dataset/Collapsed_data/NC/ZC.txt','rb')), pickle.load(open('Dataset/Collapsed_data/NS/ZS.txt','rb'))
+#ZCs, ZSs = pd.read_csv('ZCs.csv', sep=','), pd.read_csv('ZSs.csv', sep=',')
 ZCs, ZSs = pickle.load(open('ZC.txt','rb')), pickle.load(open('ZS.txt','rb'))
 
 networktext_NC, networktext_NS = {}, {}
@@ -271,12 +274,11 @@ app.layout = html.Div(children=[
     				])
     			]
     		, title='Network representation'),
-	
     	dbc.AccordionItem([
     		dbc.Row([dbc.Col(dcc.Markdown('**select vulnerability**', style={'textAlign':'right'}), width=2),
     			dbc.Col(dcc.Dropdown(vulnerability_list, 'gas', id='metric7_c'), width=2)]),
     		dbc.Row([dbc.Col(dcc.Markdown('**select year range**', style={'textAlign':'right'}), width=2),
-    			dbc.Col(dcc.RangeSlider(1995, 2020, 1, None, [1995,2020], tooltip={"placement": "bottom", "always_visible": True}, verticalHeight=100, id='year7_c'), width=4)]),
+    			dbc.Col(dcc.RangeSlider(1995, 2020, 1, None, [1995,2020], tooltip={"placement": "bottom", "always_visible": True}, verticalHeight=100, id='year7_c'), width=5)]),
     		dbc.Row([dbc.Col(dcc.Markdown('**select number of limit cases**', style={'textAlign':'right'}), width=2),
     			dbc.Col(dcc.Input(debounce=True, min=1, max=10, value=5, step=1, type='number', id='nb_units7_c'))]),
     		dbc.Row(dcc.Graph(figure={}, id='rows7_c'))]
@@ -446,7 +448,7 @@ def toggle_s2canvas(n, is_open):
         return not is_open
     return is_open
 
-def all_pos_data(pos_units,y1_,y2_,fuel_):
+def all_pos_data_c(pos_units,y1_,y2_,fuel_):
     all_pos_units = pd.DataFrame()
     for c in pos_units:
         data_c = deepcopy(H[(H['country']==c)&(H['year']==y2_)][['country','sector',fuel_]].reset_index(drop=True))
@@ -454,7 +456,7 @@ def all_pos_data(pos_units,y1_,y2_,fuel_):
         avg, std = data_c[fuel_].mean(), data_c[fuel_].std()
         pos_subunits = data_c[data_c[fuel_]>avg+std].reset_index(drop=True).sort_values(fuel_, ascending=False)
         leftover_vuln = NS*avg-pos_subunits[fuel_].sum()
-        pos_subunits.loc[len(pos_subunits)] = [c,'Others',leftover_vuln]
+        pos_subunits.loc[len(pos_subunits)] = [c,'leftover',leftover_vuln]
         total_vuln = sum(abs(pos_subunits[fuel_]))
         if pos_subunits.iloc[-1,-1]<0:
             total_vuln_pos = sum([i for i in pos_subunits[fuel_] if i>0])
@@ -465,7 +467,7 @@ def all_pos_data(pos_units,y1_,y2_,fuel_):
         all_pos_units = all_pos_units._append(pos_subunits, ignore_index=True)
     return all_pos_units
 
-def all_neg_data(neg_units,y1_,y2_,fuel_):
+def all_neg_data_c(neg_units,y1_,y2_,fuel_):
     all_neg_units = pd.DataFrame()
     for c in neg_units:
         data_c = deepcopy(H[(H['country']==c)&(H['year']==y2_)][['country','sector',fuel_]].reset_index(drop=True))
@@ -473,7 +475,7 @@ def all_neg_data(neg_units,y1_,y2_,fuel_):
         avg, std = data_c[fuel_].mean(), data_c[fuel_].std()
         neg_subunits = data_c[data_c[fuel_]<avg-std].reset_index(drop=True).sort_values(fuel_)
         leftover_vuln = NS*avg-neg_subunits[fuel_].sum()
-        neg_subunits.loc[len(neg_subunits)] = [c,'leftover',leftover_vuln]
+        neg_subunits.loc[len(neg_subunits)] = [c,'Others',leftover_vuln]
         total_vuln = -sum(abs(neg_subunits[fuel_]))
         if neg_subunits.iloc[-1,-1]>0:
             total_vuln_neg = sum([i for i in neg_subunits[fuel_] if i<0])

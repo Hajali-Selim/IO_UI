@@ -443,7 +443,7 @@ def update_snetwork(year6, metric6, mode6, quantile6, scale6):
 @app.callback(Output('rows7_c', 'figure'), [Input(s, 'value') for s in ['metric7_c', 'year7_c', 'nb_units7_c']])
 def update_crows(metric7, year7, nb_units7):
     year7i, year7f = year7
-    dataset = shifts['country'][metric7][year7i]
+    dataset = deepcopy(shifts['country'][metric7][year7i])
     dataset = dataset[dataset['year']==year7f]
     sorted_c = dataset['country'].unique()
     dataset['country'] = dataset['country'].astype('category').cat.set_categories(sorted_c, ordered=True)
@@ -454,29 +454,13 @@ def update_crows(metric7, year7, nb_units7):
 @app.callback(Output('rows7_s', 'figure'), [Input(s, 'value') for s in ['metric7_s', 'year7_s', 'nb_units7_s']])
 def update_srows(metric7, year7, nb_units7):
     year7i, year7f = year7
-    dataset = shifts['sector'][metric7][year7i]
+    dataset = deepcopy(shifts['sector'][metric7][year7i])
     dataset = dataset[dataset['year']==year7f]
     sorted_s = dataset['sector'].unique()
     dataset['sector'] = dataset['sector'].astype('category').cat.set_categories(sorted_s, ordered=True)
     pos_limit, neg_limit = sorted_s[nb_units7], sorted_s[-nb_units7-1]
     pos_data, neg_data = dataset[dataset['sector']<pos_limit], dataset[dataset['sector']>neg_limit]
     return px.bar(neg_data._append(pos_data), y='sector', x='length', color='country', orientation='h', custom_data=['country','sector','length'], text_auto='.2s', height=(nb_units7+1.5)*100).update_layout(font_size=14, hoverlabel={'font_size':22}).update_traces(hovertemplate='<extra></extra>%{customdata[1]}: <b>%{customdata[0]},</b><br>contribution to overall<br><b>'+metric7+'</b> vulnerability: %{customdata[2]}')
-
-#@app.callback(Output('rows7_c', 'figure'), [Input(s, 'value') for s in ['metric7_c', 'year7_c', 'nb_units7_c']])
-#def update_crows(metric7, year7, nb_units7):
-#    year7i, year7f = year7
-#    dataset = (data_cavg[data_cavg['year']==year7f][metric7].reset_index(drop=True).subtract(data_cavg[data_cavg['year']==year7i][metric7].reset_index(drop=True))).sort_values()
-#    pos_units, neg_units = countries[dataset[-nb_units7:].index], countries[dataset[:nb_units7].index]
-#    pos_data, neg_data = all_pos_data('country',pos_units,year7i,year7f,metric7), all_neg_data('country',neg_units,year7i,year7f,metric7)
-#    return px.bar(neg_data._append(pos_data), y='country', x='length', color='sector', orientation='h', custom_data=['country','sector','length'], text_auto='.2s', height=(nb_units7+1.5)*100).update_layout(font_size=14, hoverlabel={'font_size':22}).update_traces(hovertemplate='<extra></extra>%{customdata[0]}: <b>%{customdata[1]},</b><br>contribution to overall<br><b>'+metric7+'</b> vulnerability: %{customdata[2]}')
-
-#@app.callback(Output('rows7_s', 'figure'), [Input(s, 'value') for s in ['metric7_s', 'year7_s', 'nb_units7_s']])
-#def update_srows(metric7, year7, nb_units7):
-#    year7i, year7f = year7
-#    dataset = (data_s1avg[data_s1avg['year']==year7f][metric7].reset_index(drop=True).subtract(data_s1avg[data_s1avg['year']==year7i][metric7].reset_index(drop=True))).sort_values()
-#    pos_units, neg_units = sectors[dataset[-nb_units7:].index], sectors[dataset[:nb_units7].index]
-#    pos_data, neg_data = all_pos_data('sector',pos_units,year7i,year7f,metric7), all_neg_data('sector',neg_units,year7i,year7f,metric7)
-#    return px.bar(neg_data._append(pos_data), y='sector', x='length', color='country', orientation='h', custom_data=['country','sector','length'], text_auto='.2s', height=(nb_units7+1.5)*100).update_layout(font_size=14, hoverlabel={'font_size':22}).update_traces(hovertemplate='<extra></extra>%{customdata[1]}: <b>%{customdata[0]},</b><br>contribution to overall<br><b>'+metric7+'</b> vulnerability: %{customdata[2]}')
 
 @app.callback(Output('canvas2_c', 'is_open'), Input('open_canvas2_c', 'n_clicks'), State('canvas2_c', 'is_open'))
 def toggle_ccanvas(n, is_open):

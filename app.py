@@ -38,7 +38,7 @@ units_list = ['region', 'country', 'sector']
 vulnerability_list, structural_list, monetary_list = ['coal', 'gas', 'oil', 'all three fossil fuels'], ['in-degree', 'out-degree', 'weighted in-degree', 'weighted out-degree', 'betweenness'], ['forward linkage', 'backward linkage']
 metrics_list = vulnerability_list+structural_list+monetary_list
 ordering_list = ['original', 'descending', 'ascending']
-shifts = {'country': {fuel: {y1: pd.read_csv('shifts/countries/'+fuel+'/from_'+str(y1)'.csv', sep=',') for y1 in range(1995,2020)} for fuel in vulnerability_list}, 'sector': {fuel: {y1: {y2: pd.read_csv('shifts/sectors/'+fuel+'/from_'+str(y1)'.csv', sep=',') for y1 in range(1995,2020)} for fuel in vulnerability_list}}
+shifts = {'country': {fuel: {y1: np.round(pd.read_csv('shifts/countries/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}, 'sector': {fuel: {y1: np.round(pd.read_csv('shifts/sectors/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}}
 
 H[metrics_list], Hv[metrics_list] = H[metrics_list].astype(float), Hv[metrics_list].astype(float)
 for s in ['year','transition']+units_list:
@@ -54,7 +54,6 @@ data_cvuln = {}
 for c in countries:
     data_cvuln[c] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg[data_cavg['country']==c][['oil','gas','coal']].unstack().values)).T, columns=['year','sector','vulnerability'])
     data_cvuln[c]['year'], data_cvuln[c]['sector'], data_cvuln[c]['vulnerability'] = data_cvuln[c]['year'].astype(int), data_cvuln[c]['sector'].astype(str), data_cvuln[c]['vulnerability'].astype(float)
-
 
 ZCs, ZSs = pickle.load(open('ZC.txt','rb')), pickle.load(open('ZS.txt','rb'))
 networktext_NC, networktext_NS = {}, {}
@@ -88,11 +87,8 @@ app.layout = html.Div(children=[
     html.Div('18/08/2023 (07:30) update: new year-selection slider for \'bubble plots\''),
     html.Br(),
     html.Div('22/08/2023 (11:30) update: addition of \'decomposed rows\' figure'),
-    html.Div('Comment from 23/08/2023 (11:00): the \'decomposed rows\' is not functional online yet... but I promise, it does work on my laptop.'),
-    html.Div('I believe this is due to the weak CPU available for free online deployments. That figure, unlike previous ones, requires extensive computations'),
-    html.Div('(relative to the chosen year range) which take, on my laptop 3s and apparently >30s online which causes it to crash in the latter case,'),
-    html.Div('I will explore two solutions: (1) making these computations a lot faster (if doable), (2) generate all the possible combinations on my laptop'),
-    html.Div('and plugging them directly into the app (if importing such a huge new dataset doesn\'t also slow things down).'),
+    html.Br(),
+    html.Div('25/08/2023 (17:30) update: \'decomposed rows\' is now functional, it is also available for sectors, in addition to countries.'),
     html.Hr(),
     dbc.Accordion([
     	dbc.AccordionItem(
@@ -458,7 +454,7 @@ def update_crows(metric7, year7, nb_units7):
 @app.callback(Output('rows7_s', 'figure'), [Input(s, 'value') for s in ['metric7_s', 'year7_s', 'nb_units7_s']])
 def update_srows(metric7, year7, nb_units7):
     year7i, year7f = year7
-    dataset = shifts['sector'][metric7][year7i][year7f]
+    dataset = shifts['sector'][metric7][year7i]
     dataset = dataset[dataset['year']==year7f]
     sorted_s = dataset['sector'].unique()
     dataset['sector'] = dataset['sector'].astype('category').cat.set_categories(sorted_s, ordered=True)

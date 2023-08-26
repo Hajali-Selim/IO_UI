@@ -38,7 +38,7 @@ units_list = ['region', 'country', 'sector']
 vulnerability_list, structural_list, monetary_list = ['coal', 'gas', 'oil', 'all three fossil fuels'], ['in-degree', 'out-degree', 'weighted in-degree', 'weighted out-degree', 'betweenness'], ['forward linkage', 'backward linkage']
 metrics_list = vulnerability_list+structural_list+monetary_list
 ordering_list = ['original', 'descending', 'ascending']
-shifts = {'country': {fuel: {y1: np.round(pd.read_csv('shifts/countries/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}, 'sector': {fuel: {y1: np.round(pd.read_csv('shifts/sectors/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}}
+#shifts = {'country': {fuel: {y1: np.round(pd.read_csv('shifts/countries/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}, 'sector': {fuel: {y1: np.round(pd.read_csv('shifts/sectors/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}}
 
 H[metrics_list], Hv[metrics_list] = H[metrics_list].astype(float), Hv[metrics_list].astype(float)
 for s in ['year','transition']+units_list:
@@ -432,7 +432,9 @@ def update_snetwork(year6, metric6, mode6, quantile6, scale6):
 @app.callback(Output('rows7_c', 'figure'), [Input(s, 'value') for s in ['metric7_c', 'year7_c', 'nb_units7_c']])
 def update_crows(metric7, year7, nb_units7):
     year7i, year7f = year7
-    dataset = deepcopy(shifts['country'][metric7][year7i])
+    #shifts = {'country': {fuel: {y1: np.round(pd.read_csv('shifts/countries/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}, 'sector': {fuel: {y1: np.round(pd.read_csv('shifts/sectors/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}}
+    dataset = np.round(pd.read_csv('shifts/countries/'+metric7+'/from_'+year7i+'.csv', sep=','),2)
+    #dataset = deepcopy(shifts['country'][metric7][year7i])
     dataset = dataset[dataset['year']==year7f]
     sorted_c = dataset['country'].unique()
     dataset['country'] = dataset['country'].astype('category').cat.set_categories(sorted_c, ordered=True)
@@ -443,7 +445,8 @@ def update_crows(metric7, year7, nb_units7):
 @app.callback(Output('rows7_s', 'figure'), [Input(s, 'value') for s in ['metric7_s', 'year7_s', 'nb_units7_s']])
 def update_srows(metric7, year7, nb_units7):
     year7i, year7f = year7
-    dataset = deepcopy(shifts['sector'][metric7][year7i])
+    #dataset = deepcopy(shifts['sector'][metric7][year7i])
+    dataset = np.round(pd.read_csv('shifts/sectors/'+metric7+'/from_'+year7i+'.csv', sep=','),2)
     dataset = dataset[dataset['year']==year7f]
     sorted_s = dataset['sector'].unique()
     dataset['sector'] = dataset['sector'].astype('category').cat.set_categories(sorted_s, ordered=True)

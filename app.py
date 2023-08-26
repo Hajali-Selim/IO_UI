@@ -77,17 +77,10 @@ height, width = {'country':17, 'sector':16.5, 'region':16.5}, {'country':27*25, 
 app.layout = html.Div(children=[
     dcc.Markdown('''# visualizing vulnerability v2.0''', style={'textAlign':'center'}),
     html.Div('11/08/2023 (13:30) update: addition of \'waves\' figure'),
-    html.Br(),
     html.Div('11/08/2023 (15:30) update: new colormap and corrected forward linkages'),
-    html.Br(),
     html.Div('18/08/2023 (07:00) update: addition of \'network-representation\' figure'),
-    html.Div('Comment: I have no idea why does a diagonal appear in the upper-right corner,'),
-    html.Div('in the meantime, please select the window you want to observe and discard it.'),
-    html.Br(),
     html.Div('18/08/2023 (07:30) update: new year-selection slider for \'bubble plots\''),
-    html.Br(),
     html.Div('22/08/2023 (11:30) update: addition of \'decomposed rows\' figure'),
-    html.Br(),
     html.Div('25/08/2023 (17:30) update: \'decomposed rows\' is now functional, it is also available for sectors, in addition to countries.'),
     html.Hr(),
     dbc.Accordion([
@@ -396,7 +389,6 @@ def update_cnetwork(year6, metric6, mode6, quantile6, scale6):
     dataset = data_cavg[data_cavg['year']==year6]
     linkage, vulnerability = np.array(dataset[mode6]), np.array(dataset[metric6])
     tickvals = [2**i for i in range(-3,round(np.log2(vulnerability.max())))]
-    
     Q = np.quantile(ZCs[year6-1995], quantile6)
     Z = np.where(ZCs[year6-1995]>Q,1,0)
     G = nx.from_numpy_matrix(Z)
@@ -405,7 +397,6 @@ def update_cnetwork(year6, metric6, mode6, quantile6, scale6):
     G.remove_nodes_from(zero_deg)
     G = nx.relabel_nodes(G, {i:countries[i] for i in range(NC)})
     pos = nx.kamada_kawai_layout(G)
-    
     edge_x, edge_y = list(chain.from_iterable([(pos[i][0],pos[j][0],None) for i,j in G.edges()])), list(chain.from_iterable([(pos[i][1],pos[j][1],None) for i,j in G.edges()]))
     edge_trace = go.Scatter(x=edge_x, y=edge_y, line=dict(width=.5, color='#888'), mode='lines')
     node_x, node_y = [pos[i][0] for i in G], [pos[i][1] for i in G]
@@ -413,9 +404,7 @@ def update_cnetwork(year6, metric6, mode6, quantile6, scale6):
         node_trace = go.Scatter(x=node_x, y=node_y, mode='markers', marker=dict(showscale=True, colorscale='Jet', color=np.log2(vulnerability), size=20*linkage**2, colorbar=dict(thickness=15, xanchor='left', titleside='right', tickvals=np.log2(tickvals), ticktext=tickvals), line_width=2), text=networktext_NC[year6][metric6], hovertemplate='<extra></extra>%{text}', hoverlabel={'font_size':20}, line={'width':0.5, 'color':'black'})
     else:
         node_trace = go.Scatter(x=node_x, y=node_y, mode='markers', marker=dict(showscale=True, colorscale='Jet', color=vulnerability, size=20*linkage**2, colorbar=dict(thickness=15, xanchor='left', titleside='right'), line_width=2), text=networktext_NC[year6][metric6], hovertemplate='<extra></extra>%{text}', hoverlabel={'font_size':20}, line={'width':0.5, 'color':'black'})
-    
-    fig = go.Figure(data=[edge_trace, node_trace], layout=go.Layout(titlefont_size=16, showlegend=False, xaxis=dict(showgrid=False, zeroline=False, showticklabels=False), yaxis=dict(showgrid=False, zeroline=False, showticklabels=False), annotations=[dict(showarrow=True)])).update_layout(width=1000, height=800)
-    return fig
+    return go.Figure(data=[edge_trace, node_trace], layout=go.Layout(titlefont_size=16, showlegend=False, xaxis=dict(showgrid=False, zeroline=False, showticklabels=False), yaxis=dict(showgrid=False, zeroline=False, showticklabels=False))).update_layout(width=1000, height=800)
 
 @callback(Output('network6_s', 'figure'), [Input(s, 'value') for s in ['year6_s', 'metric6_s', 'mode6_s', 'quantile6_s']]+[Input('scale6_s','on')])
 def update_snetwork(year6, metric6, mode6, quantile6, scale6):
@@ -438,7 +427,7 @@ def update_snetwork(year6, metric6, mode6, quantile6, scale6):
         node_trace = go.Scatter(x=node_x, y=node_y, mode='markers', marker=dict(showscale=True, colorscale='Jet', color=np.log2(vulnerability+.01), size=20*linkage**2, colorbar=dict(thickness=15, xanchor='left', titleside='right', tickvals=np.log2(tickvals), ticktext=tickvals), line_width=2), text=networktext_NS[year6][metric6], hovertemplate='<extra></extra>%{text}', hoverlabel={'font_size':20}, line={'width':0.5, 'color':'black'})
     else:
         node_trace = go.Scatter(x=node_x, y=node_y, mode='markers', marker=dict(showscale=True, colorscale='Jet', color=vulnerability, size=20*linkage**2, colorbar=dict(thickness=15, xanchor='left', titleside='right'), line_width=2), text=networktext_NS[year6][metric6], hovertemplate='<extra></extra>%{text}', hoverlabel={'font_size':20}, line={'width':0.5, 'color':'black'})
-    return go.Figure(data=[edge_trace, node_trace], layout=go.Layout(titlefont_size=16, showlegend=False, xaxis=dict(showgrid=False, zeroline=False, showticklabels=False), yaxis=dict(showgrid=False, zeroline=False, showticklabels=False), annotations=[dict(showarrow=True)])).update_layout(width=1000, height=800)
+    return go.Figure(data=[edge_trace, node_trace], layout=go.Layout(titlefont_size=16, showlegend=False, xaxis=dict(showgrid=False, zeroline=False, showticklabels=False), yaxis=dict(showgrid=False, zeroline=False, showticklabels=False))).update_layout(width=1000, height=800)
 
 @app.callback(Output('rows7_c', 'figure'), [Input(s, 'value') for s in ['metric7_c', 'year7_c', 'nb_units7_c']])
 def update_crows(metric7, year7, nb_units7):

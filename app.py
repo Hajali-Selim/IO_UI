@@ -38,7 +38,7 @@ units_list = ['region', 'country', 'sector']
 vulnerability_list, structural_list, monetary_list = ['coal', 'gas', 'oil', 'all three fossil fuels'], ['in-degree', 'out-degree', 'weighted in-degree', 'weighted out-degree', 'betweenness'], ['forward linkage', 'backward linkage']
 metrics_list = vulnerability_list+structural_list+monetary_list
 ordering_list = ['original', 'descending', 'ascending']
-#shifts = {'country': {fuel: {y1: np.round(pd.read_csv('shifts/countries/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}, 'sector': {fuel: {y1: np.round(pd.read_csv('shifts/sectors/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}}
+shifts = {'country': {fuel: {y1: np.round(pd.read_csv('shifts/countries/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}, 'sector': {fuel: {y1: np.round(pd.read_csv('shifts/sectors/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}}
 
 H[metrics_list], Hv[metrics_list] = H[metrics_list].astype(float), Hv[metrics_list].astype(float)
 for s in ['year','transition']+units_list:
@@ -55,17 +55,21 @@ for c in countries:
     data_cvuln[c] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg[data_cavg['country']==c][['oil','gas','coal']].unstack().values)).T, columns=['year','sector','vulnerability'])
     data_cvuln[c]['year'], data_cvuln[c]['sector'], data_cvuln[c]['vulnerability'] = data_cvuln[c]['year'].astype(int), data_cvuln[c]['sector'].astype(str), data_cvuln[c]['vulnerability'].astype(float)
 
-ZCs, ZSs = pickle.load(open('ZC.txt','rb')), pickle.load(open('ZS.txt','rb'))
-networktext_NC, networktext_NS = {}, {}
+ZCs, ZSs, ZC1 = pickle.load(open('ZC.txt','rb')), pickle.load(open('ZS.txt','rb')), {y:pickle.load(open('Zcountry/'+str(y)+'.txt','rb')) for y in range(1995,2021)}
+networktext_NC, networktext_NS, networktext_NC1 = {}, {}, {}
 for y in range(1995,2021):
-    networktext_NC[y], networktext_NS[y] = {}, {}
+    networktext_NC[y], networktext_NS[y], networktext_NC1[y] = {}, {}, {}
     rfl_NC, rbl_NC, rout_NC, rin_NC = np.array(np.round(data_cavg[data_cavg['year']==y]['forward linkage'],2)), np.array(np.round(data_cavg[data_cavg['year']==y]['backward linkage'],2)), np.array(np.round(data_cavg[data_cavg['year']==y]['out-degree'],1)), np.array(np.round(data_cavg[data_cavg['year']==y]['in-degree'],1))
     rfl_NS, rbl_NS, rout_NS, rin_NS = np.array(np.round(data_s1avg[data_s1avg['year']==y]['forward linkage'],2)), np.array(np.round(data_s1avg[data_s1avg['year']==y]['backward linkage'],2)), np.array(np.round(data_s1avg[data_s1avg['year']==y]['out-degree'],1)), np.array(np.round(data_s1avg[data_s1avg['year']==y]['in-degree'],1))
+    rfl_NC1, rbl_NC1, rout_NC1, rin_NC1 = {c:np.array(np.round(H[(H['country']==c)&(H['year']==y)]['forward linkage'],2)) for c in countries}, {c:np.array(np.round(H[(H['country']==c)&(H['year']==y)]['backward linkage'],2)) for c in countries}, {c:np.array(np.round(H[(H['country']==c)&(H['year']==y)]['out-degree'],2)) for c in countries}, {c:np.array(np.round(H[(H['country']==c)&(H['year']==y)]['in-degree'],2)) for c in countries}
     for fuel in ['coal','gas','oil','all three fossil fuels']:
-        rvuln_NC, rvuln_NS = np.array(np.round(data_cavg[data_cavg['year']==y][fuel],2)), np.array(np.round(data_s1avg[data_s1avg['year']==y][fuel],2))
-        networktext_NC[y][fuel], networktext_NS[y][fuel] = [], []
+        rvuln_NC, rvuln_NS, rvuln_NC1 = np.array(np.round(data_cavg[data_cavg['year']==y][fuel],2)), np.array(np.round(data_s1avg[data_s1avg['year']==y][fuel],2)), {c:np.array(np.round(H[(H['country']==c)&(H['year']==y)][fuel],2)) for c in countries}
+        networktext_NC[y][fuel], networktext_NS[y][fuel], networktext_NC1[y][fuel] = [], [], {}
         for c in range(NC):
             networktext_NC[y][fuel].append('<b>'+str(countries[c])+'</b><br>'+str(fuel)+' vulnerability = '+str(rvuln_NC[c])+'<br>forward linkage = '+str(rfl_NC[c])+'<br>backward linkage = '+str(rbl_NC[c])+'<br>out-degree = '+str(rout_NC[c])+'<br>in-degree = '+str(rin_NC[c]))
+            networktext_NC1[y][fuel][countries[c]] = []
+            for s in range(NS):
+                networktext_NC1[y][fuel][countries[c]].append('<b>'+str(sectors[s])+'</b><br>'+str(fuel)+' vulnerability = '+str(rvuln_NC1[countries[c]][s])+'<br>forward linkage = '+str(rfl_NC1[countries[c]][s])+'<br>backward linkage = '+str(rbl_NC1[countries[c]][s])+'<br>out-degree = '+str(rout_NC1[countries[c]][s])+'<br>in-degree = '+str(rin_NC1[countries[c]][s]))
         for s in range(NS):
             networktext_NS[y][fuel].append('<b>'+str(sectors[s])+'</b><br>'+str(fuel)+' vulnerability = '+str(rvuln_NS[s])+'<br>forward linkage = '+str(rfl_NS[s])+'<br>backward linkage = '+str(rbl_NS[s])+'<br>out-degree = '+str(rout_NS[s])+'<br>in-degree = '+str(rin_NS[s]))
 
@@ -77,10 +81,17 @@ height, width = {'country':17, 'sector':16.5, 'region':16.5}, {'country':27*25, 
 app.layout = html.Div(children=[
     dcc.Markdown('''# visualizing vulnerability v2.0''', style={'textAlign':'center'}),
     html.Div('11/08/2023 (13:30) update: addition of \'waves\' figure'),
+    html.Br(),
     html.Div('11/08/2023 (15:30) update: new colormap and corrected forward linkages'),
+    html.Br(),
     html.Div('18/08/2023 (07:00) update: addition of \'network-representation\' figure'),
+    html.Div('Comment: I have no idea why does a diagonal appear in the upper-right corner,'),
+    html.Div('in the meantime, please select the window you want to observe and discard it.'),
+    html.Br(),
     html.Div('18/08/2023 (07:30) update: new year-selection slider for \'bubble plots\''),
+    html.Br(),
     html.Div('22/08/2023 (11:30) update: addition of \'decomposed rows\' figure'),
+    html.Br(),
     html.Div('25/08/2023 (17:30) update: \'decomposed rows\' is now functional, it is also available for sectors, in addition to countries.'),
     html.Hr(),
     dbc.Accordion([
@@ -266,7 +277,26 @@ app.layout = html.Div(children=[
     				dbc.Col(daq.BooleanSwitch(on=True, color='#3e7cc8', id='scale6_s'), width=1)
     				]),
     			dbc.Row(dcc.Graph(figure={}, id='network6_s'))]
-    			, label='Sectors', activeTabClassName='fw-bold')
+    			, label='Sectors', activeTabClassName='fw-bold'),
+    			
+    			dbc.Tab([
+    			dbc.Row([dbc.Col(dcc.Markdown('**select year**', style={'textAlign':'right'}), width=3),
+    				dbc.Col(dcc.Dropdown(list(range(1995,2021)), 2000, id='year6_sc'), width=1)]),
+    			dbc.Row([dbc.Col(dcc.Markdown('**select country**', style={'textAlign':'right'}), width=3),
+    				dbc.Col(dcc.Dropdown(countries_list, 'Germany', id='unit6_sc'), width=1)]),
+    			dbc.Row([dbc.Col(dcc.Markdown('**select vulnerability (color)**', style={'textAlign':'right'}), width=3),
+    				dbc.Col(dcc.Dropdown(vulnerability_list, 'gas', id='metric6_sc'), width=2)]),
+    			dbc.Row([dbc.Col(dcc.Markdown('**select linkage (size)**', style={'textAlign':'right'}), width=3),
+    				dbc.Col(dcc.RadioItems(monetary_list, 'forward linkage', inline=False, inputStyle={'margin-right':'10px', 'margin-bottom':'10px'}, id='mode6_sc'), width=2)]),
+    			dbc.Row([dbc.Col(dcc.Markdown('''**select binarization threshold
+    					quantile (connectedness)**''', style={'textAlign':'right'}), width=3),
+    				dbc.Col(dcc.Input(debounce=True, min=.8, max=.99, value=.9, step=.01, type='number', id='quantile6_sc'))]),
+    			dbc.Row([dbc.Col(dcc.Markdown('**log2-scaled vulnerability**', style={'textAlign':'right'}), width=3),
+    				dbc.Col(daq.BooleanSwitch(on=True, color='#3e7cc8', id='scale6_sc'), width=1)
+    				]),
+    			dbc.Row(dcc.Graph(figure={}, id='network6_sc'))]
+    			, label='Single country', activeTabClassName='fw-bold')
+    			
     				])
     			]
     		, title='Network representation'),
@@ -429,12 +459,34 @@ def update_snetwork(year6, metric6, mode6, quantile6, scale6):
         node_trace = go.Scatter(x=node_x, y=node_y, mode='markers', marker=dict(showscale=True, colorscale='Jet', color=vulnerability, size=20*linkage**2, colorbar=dict(thickness=15, xanchor='left', titleside='right'), line_width=2), text=networktext_NS[year6][metric6], hovertemplate='<extra></extra>%{text}', hoverlabel={'font_size':20}, line={'width':0.5, 'color':'black'})
     return go.Figure(data=[edge_trace, node_trace], layout=go.Layout(titlefont_size=16, showlegend=False, xaxis=dict(showgrid=False, zeroline=False, showticklabels=False), yaxis=dict(showgrid=False, zeroline=False, showticklabels=False))).update_layout(width=1000, height=800)
 
+@callback(Output('network6_sc', 'figure'), [Input(s, 'value') for s in ['year6_sc', 'unit6_sc', 'metric6_sc', 'mode6_sc', 'quantile6_sc']]+[Input('scale6_sc','on')])
+def update_scnetwork(year6, unit6, metric6, mode6, quantile6, scale6):
+    global ZC1, networktext_NC1
+    dataset = H[(H['country']==unit6)&(H['year']==year6)]
+    linkage, vulnerability, c_idx = np.array(dataset[mode6]), np.array(dataset[metric6]), country_to_idx[unit6]
+    tickvals = [2**i for i in range(-3,3)]#round(np.log2(vulnerability.max())))]
+    Q = np.quantile(ZC1[year6-1995][c_idx],quantile6)
+    Z = np.where(ZC1[year6-1995][c_idx]>Q,1,0)
+    G = nx.from_numpy_matrix(Z)
+    zero_deg = [i for i in G if G.degree(i)==0]
+    nonzero_deg = [i for i in G if G.degree(i)]
+    G.remove_nodes_from(zero_deg)
+    G = nx.relabel_nodes(G, {i:sectors[i] for i in range(NS)})
+    pos = nx.kamada_kawai_layout(G)
+    pos = nx.spring_layout(G)
+    edge_x, edge_y = list(chain.from_iterable([(pos[i][0],pos[j][0],None) for i,j in G.edges()])), list(chain.from_iterable([(pos[i][1],pos[j][1],None) for i,j in G.edges()]))
+    edge_trace = go.Scatter(x=edge_x, y=edge_y, line=dict(width=.5, color='#888'), mode='lines')
+    node_x, node_y = [pos[i][0] for i in G], [pos[i][1] for i in G]
+    if scale6:
+        node_trace = go.Scatter(x=node_x, y=node_y, mode='markers', marker=dict(showscale=True, colorscale='Jet', color=np.log2(vulnerability+.01), size=20*linkage, colorbar=dict(thickness=15, xanchor='left', titleside='right', tickvals=np.log2(tickvals), ticktext=tickvals), line_width=2), text=networktext_NC1[year6][metric6][unit6], hovertemplate='<extra></extra>%{text}', hoverlabel={'font_size':20}, line={'width':0.5, 'color':'black'})
+    else:
+        node_trace = go.Scatter(x=node_x, y=node_y, mode='markers', marker=dict(showscale=True, colorscale='Jet', color=vulnerability, size=20*linkage, colorbar=dict(thickness=15, xanchor='left', titleside='right'), line_width=2), text=networktext_NC1[year6][metric6][unit6], hovertemplate='<extra></extra>%{text}', hoverlabel={'font_size':20}, line={'width':0.5, 'color':'black'})
+    return go.Figure(data=[edge_trace, node_trace], layout=go.Layout(titlefont_size=16, showlegend=False, xaxis=dict(showgrid=False, zeroline=False, showticklabels=False), yaxis=dict(showgrid=False, zeroline=False, showticklabels=False))).update_layout(width=1000, height=800)
+
 @app.callback(Output('rows7_c', 'figure'), [Input(s, 'value') for s in ['metric7_c', 'year7_c', 'nb_units7_c']])
 def update_crows(metric7, year7, nb_units7):
     year7i, year7f = year7
-    #shifts = {'country': {fuel: {y1: np.round(pd.read_csv('shifts/countries/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}, 'sector': {fuel: {y1: np.round(pd.read_csv('shifts/sectors/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}}
-    dataset = np.round(pd.read_csv('shifts/countries/'+metric7+'/from_'+year7i+'.csv', sep=','),2)
-    #dataset = deepcopy(shifts['country'][metric7][year7i])
+    dataset = deepcopy(shifts['country'][metric7][year7i])
     dataset = dataset[dataset['year']==year7f]
     sorted_c = dataset['country'].unique()
     dataset['country'] = dataset['country'].astype('category').cat.set_categories(sorted_c, ordered=True)
@@ -445,14 +497,29 @@ def update_crows(metric7, year7, nb_units7):
 @app.callback(Output('rows7_s', 'figure'), [Input(s, 'value') for s in ['metric7_s', 'year7_s', 'nb_units7_s']])
 def update_srows(metric7, year7, nb_units7):
     year7i, year7f = year7
-    #dataset = deepcopy(shifts['sector'][metric7][year7i])
-    dataset = np.round(pd.read_csv('shifts/sectors/'+metric7+'/from_'+year7i+'.csv', sep=','),2)
+    dataset = deepcopy(shifts['sector'][metric7][year7i])
     dataset = dataset[dataset['year']==year7f]
     sorted_s = dataset['sector'].unique()
     dataset['sector'] = dataset['sector'].astype('category').cat.set_categories(sorted_s, ordered=True)
     pos_limit, neg_limit = sorted_s[nb_units7], sorted_s[-nb_units7-1]
     pos_data, neg_data = dataset[dataset['sector']<pos_limit], dataset[dataset['sector']>neg_limit]
     return px.bar(neg_data._append(pos_data), y='sector', x='length', color='country', orientation='h', custom_data=['country','sector','length'], text_auto='.2s', height=(nb_units7+1.5)*100).update_layout(font_size=14, hoverlabel={'font_size':22}).update_traces(hovertemplate='<extra></extra>%{customdata[1]}: <b>%{customdata[0]},</b><br>contribution to overall<br><b>'+metric7+'</b> vulnerability: %{customdata[2]}')
+
+#@app.callback(Output('rows7_c', 'figure'), [Input(s, 'value') for s in ['metric7_c', 'year7_c', 'nb_units7_c']])
+#def update_crows(metric7, year7, nb_units7):
+#    year7i, year7f = year7
+#    dataset = (data_cavg[data_cavg['year']==year7f][metric7].reset_index(drop=True).subtract(data_cavg[data_cavg['year']==year7i][metric7].reset_index(drop=True))).sort_values()
+#    pos_units, neg_units = countries[dataset[-nb_units7:].index], countries[dataset[:nb_units7].index]
+#    pos_data, neg_data = all_pos_data('country',pos_units,year7i,year7f,metric7), all_neg_data('country',neg_units,year7i,year7f,metric7)
+#    return px.bar(neg_data._append(pos_data), y='country', x='length', color='sector', orientation='h', custom_data=['country','sector','length'], text_auto='.2s', height=(nb_units7+1.5)*100).update_layout(font_size=14, hoverlabel={'font_size':22}).update_traces(hovertemplate='<extra></extra>%{customdata[0]}: <b>%{customdata[1]},</b><br>contribution to overall<br><b>'+metric7+'</b> vulnerability: %{customdata[2]}')
+
+#@app.callback(Output('rows7_s', 'figure'), [Input(s, 'value') for s in ['metric7_s', 'year7_s', 'nb_units7_s']])
+#def update_srows(metric7, year7, nb_units7):
+#    year7i, year7f = year7
+#    dataset = (data_s1avg[data_s1avg['year']==year7f][metric7].reset_index(drop=True).subtract(data_s1avg[data_s1avg['year']==year7i][metric7].reset_index(drop=True))).sort_values()
+#    pos_units, neg_units = sectors[dataset[-nb_units7:].index], sectors[dataset[:nb_units7].index]
+#    pos_data, neg_data = all_pos_data('sector',pos_units,year7i,year7f,metric7), all_neg_data('sector',neg_units,year7i,year7f,metric7)
+#    return px.bar(neg_data._append(pos_data), y='sector', x='length', color='country', orientation='h', custom_data=['country','sector','length'], text_auto='.2s', height=(nb_units7+1.5)*100).update_layout(font_size=14, hoverlabel={'font_size':22}).update_traces(hovertemplate='<extra></extra>%{customdata[1]}: <b>%{customdata[0]},</b><br>contribution to overall<br><b>'+metric7+'</b> vulnerability: %{customdata[2]}')
 
 @app.callback(Output('canvas2_c', 'is_open'), Input('open_canvas2_c', 'n_clicks'), State('canvas2_c', 'is_open'))
 def toggle_ccanvas(n, is_open):
@@ -475,3 +542,5 @@ def toggle_s2canvas(n, is_open):
 
 if __name__ == '__main__':
     app.run_server(debug=True)
+
+

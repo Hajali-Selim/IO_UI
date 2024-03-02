@@ -20,7 +20,7 @@ external_stylesheets = [dbc.themes.CERULEAN]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
-H = pd.read_csv('processed_data_update.csv', compression='gzip')
+H = pd.read_csv('processed_data.csv', compression='gzip', sep=',')
 NS, NC, NY = 163, 49, 26
 N, Ntot = NS*NC, NS*NC*NY
 regions, countries, sectors = H.region.iloc[np.arange(0,N,NS)], H.country.unique(), H.sector.unique()
@@ -39,10 +39,12 @@ vulnerability_list, structural_list, monetary_list = ['coal', 'gas', 'oil', 'vul
 
 metrics_list = vulnerability_list+structural_list+monetary_list
 ordering_list = ['original', 'descending', 'ascending']
+#shifts = {'country': {fuel: {y1: np.round(pd.read_csv('shifts/countries/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}, 'sector': {fuel: {y1: np.round(pd.read_csv('shifts/sectors/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}}
 
 H[metrics_list] = H[metrics_list].astype(float)
 for s in ['year']+units_list+['region_marker']:#, 'sector_color']:
     H[s] = H[s].astype('category').cat.set_categories(H[s].unique(), ordered=True)
+    #H[s] = pd.Series(H[s], dtype='category')
 
 # leaving only exogeneous vulnerability
 fossil_fuels = {'coal':'Mining of coal and lignite; extraction of peat (10)', 'oil':'Extraction of crude petroleum and services related to crude oil extraction, excluding surveying', 'gas':'Extraction of natural gas and services related to natural gas extraction, excluding surveying'}
@@ -62,24 +64,11 @@ for c in countries:
 
 sector_groups = ['Agriculture, forestry and fishing', 'Extraction and mining', 'Manufacture and production', 'Utilities', 'Services']
 sector_groupmap = {'Agriculture, forestry and fishing':list(range(19)), 'Extraction and mining':list(range(19,34)), 'Manufacture and production':list(range(34,93))+[109,113], 'Utilities':list(range(93,119))+[110,111,112]+list(range(114,120)), 'Services':list(range(120,163))}
-data_y = {'standard':{int(c[0][0]):c[1] for c in H.groupby(['year'], observed=False)[units_list+metrics_list]}}#, 'yearly variation':{int(c[0][0]):c[1] for c in Hv.groupby(['year'], observed=False)[units_list+metrics_list]}}
+data_y = {'standard':{int(c[0][0]):c[1] for c in H.groupby(['year'], observed=False)[units_list+metrics_list]}}
 height, width = {'country':17, 'sector':16.5, 'region':16.5}, {'country':27*25, 'sector':27*30, 'region':27*75}
 
 app.layout = html.Div(children=[
     dcc.Markdown('''# visualizing vulnerability v2.0''', style={'textAlign':'center'}),
-    html.Div('11/08/2023 (13:30) update: addition of \'waves\' figure'),
-    html.Br(),
-    html.Div('11/08/2023 (15:30) update: new colormap and corrected forward linkages'),
-    html.Br(),
-    html.Div('18/08/2023 (07:00) update: addition of \'network-representation\' figure'),
-    html.Div('Comment: I have no idea why does a diagonal appear in the upper-right corner,'),
-    html.Div('in the meantime, please select the window you want to observe and discard it.'),
-    html.Br(),
-    html.Div('18/08/2023 (07:30) update: new year-selection slider for \'bubble plots\''),
-    html.Br(),
-    html.Div('22/08/2023 (11:30) update: addition of \'decomposed rows\' figure'),
-    html.Br(),
-    html.Div('25/08/2023 (17:30) update: \'decomposed rows\' is now functional, it is also available for sectors, in addition to countries.'),
     html.Hr(),
     dbc.Accordion([
     	dbc.AccordionItem(
@@ -395,5 +384,5 @@ def toggle_4ccanvas(n, is_open):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
 

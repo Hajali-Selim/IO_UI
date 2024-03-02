@@ -39,12 +39,10 @@ vulnerability_list, structural_list, monetary_list = ['coal', 'gas', 'oil', 'vul
 
 metrics_list = vulnerability_list+structural_list+monetary_list
 ordering_list = ['original', 'descending', 'ascending']
-#shifts = {'country': {fuel: {y1: np.round(pd.read_csv('shifts/countries/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}, 'sector': {fuel: {y1: np.round(pd.read_csv('shifts/sectors/'+fuel+'/from_'+str(y1)+'.csv', sep=','),2) for y1 in range(1995,2020)} for fuel in vulnerability_list}}
 
 H[metrics_list] = H[metrics_list].astype(float)
 for s in ['year']+units_list+['region_marker']:#, 'sector_color']:
     H[s] = H[s].astype('category').cat.set_categories(H[s].unique(), ordered=True)
-    #H[s] = pd.Series(H[s], dtype='category')
 
 # leaving only exogeneous vulnerability
 fossil_fuels = {'coal':'Mining of coal and lignite; extraction of peat (10)', 'oil':'Extraction of crude petroleum and services related to crude oil extraction, excluding surveying', 'gas':'Extraction of natural gas and services related to natural gas extraction, excluding surveying'}
@@ -397,5 +395,5 @@ def toggle_4ccanvas(n, is_open):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
 

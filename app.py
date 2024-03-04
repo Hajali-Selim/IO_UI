@@ -204,39 +204,36 @@ app.layout = html.Div(children=[
     	dbc.AccordionItem(
     	    
     	    dbc.Tabs([
-    	    #'metric4x_s1','metric4y_s1','metric4i_s1','unit4_s1','year4_s1'
     	    dbc.Tab([
+    	    html.Br(), dbc.Offcanvas(dcc.Checklist(countries, countries, id='unit4_s1c', inputStyle={'margin-right':'10px'}), id='canvas4_s1c', is_open=False, placement='end', scrollable=True),
+    		dbc.Col(dbc.Button('Select countries', id='open_canvas4_s1c', n_clicks=0), width=2),
     	    
-    	    html.Br(), dbc.Offcanvas(dcc.Checklist(countries, countries, id='unit4c_s1', inputStyle={'margin-right':'10px'}), id='canvas4_c', is_open=False, placement='end', scrollable=True),
-    		dbc.Col(dbc.Button('Select countries', id='open_canvas4_c', n_clicks=0), width=2),
-    	    
+    	    html.Br(), dbc.Offcanvas(dcc.Checklist(sectors, sectors_decarb, id='unit4_s1', inputStyle={'margin-right':'10px'}), id='canvas4_s1', is_open=False, placement='end', scrollable=True),
+    		dbc.Col(dbc.Button('Select sectors', id='open_canvas4_s1', n_clicks=0), width=2),
+    		
     		dbc.Row([dbc.Col(dcc.Markdown('**select x-axis**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dcc.Dropdown(structural_list+monetary_list, 'forward_linkage', id='metric4x_s1'), width=2)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**select y-axis**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dcc.Dropdown(structural_list+monetary_list, 'backward_linkage', id='metric4y_s1'), width=2)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**select index (size)**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dcc.RadioItems(['monetary_index', 'structural_index'], 'structural_index', inline=False, inputStyle={'margin-right':'10px', 'margin-bottom':'10px'}, id='metric4i_s1'))]),
-    		dbc.Row([dbc.Col(dcc.Markdown('**select countries (unit)**', style={'textAlign':'right'}), width=2),
-    			dbc.Col(dcc.Dropdown(countries, countries, id='unit4c_s1'), width=2)]),
-    		dbc.Row([dbc.Col(dcc.Markdown('**select sectors**', style={'textAlign':'right'}), width=2),
-    			dbc.Col(dcc.Dropdown(sectors_decarb, sectors_decarb, id='unit4s_s1'), width=2)]),
     		dbc.Row([dbc.Col(dcc.Markdown('**select year**', style={'textAlign':'right'}), width=2),
     			dbc.Col([html.Br(), html.Br(), daq.Slider(min=1995, max=2020, step=1, value=1998, labelPosition='bottom', handleLabel={'showCurrentValue':True, 'label':' ', 'color':'#3e7cc8'}, size=500, id='year4_s1')])]),
     		dbc.Row(dcc.Graph(figure={}, id='bubble4_s1'))], label='worldwide', activeTabClassName='fw-bold'),
     	    
-    	    dbc.Tab([
+    	    dbc.Tab([html.Br(),
+    	    dbc.Offcanvas(dcc.Checklist(sectors, sectors_decarb, id='unit4_s2', inputStyle={'margin-right':'10px'}), id='canvas4_s2', is_open=False, placement='end', scrollable=True),
+    		dbc.Col(dbc.Button('Select sectors', id='open_canvas4_s2', n_clicks=0), width=2),
     		dbc.Row([dbc.Col(dcc.Markdown('**select x-axis**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dcc.Dropdown(structural_list+monetary_list, 'forward_linkage', id='metric4x_s2'), width=2)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**select y-axis**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dcc.Dropdown(structural_list+monetary_list, 'backward_linkage', id='metric4y_s2'), width=2)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**select country (unit)**', style={'textAlign':'right'}), width=2),
-			    dbc.Col(dcc.Dropdown(countries, 'USA', id='unit4c_s1'), width=2)]),
+			    dbc.Col(dcc.Dropdown(countries, 'USA', id='unit4_s2c'), width=2)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**select index (size)**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dcc.RadioItems(['monetary_index', 'structural_index'], 'structural_index', inline=False, inputStyle={'margin-right':'10px', 'margin-bottom':'10px'}, id='metric4i_s2'))]),
 		    dbc.Row([dbc.Col(dcc.Markdown('**select vulnerability (color)**', style={'textAlign':'right'}), width=2),
     			dbc.Col(dcc.Dropdown(metrics_list, 'coal', id='metric4v_s2'), width=2)]),
-    		dbc.Row([dbc.Col(dcc.Markdown('**select sectors**', style={'textAlign':'right'}), width=2),
-    			dbc.Col(dcc.Dropdown(sectors_decarb, sectors_decarb, id='unit4_s2'), width=2)]),
     		dbc.Row([dbc.Col(dcc.Markdown('**select year**', style={'textAlign':'right'}), width=2),
     			dbc.Col([html.Br(), html.Br(), daq.Slider(min=1995, max=2020, step=1, value=1998, labelPosition='bottom', handleLabel={'showCurrentValue':True, 'label':' ', 'color':'#3e7cc8'}, size=500, id='year4_s2')])]),
     		dbc.Row(dcc.Graph(figure={}, id='bubble4_s2'))], label='within a single country', activeTabClassName='fw-bold')    		
@@ -307,6 +304,8 @@ def update_c1line(metric3_c1,region3_c1):
 def update_c2line(metric3_c2,unit3_c2,region3_c2):
     return px.line(H[H['sector']==unit3_c2], x='year', y=metric3_c2, color='country', labels={'x':'year', 'y':metric3_c2+' vulnerability (%)'*int(metric3_c2 in vulnerability_list), 'color':'sector'}, markers=True, hover_name='country').update_xaxes(tickvals=np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font={'size':15}, height=700, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10})
 
+#fig=px.line(H[H['sector']==unit3_c2], x='year', y=metric3_c2, color='country', labels={'x':'year', 'y':metric3_c2+' vulnerability (%)'*int(metric3_c2 in vulnerability_list), 'color':'sector'}, markers=True, hover_name='country').update_xaxes(tickvals=np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font={'size':15}, height=700, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10})
+
 @callback(Output('lines3_s1', 'figure'), Input('metric3_s1', 'value'))
 def update_s1line(metric3_s1):
     return px.line(data_s1avg, x='year', y=metric3_s1, color='sector', labels={'x':'year', 'y':metric3_s1+' vulnerability (%)'*int(metric3_s1 in vulnerability_list), 'color':'sector'}, markers=True, hover_name='sector').update_xaxes(tickvals= np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font={'size':15}, height=700, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10})
@@ -315,10 +314,10 @@ def update_s1line(metric3_s1):
 def update_s2line(metric3_s2,unit3_s2):
     return px.line(H[H['country']==unit3_s2], x='year', y=metric3_s2, color='sector', labels={'x':'year', 'y':metric3_s2+' vulnerability (%)'*int(metric3_s2 in vulnerability_list), 'color':'country'}, markers=True, hover_name='sector').update_xaxes(tickvals=np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font= {'size':15}, height=700, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10})
 
-@callback(Output('bubble4_s1', 'figure'), [Input(s, 'value') for s in ['metric4x_s1','metric4y_s1','metric4i_s1','unit4c_s1','unit4s_s1','year4_s1']])
-def update_s1bubble(metric4x_s1,metric4y_s1,metric4i_s1,unit4c_s1,unit4s_s1,year4_s1):
+@callback(Output('bubble4_s1', 'figure'), [Input(s, 'value') for s in ['metric4x_s1','metric4y_s1','metric4i_s1','unit4_s1c','unit4_s1','year4_s1']])
+def update_s1bubble(metric4x_s1,metric4y_s1,metric4i_s1,unit4_s1c,unit4_s1,year4_s1):
     xlabel, ylabel, zlabel = metric4x_s1, metric4y_s1, metric4i_s1
-    cinds, sinds = [country_to_idx[c] for c in unit4c_s1], [sector_to_idx[s] for s in unit4s_s1]
+    cinds, sinds = [country_to_idx[c] for c in unit4_s1c], [sector_to_idx[s] for s in unit4_s1]
     dataset = deepcopy(H.iloc[sorted([c*NS+s for c in cinds for s in sinds])])
     xmin, xmax, ymin, ymax, zmin, zmax = dataset[xlabel].min(), dataset[xlabel].max(), dataset[ylabel].min(), dataset[ylabel].max(), dataset[zlabel].min(), dataset[zlabel].max()
     xmin, xmax, ymin, ymax = .5, 2, .5, 2
@@ -328,12 +327,12 @@ def update_s1bubble(metric4x_s1,metric4y_s1,metric4i_s1,unit4c_s1,unit4s_s1,year
     fig.add_hline(y=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).add_vline(x=1, line_width=3, line_dash='dash', line_color='red', opacity=.7)
     return fig
 
-@callback(Output('bubble4_s2', 'figure'), [Input(s, 'value') for s in ['metric4x_s2','metric4y_s2','unit4c_s2','metric4i_s2','metric4v_s2','unit4_s2','year4_s2']])
-def update_s2bubble(metric4x_s2,metric4y_s2,unit4c_s2,metric4i_s2,metric4v_s2,unit4_s2,year4_s2):
+@callback(Output('bubble4_s2', 'figure'), [Input(s, 'value') for s in ['metric4x_s2','metric4y_s2','unit4_s2c','metric4i_s2','metric4v_s2','unit4_s2','year4_s2']])
+def update_s2bubble(metric4x_s2,metric4y_s2,unit4_s2c,metric4i_s2,metric4v_s2,unit4_s2,year4_s2):
     xlabel, ylabel, zlabel = metric4x_s2, metric4y_s2, metric4i_s2
-    dataset = H[H.country==unit4c_s2]
-    sinds = [sector_to_idx[s] for s in unit4s_s1]
-    dataset = deepcopy(H.iloc[sorted([country_to_idx[unit4c_s2]*NS+s for s in sinds])])
+    dataset = H[H.country==unit4_s2c]
+    sinds = [sector_to_idx[s] for s in unit4_s2]
+    dataset = deepcopy(H.iloc[sorted([country_to_idx[unit4_s2c]*NS+s for s in sinds])])
     xmin, xmax, ymin, ymax, zmin, zmax = dataset[xlabel].min(), dataset[xlabel].max(), dataset[ylabel].min(), dataset[ylabel].max(), dataset[zlabel].min(), dataset[zlabel].max()
     xmin, xmax, ymin, ymax = .5, 2, .5, 2
     dataset_y = dataset[dataset.year==year4_s2]
@@ -376,11 +375,26 @@ def toggle_2s2canvas(n, is_open):
         return not is_open
     return is_open
 
-@app.callback(Output('canvas4_c', 'is_open'), Input('open_canvas4_c', 'n_clicks'), State('canvas4_c', 'is_open'))
-def toggle_4ccanvas(n, is_open):
+@app.callback(Output('canvas4_s1c', 'is_open'), Input('open_canvas4_s1c', 'n_clicks'), State('canvas4_s1c', 'is_open'))
+def toggle_4s1ccanvas(n, is_open):
     if n:
         return not is_open
     return is_open
+
+@app.callback(Output('canvas4_s1', 'is_open'), Input('open_canvas4_s1', 'n_clicks'), State('canvas4_s1', 'is_open'))
+def toggle_4s1canvas(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+@app.callback(Output('canvas4_s2', 'is_open'), Input('open_canvas4_s2', 'n_clicks'), State('canvas4_s2', 'is_open'))
+def toggle_4s2canvas(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+
+
 
 
 if __name__ == '__main__':

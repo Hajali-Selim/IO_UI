@@ -52,9 +52,9 @@ for s in fossil_fuels:
     s_ext = fossil_fuels[s]
     H[H.sector==s_ext][s] = np.zeros(NC*NY,float)
 
-data_cavg = H.groupby(['year','country'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','country'])
-data_s1avg = H.groupby(['year','sector'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','sector'])
-data_s2avg = {c[0]:c[1].groupby(['year','sector'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','sector']) for c in H.groupby('region', observed=False)}
+data_cavg = H.groupby([('year'),('country')], observed=False)[metrics_list].mean().reset_index().sort_values([('year'),('country')])
+data_s1avg = H.groupby([('year'),('sector')], observed=False)[metrics_list].mean().reset_index().sort_values([('year'),('sector')])
+data_s2avg = {c[0]:c[1].groupby([('year'),('sector')], observed=False)[metrics_list].mean().reset_index().sort_values([('year'),('sector')]) for c in H.groupby('region', observed=False)}
 
 year_NYlist, sector_NYlist = np.array([1995+y for k in range(3) for y in range(NY)]), np.array([s for s in ['oil','gas','coal'] for i in range(NY)])
 data_cvuln = {}
@@ -302,15 +302,27 @@ def update_c1line(metric3_c1,region3_c1):
 
 @callback(Output('lines3_c2', 'figure'), [Input(s, 'value') for s in ['metric3_c2','unit3_c2','region3_c2']])
 def update_c2line(metric3_c2,unit3_c2,region3_c2):
-    return px.line(H[H['sector']==unit3_c2], x='year', y=metric3_c2, color='country', labels={'x':'year', 'y':metric3_c2+' vulnerability (%)'*int(metric3_c2 in vulnerability_list), 'color':'sector'}, markers=True, hover_name='country').update_xaxes(tickvals=np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font={'size':15}, height=700, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10})
+    fig = px.line(H[H['sector']==unit3_c2], x='year', y=metric3_c2, color='country', labels={'x':'year', 'y':metric3_c2+' vulnerability (%)'*int(metric3_c2 in vulnerability_list), 'color':'sector'}, markers=True, hover_name='country').update_xaxes(tickvals=np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font={'size':15}, height=700, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10})
+    try:
+        return fig
+    except:
+        return fig
 
 @callback(Output('lines3_s1', 'figure'), Input('metric3_s1', 'value'))
 def update_s1line(metric3_s1):
-    return px.line(data_s1avg, x='year', y=metric3_s1, color='sector', labels={'x':'year', 'y':metric3_s1+' vulnerability (%)'*int(metric3_s1 in vulnerability_list), 'color':'sector'}, markers=True, hover_name='sector').update_xaxes(tickvals= np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font={'size':15}, height=700, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10})
+    fig = px.line(data_s1avg, x='year', y=metric3_s1, color='sector', labels={'x':'year', 'y':metric3_s1+' vulnerability (%)'*int(metric3_s1 in vulnerability_list), 'color':'sector'}, markers=True, hover_name='sector').update_xaxes(tickvals= np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font={'size':15}, height=700, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10})
+    try:
+        return fig
+    except:
+        return fig
 
 @callback(Output('lines3_s2', 'figure'), [Input(s, 'value') for s in ['metric3_s2','unit3_s2']])
 def update_s2line(metric3_s2,unit3_s2):
-    return px.line(H[H['country']==unit3_s2], x='year', y=metric3_s2, color='sector', labels={'x':'year', 'y':metric3_s2+' vulnerability (%)'*int(metric3_s2 in vulnerability_list), 'color':'country'}, markers=True, hover_name='sector').update_xaxes(tickvals=np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font= {'size':15}, height=700, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10})
+    fig = px.line(H[H.country==unit3_s2], x='year', y=metric3_s2, color='sector', labels={'x':'year', 'y':metric3_s2+' vulnerability (%)'*int(metric3_s2 in vulnerability_list), 'color':'country'}, markers=True, hover_name='sector').update_xaxes(tickvals=np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font= {'size':15}, height=700, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10})
+    try:
+        return fig
+    except:
+        return fig
 
 @callback(Output('bubble4_s1', 'figure'), [Input(s, 'value') for s in ['metric4x_s1','metric4y_s1','metric4i_s1','unit4_s1c','unit4_s1','year4_s1']])
 def update_s1bubble(metric4x_s1,metric4y_s1,metric4i_s1,unit4_s1c,unit4_s1,year4_s1):
@@ -323,7 +335,10 @@ def update_s1bubble(metric4x_s1,metric4y_s1,metric4i_s1,unit4_s1c,unit4_s1,year4
     dataset_y = dataset_y[dataset_y.sector_color.notna()]
     fig = px.scatter(dataset_y, x=xlabel, y=ylabel, size=zlabel, color='sector_color', labels={'x':xlabel, 'y':ylabel}, range_x=[xmin-.1,xmax+.1], range_y=[ymin-.1,ymax+.1], range_color=[zmin-.02, zmax+.02], hover_name='sector', symbol='region', opacity=.8, color_continuous_scale='Jet').update_layout(width=1200, height=800, font={'size':20}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v'}, hoverlabel={'font_size':18}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None})
     fig.add_hline(y=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).add_vline(x=1, line_width=3, line_dash='dash', line_color='red', opacity=.7)
-    return fig
+    try:
+        return fig
+    except:
+        return fig
 
 @callback(Output('bubble4_s2', 'figure'), [Input(s, 'value') for s in ['metric4x_s2','metric4y_s2','unit4_s2c','metric4i_s2','metric4v_s2','unit4_s2','year4_s2']])
 def update_s2bubble(metric4x_s2,metric4y_s2,unit4_s2c,metric4i_s2,metric4v_s2,unit4_s2,year4_s2):
@@ -337,12 +352,19 @@ def update_s2bubble(metric4x_s2,metric4y_s2,unit4_s2c,metric4i_s2,metric4v_s2,un
     dataset_y = dataset_y[dataset_y.sector_color.notna()]
     fig = px.scatter(dataset_y, x=xlabel, y=ylabel, size=zlabel, color='sector_color', labels={'x':xlabel, 'y':ylabel}, range_x=[xmin-.1,xmax+.1], range_y=[ymin-.1,ymax+.1], range_color=[zmin-.02, zmax+.02], hover_name='sector', symbol='region', opacity=.8, color_continuous_scale='Jet').update_layout(width=1200, height=800, font={'size':20}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v'}, hoverlabel={'font_size':18}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None})
     fig.add_hline(y=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).add_vline(x=1, line_width=3, line_dash='dash', line_color='red', opacity=.7)
-    return fig
+    try:
+        return fig
+    except:
+        return fig
 
 @callback(Output('waves5', 'figure'), Input('unit5', 'value'))
 def update_waves(unit5):
+    #go.Figure(layout='template':'plotly')
     fig = px.area(data_cvuln[unit5], x='year', y='vulnerability', color='sector', width=1000, height=600)
-    return fig
+    try:
+        return fig
+    except:
+        return fig
 
 #@app.callback(Output('rows7_c', 'figure'), [Input(s, 'value') for s in ['metric7_c', 'year7_c', 'nb_units7_c']])
 #def update_crows(metric7, year7, nb_units7):
@@ -390,8 +412,6 @@ def toggle_4s2canvas(n, is_open):
     if n:
         return not is_open
     return is_open
-
-
 
 
 

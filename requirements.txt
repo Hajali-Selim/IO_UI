@@ -3,9 +3,7 @@ numpy
 pandas
 scikit_learn
 plotly
-dash_mantine_components
 dash_bootstrap_components
-scipy
 dash_daq
 pickle
 copy

@@ -134,7 +134,7 @@ nodeenv==1.8.0
 notebook==6.4.8
 notebook_shim==0.2.3
 numba==0.56.4
-numpy==1.23.5
+numpy==1.21.6
 oauthlib==3.2.0
 olefile==0.46
 openpyxl==3.0.10

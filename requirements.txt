@@ -6,7 +6,6 @@ plotly
 dash_mantine_components
 dash_bootstrap_components
 scipy
-itertools
 dash_daq
 pickle
 copy

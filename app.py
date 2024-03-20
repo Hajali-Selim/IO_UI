@@ -20,7 +20,7 @@ external_stylesheets = [dbc.themes.CERULEAN]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
-H = pd.read_csv('processed_data.csv', compression='gzip', sep=',')
+H = pd.read_csv('processed_data.csv', compression='gzip', sep=',', index_col=[0])
 NS, NC, NY = 163, 49, 26
 N, Ntot = NS*NC, NS*NC*NY
 regions, countries, sectors = H.region.iloc[np.arange(0,N,NS)], H.country.unique(), H.sector.unique()
@@ -304,8 +304,6 @@ def update_c1line(metric3_c1,region3_c1):
 def update_c2line(metric3_c2,unit3_c2,region3_c2):
     return px.line(H[H['sector']==unit3_c2], x='year', y=metric3_c2, color='country', labels={'x':'year', 'y':metric3_c2+' vulnerability (%)'*int(metric3_c2 in vulnerability_list), 'color':'sector'}, markers=True, hover_name='country').update_xaxes(tickvals=np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font={'size':15}, height=700, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10})
 
-#fig=px.line(H[H['sector']==unit3_c2], x='year', y=metric3_c2, color='country', labels={'x':'year', 'y':metric3_c2+' vulnerability (%)'*int(metric3_c2 in vulnerability_list), 'color':'sector'}, markers=True, hover_name='country').update_xaxes(tickvals=np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font={'size':15}, height=700, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10})
-
 @callback(Output('lines3_s1', 'figure'), Input('metric3_s1', 'value'))
 def update_s1line(metric3_s1):
     return px.line(data_s1avg, x='year', y=metric3_s1, color='sector', labels={'x':'year', 'y':metric3_s1+' vulnerability (%)'*int(metric3_s1 in vulnerability_list), 'color':'sector'}, markers=True, hover_name='sector').update_xaxes(tickvals= np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font={'size':15}, height=700, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10})
@@ -399,4 +397,3 @@ def toggle_4s2canvas(n, is_open):
 
 if __name__ == '__main__':
     app.run_server(debug=True)
-

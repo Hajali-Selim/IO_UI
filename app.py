@@ -5,14 +5,10 @@ import pandas as pd
 import numpy as np
 import pickle
 from collections import Counter
-import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
-from scipy.stats import zscore
 from plotly.subplots import make_subplots
 from copy import deepcopy
-import networkx as nx
-from itertools import chain
 
 #pd.options.mode.copy_on_write = True
 pd.options.mode.chained_assignment = None

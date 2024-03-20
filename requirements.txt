@@ -176,7 +176,7 @@ PyQtWebEngine==5.15.5
 pyRFC3339==1.1
 pyrsistent==0.18.1
 pytest==6.2.5
-python-apt==2.4.0+ubuntu1
+python-apt==0.7.8
 python-dateutil==2.8.2
 python-debian==0.1.43+ubuntu1.1
 python-json-logger==2.0.7

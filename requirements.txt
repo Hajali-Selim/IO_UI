@@ -47,7 +47,6 @@ decorator==4.4.2
 defusedxml==0.7.1
 distfit==1.6.10
 distlib==0.3.7
-distro==1.7.0
 distro-info===1.1build1
 dnspython==2.1.0
 docopt==0.6.2

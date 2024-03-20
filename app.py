@@ -64,7 +64,7 @@ for c in countries:
 
 sector_groups = ['Agriculture, forestry and fishing', 'Extraction and mining', 'Manufacture and production', 'Utilities', 'Services']
 sector_groupmap = {'Agriculture, forestry and fishing':list(range(19)), 'Extraction and mining':list(range(19,34)), 'Manufacture and production':list(range(34,93))+[109,113], 'Utilities':list(range(93,119))+[110,111,112]+list(range(114,120)), 'Services':list(range(120,163))}
-data_y = {int(c[0][0]):c[1] for c in H.groupby(['year'], observed=False)[units_list+metrics_list]}
+data_y = {int(c[0]):c[1] for c in H.groupby('year', observed=False)[units_list+metrics_list]}
 height, width = {'country':17, 'sector':16.5, 'region':16.5}, {'country':27*25, 'sector':27*30, 'region':27*75}
 
 app.layout = html.Div(children=[

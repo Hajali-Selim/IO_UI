@@ -44,7 +44,6 @@ dash-tools==1.11.1
 dbus-python==1.2.18
 debugpy==1.6.7
 decorator==4.4.2
-defer==1.0.6
 defusedxml==0.7.1
 distfit==1.6.10
 distlib==0.3.7

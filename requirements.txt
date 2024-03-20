@@ -5,6 +5,5 @@ scikit_learn
 plotly
 dash_bootstrap_components
 dash_daq
-pickle
-copy
-networkx
+pickle-mixin
+

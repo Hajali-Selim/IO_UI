@@ -72,7 +72,7 @@ app.layout = html.Div(children=[
     html.Div('16/04/2024 (20:30) update: Added 2 types of bubbles figures: (i) Worldwide decarbonization sectors. (ii) All sectors of a single country.'),
     html.Div('24/04/2024 (14:30) update: Worldmap figure, added options on bubble plots.'),
     html.Hr(),
-    html.Div('Next minor updates: more consistent layout across figure types, easier-to-read hover data, fixing sector-color associations in bubble1 & region-marker associations in bubble2, explaining worldmap figure (sector groups and RoW regions).'),
+    html.Div('Incoming minor updates: more consistent layout across figure types, easier-to-read hover data, fixing sector-color associations in bubble1 & region-marker associations in bubble2, explaining worldmap figure (sector groups and RoW regions).'),
     #html.Div('Future major updates: rows figure (Fig1c in the manuscript), if I figure out a lightened version of it.'),
     dbc.Accordion([
     	dbc.AccordionItem(

@@ -10,12 +10,10 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from copy import deepcopy
 from random import shuffle
-
-#pd.options.mode.copy_on_write = True
 pd.options.mode.chained_assignment = None
 external_stylesheets = [dbc.themes.CERULEAN]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
-#server = app.server
+server = app.server
 
 H = pd.read_csv('processed_data_update.csv', compression='gzip')
 worldmap_nodes, worldmap_links = pd.read_csv('worldmap_nodes.csv'), pd.read_csv('worldmap_links_plot.csv')

@@ -284,22 +284,26 @@ def update_s2heatmap(metric2_s2,group2_s2,order2_s2,unit2_s2):
 def update_c1line(metric3_c1,region3_c1):
     inds = [i for r in region3_c1 for i in region_to_country[r]]
     c1_indices = sorted([k for j in inds for k in np.arange(j,NY*NC,NC)])
-    data3_slice = deepcopy(data_cavg.iloc[c1_indices])
-    data3_slice['country'] = data3_slice['country'].cat.set_categories(np.array(countries)[inds], ordered=True)
+    dataset = deepcopy(data_cavg.iloc[c1_indices])
+    dataset['country'] = dataset['country'].cat.set_categories(np.array(countries)[inds], ordered=True)
     try:
-        fig = px.line(data3_slice, x='year', y=metric3_c1, color='country', labels={'x':'year', 'y':metric3_c1, 'color':'country'}, markers=True, hover_name='country')
+        fig = px.line(dataset, x='year', y=metric3_c1, color='country', labels={'x':'year', 'y':metric3_c1, 'color':'country'}, markers=True, hover_name='country')
     except:
-        fig = px.line(data3_slice, x='year', y=metric3_c1, color='country', labels={'x':'year', 'y':metric3_c1, 'color':'country'}, markers=True, hover_name='country')
-    fig.update_xaxes(tickvals= np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font={'size':15}, height=700, width=1300, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10}, hovertemplate='<br>year: %{x}<br>'+str(metric3_c1)+': %{y:.2f}%')
+        fig = px.line(dataset, x='year', y=metric3_c1, color='country', labels={'x':'year', 'y':metric3_c1, 'color':'country'}, markers=True, hover_name='country')
+    fig.update_xaxes(tickvals= np.arange(1995,2023,3)).update_layout(font={'size':15}, height=700, width=1300, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10}, hovertemplate='<br>year: %{x}<br>'+str(metric3_c1)+': %{y:.2f}%')
     return fig
 
 @callback(Output('lines3_c2', 'figure'), [Input(s, 'value') for s in ['metric3_c2','unit3_c2','region3_c2']])
 def update_c2line(metric3_c2,unit3_c2,region3_c2):
+    inds = [i for r in region3_c2 for i in region_to_country[r]]
+    c2_indices = sorted([k for j in inds for k in np.arange(j,NY*NC,NC)])
+    dataset = deepcopy(H[H['sector']==unit3_c2].iloc[c2_indices])
+    dataset['country'] = dataset['country'].cat.set_categories(np.array(countries)[inds], ordered=True)
     try:
-        fig = px.line(H[H['sector']==unit3_c2], x='year', y=metric3_c2, color='country', labels={'x':'year', 'y':metric3_c2, 'color':'sector'}, markers=True, hover_name='country', hovertemplate='<b>%{color}</b><br>year: %{x}<br>'+str(metric3_c2)+': %{y:.2f}%')
+        fig = px.line(dataset, x='year', y=metric3_c2, color='country', labels={'x':'year', 'y':metric3_c2, 'color':'sector'}, markers=True, hover_name='country', hovertemplate='<b>%{color}</b><br>year: %{x}<br>'+str(metric3_c2)+': %{y:.2f}%')
     except:
-        fig = px.line(H[H['sector']==unit3_c2], x='year', y=metric3_c2, color='country', labels={'x':'year', 'y':metric3_c2, 'color':'sector'}, markers=True, hover_name='country')
-    fig.update_xaxes(tickvals=np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font={'size':15}, height=700, width=1300, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10}, hovertemplate='year: %{x}<br>'+str(metric3_c2)+': %{y:.2f}%')
+        fig = px.line(dataset, x='year', y=metric3_c2, color='country', labels={'x':'year', 'y':metric3_c2, 'color':'sector'}, markers=True, hover_name='country')
+    fig.update_xaxes(tickvals=np.arange(1995,2023,3)).update_layout(font={'size':15}, height=700, width=1300, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10}, hovertemplate='year: %{x}<br>'+str(metric3_c2)+': %{y:.2f}%')
     return fig
 
 @callback(Output('lines3_s1', 'figure'), Input('metric3_s1', 'value'))
@@ -308,7 +312,7 @@ def update_s1line(metric3_s1):
         fig = px.line(data_s1avg, x='year', y=metric3_s1, color='sector', labels={'x':'year', 'y':metric3_s1, 'color':'sector'}, markers=True, hover_name='sector')
     except:
         fig = px.line(data_s1avg, x='year', y=metric3_s1, color='sector', labels={'x':'year', 'y':metric3_s1, 'color':'sector'}, markers=True, hover_name='sector')
-    fig.update_xaxes(tickvals= np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font={'size':15}, height=700, width=1300, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10}, hovertemplate='year: %{x}<br>'+str(metric3_s1)+': %{y:.2f}%')
+    fig.update_xaxes(tickvals= np.arange(1995,2023,3)).update_layout(font={'size':15}, height=700, width=1300, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10}, hovertemplate='year: %{x}<br>'+str(metric3_s1)+': %{y:.2f}%')
     return fig
 
 @callback(Output('lines3_s2', 'figure'), [Input(s, 'value') for s in ['metric3_s2','unit3_s2']])
@@ -317,7 +321,7 @@ def update_s2line(metric3_s2,unit3_s2):
         fig = px.line(H[H.country==unit3_s2], x='year', y=metric3_s2, color='sector', labels={'x':'year', 'y':metric3_s2, 'color':'country'}, markers=True, hover_name='sector')
     except:
         fig = px.line(H[H.country==unit3_s2], x='year', y=metric3_s2, color='sector', labels={'x':'year', 'y':metric3_s2, 'color':'country'}, markers=True, hover_name='sector')
-    fig.update_xaxes(tickvals=np.arange(1995,2023,3)).update_yaxes(tickmode= 'linear').update_layout(font= {'size':15}, height=700, width=1300, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10}, hovertemplate='year: %{x}<br>'+str(metric3_s2)+': %{y:.2f}%')
+    fig.update_xaxes(tickvals=np.arange(1995,2023,3)).update_layout(font={'size':15}, height=700, width=1300, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10}, hovertemplate='year: %{x}<br>'+str(metric3_s2)+': %{y:.2f}%')
     return fig
 
 @callback(Output('bubble4_s1', 'figure'), [Input(s, 'value') for s in ['metric4x_s1','metric4y_s1','metric4i_s1', 'group4_c','unit4_s1c', 'group4_s','year4_s1', 'color4', 'metric4v_s1']])
@@ -410,5 +414,3 @@ def toggle_4s2canvas(n, is_open):
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=8053)
-
-#pip install --upgrade pip && pip install -r requirements.txt

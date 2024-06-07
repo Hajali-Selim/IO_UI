@@ -413,4 +413,4 @@ def toggle_4s2canvas(n, is_open):
     return is_open
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8053)
+    app.run_server(debug=True)

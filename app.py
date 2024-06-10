@@ -50,11 +50,11 @@ for i,j in [('coal vulnerability','Mining of coal, lignite and peat'), ('oil vul
     H.iloc[row,col] = 0
 
 data_cavg = H.groupby(['year','country'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','country'])
-data_cavg.insert(1, 'region', list(regions)*26)
+data_cavg.insert(1, 'region', list(regions)*NY)
 data_s1avg = H.groupby(['year','sector'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','sector'])
 data_s2avg = {c[0]:c[1].groupby(['year','sector'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','sector']) for c in H.groupby('region', observed=False)}
 
-data_cvuln, data_rvuln, year_NYlist, sector_NYlist, rcount = {}, {}, np.array([1995+y for k in range(3) for y in range(NY)]), np.array([s for s in ['oil vulnerability','gas vulnerability','coal vulnerability'] for i in range(NY)]), Counter(regions)
+data_cvuln, data_rvuln, year_NYlist, sector_NYlist = {}, {}, np.array([1995+y for k in range(3) for y in range(NY)]), np.array([s for s in ['oil vulnerability','gas vulnerability','coal vulnerability'] for i in range(NY)])
 for c in countries:
     data_cvuln[c] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg[data_cavg['country']==c][['oil vulnerability','gas vulnerability','coal vulnerability']].unstack().values)).T, columns=['year','sector','vulnerability'])
     data_cvuln[c]['year'], data_cvuln[c]['sector'], data_cvuln[c]['vulnerability'] = data_cvuln[c]['year'].astype(int), data_cvuln[c]['sector'].astype(str), data_cvuln[c]['vulnerability'].astype(float)
@@ -63,6 +63,9 @@ for r in regions_list:
     data_rvuln[r] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg[data_cavg['region']==r].groupby('year', as_index=False, observed=False)[['oil vulnerability','gas vulnerability','coal vulnerability']].sum().iloc[:,1:].unstack().values)).T, columns=['year','sector','vulnerability'])
     data_rvuln[r]['year'], data_rvuln[r]['sector'], data_rvuln[r]['vulnerability'] = data_rvuln[r]['year'].astype(int), data_rvuln[r]['sector'].astype(str), data_rvuln[r]['vulnerability'].astype(float)
 
+data_rvuln['Worldwide'] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg.groupby('year', as_index=False, observed=False)[['oil vulnerability','gas vulnerability','coal vulnerability']].sum().iloc[:,1:].unstack().values)).T, columns=['year','sector','vulnerability'])
+data_rvuln['Worldwide']['year'], data_rvuln['Worldwide']['sector'], data_rvuln['Worldwide']['vulnerability'] = data_rvuln['Worldwide']['year'].astype(int), data_rvuln['Worldwide']['sector'].astype(str), data_rvuln['Worldwide']['vulnerability'].astype(float)
+
 sector_groups, sector_group_colors = ['Agriculture, forestry and fishing', 'Extraction and mining', 'Manufacture and production', 'Utilities', 'Services'], ['lime', 'orange', 'red', 'cyan', 'purple']
 sector_groupmap = {'Agriculture, forestry and fishing':list(range(19)), 'Extraction and mining':list(range(19,34)), 'Manufacture and production':list(range(34,93))+[109,113], 'Utilities':list(range(93,119))+[110,111,112]+list(range(114,120)), 'Services':list(range(120,163))}
 country_groups = {r:list(np.where(regions==r)[0]) for r in regions_list}
@@ -70,7 +73,7 @@ decarb_groups = {names7[i]:list(np.where(H.sector_color[:NS]==colors7[i])[0]) fo
 data_y = {int(c[0]):c[1] for c in H.groupby('year', observed=False)[units_list+metrics_list]}
 
 app.layout = html.Div(children=[
-    dcc.Markdown('''# visualizing vulnerability v2.1''', style={'textAlign':'center'}),
+    dcc.Markdown('''# World vulnerability''', style={'textAlign':'center'}),
     html.Hr(),
     dbc.Accordion([
     	dbc.AccordionItem([
@@ -195,7 +198,7 @@ app.layout = html.Div(children=[
     	
     	dbc.AccordionItem([
     		dbc.Row([dbc.Col(dcc.Markdown('**Select region or country**', style={'textAlign':'right'}), width=2),
-    		        dbc.Col(dcc.Dropdown([r+' (average)' for r in regions_list]+countries_list, 'Brazil', id='unit5'), width=2)]),
+    		        dbc.Col(dcc.Dropdown(['Worldwide (average)']+[r+' (average)' for r in regions_list]+countries_list, 'Brazil', id='unit5'), width=3)]),
     		dbc.Row(dcc.Graph(figure={}, id='waves5'))]
     		, title='Waves'),
     	
@@ -220,7 +223,7 @@ def update_histogram(metric1,unit1,group1_s,group1_c,year1,order1,type1):
     gsinds, gcinds = sum([sector_groupmap[g] for g in group1_s],[]), sum([country_groups[c] for c in group1_c],[])
     dataset = deepcopy(dataset.iloc[sorted([NS*c+s for c in gcinds for s in gsinds])])
     if type1:
-        return px.bar(dataset, x=metric1, y=unit1, orientation='h', color=color, custom_data=[color]).update_yaxes(categoryorder=order, autorange='reversed').update_layout(xaxis_title='cumulated '+metric1, yaxis_title=unit1, font={'size':11}, height=820+1450*(unit1=='sector')).update_traces(hovertemplate='<b>%{customdata[0]} (%{y}, '+str(year1)+')</b><br>'+str(metric1)+': %{x:.2f}%')
+        return px.bar(dataset, x=metric1, y=unit1, orientation='h', color=color, custom_data=[color]).update_yaxes(categoryorder=order, autorange='reversed').update_layout(xaxis_title='cumulative '+metric1, yaxis_title=unit1, font={'size':11}, height=820+1450*(unit1=='sector')).update_traces(hovertemplate='<b>%{customdata[0]} (%{y}, '+str(year1)+')</b><br>'+str(metric1)+': %{x:.2f}%')
     else:
         return px.histogram(dataset, x=metric1, y=unit1, histfunc='avg', orientation='h').update_yaxes(categoryorder=order, autorange='reversed').update_layout(xaxis_title=metric1, yaxis_title=unit1, font={'size':11}, height=820+1450*(unit1=='sector')).update_traces(hovertemplate='<b>%{y}, '+str(year1)+'</b><br>average '+str(metric1)+': %{x:.2f}%')
 
@@ -313,14 +316,14 @@ def update_s2bubble(metric4x_s2,metric4y_s2,group4_s2,unit4_s2c,metric4i_s2,metr
 
 @callback(Output('waves5', 'figure'), Input('unit5', 'value'))
 def update_waves(unit5):
-    if unit5[:-10] in regions_list:
+    if unit5[:-10] in regions_list+['Worldwide']:
         dataset, unit5 = data_rvuln, unit5[:-10]
     else:
         dataset = data_cvuln
     try:
-        fig = px.area(dataset[unit5], x='year', y='vulnerability', color='sector', width=950, height=450, labels={'y':'vulnerability (%)'})
+        fig = px.area(dataset[unit5], x='year', y='cumulative vulnerability (%)', color='sector', width=950, height=450, labels={'y':'vulnerability (%)'})
     except:
-        fig = px.area(dataset[unit5], x='year', y='vulnerability', color='sector', width=950, height=450, labels={'y':'vulnerability (%)'})
+        fig = px.area(dataset[unit5], x='year', y='cumulative vulnerability (%)', color='sector', width=950, height=450, labels={'y':'vulnerability (%)'})
     fig.update_traces(hovertemplate='%{y:.2f}%')
     return fig
 
@@ -365,4 +368,3 @@ def toggle_4s2canvas(n, is_open):
 
 if __name__ == '__main__':
     app.run_server(debug=True)
-

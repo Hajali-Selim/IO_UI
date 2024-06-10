@@ -50,7 +50,7 @@ for i,j in [('coal vulnerability','Mining of coal, lignite and peat'), ('oil vul
     H.iloc[row,col] = 0
 
 data_cavg = H.groupby(['year','country'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','country'])
-data_cavg.insert(1, 'region', list(regions)*NY)
+data_cavg.insert(1, 'region', list(regions)*26)
 data_s1avg = H.groupby(['year','sector'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','sector'])
 data_s2avg = {c[0]:c[1].groupby(['year','sector'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','sector']) for c in H.groupby('region', observed=False)}
 
@@ -321,9 +321,9 @@ def update_waves(unit5):
     else:
         dataset = data_cvuln
     try:
-        fig = px.area(dataset[unit5], x='year', y='cumulative vulnerability (%)', color='sector', width=950, height=450, labels={'y':'vulnerability (%)'})
+        fig = px.area(dataset[unit5], x='year', y='vulnerability', color='sector', width=950, height=450, labels={'y':'cumulative vulnerability (%)'})
     except:
-        fig = px.area(dataset[unit5], x='year', y='cumulative vulnerability (%)', color='sector', width=950, height=450, labels={'y':'vulnerability (%)'})
+        fig = px.area(dataset[unit5], x='year', y='vulnerability', color='sector', width=950, height=450, labels={'y':'cumulative vulnerability (%)'})
     fig.update_traces(hovertemplate='%{y:.2f}%')
     return fig
 

@@ -50,7 +50,7 @@ for i,j in [('coal vulnerability','Mining of coal, lignite and peat'), ('oil vul
     H.iloc[row,col] = 0
 
 data_cavg = H.groupby(['year','country'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','country'])
-data_cavg.insert(1, 'region', list(regions)*26)
+data_cavg.insert(1, 'region', list(regions)*NY)
 data_s1avg = H.groupby(['year','sector'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','sector'])
 data_s2avg = {c[0]:c[1].groupby(['year','sector'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','sector']) for c in H.groupby('region', observed=False)}
 
@@ -79,10 +79,10 @@ app.layout = html.Div(children=[
     	dbc.AccordionItem([
     		dbc.Row([# row of data selection (parameter+ordering)
     		dbc.Col([# column of parameter selection
-    		dbc.Row([dbc.Col(dcc.Markdown('**Select metric**', style={'textAlign':'right'}), width=2), dbc.Col(dcc.Dropdown(vulnerability_list+structural_list+economic_list, 'coal vulnerability', id='metric1'), width=2), 
+    		dbc.Row([dbc.Col(dcc.Markdown('**Select metric**', style={'textAlign':'right'}), width=2), dbc.Col(dcc.Dropdown(vulnerability_list+ structural_list+economic_list, 'coal vulnerability', id='metric1'), width=2),
+    		        dbc.Col(dcc.Markdown('**Decompose metric**', style={'textAlign':'right'}), width=2), dbc.Col(dbc.Checklist(id='type1', switch=True, value=[], options=[{'label':'', 'value':'On'}], inputStyle={'margin-right':'10px'}), width=4),]),
+    		dbc.Row([dbc.Col(dcc.Markdown('**Select unit**', style={'textAlign':'right'}), width=2), dbc.Col(dcc.Dropdown(units_list, 'country', id='unit1'), width=2),
     		        dbc.Col(dcc.Markdown('**Select ordering**', style={'textAlign':'right'}), width=2), dbc.Col(dmc.SegmentedControl(ordering_list, 'original', id='order1'), width=5), ]),
-    		dbc.Row([dbc.Col(dcc.Markdown('**Select unit**', style={'textAlign':'right'}), width=2), dbc.Col(dcc.Dropdown(units_list, 'country', id='unit1'), width=2), 
-    		        dbc.Col(dcc.Markdown('**Decompose metric**', style={'textAlign':'right'}), width=2), dbc.Col(dbc.Checklist(id='type1', switch=True, value=[], options=[{'label':'', 'value':'On'}], inputStyle={'margin-right':'10px'}), width=4), ]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2), dbc.Col([html.Br(), html.Br(), daq.Slider(min=1995, max=2020, step=1, value=2000, labelPosition='bottom', handleLabel={'showCurrentValue':True, 'label':' ', 'color':'#3e7cc8'}, size=500, id='year1')], width=5), ]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Display regions**', style={'textAlign':'right'}), width=2), dbc.Col(dcc.Checklist(regions_list, regions_list, id='group1_c', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=6), ]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Display sector groups**', style={'textAlign':'right'}), width=2), dbc.Col(dcc.Checklist(sector_groups, sector_groups, id='group1_s', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=6)

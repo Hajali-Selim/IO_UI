@@ -2,7 +2,7 @@ dash
 numpy
 pandas
 scikit_learn
-PIL
+pillow
 plotly
 dash_bootstrap_components
 dash_mantine_components

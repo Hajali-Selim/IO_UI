@@ -4,6 +4,7 @@ pandas
 scikit_learn
 plotly
 dash_bootstrap_components
+dash_mantine_components
 dash_daq
 pickle-mixin
 gunicorn

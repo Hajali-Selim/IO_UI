@@ -11,6 +11,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from copy import deepcopy
 from random import shuffle
+from PIL import Image
 
 pd.options.mode.chained_assignment = None
 external_stylesheets = [dbc.themes.CERULEAN]
@@ -18,7 +19,7 @@ app = Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
 H = pd.read_csv('processed_data_update.csv', compression='gzip')
-worldmap_nodes, worldmap_links = pd.read_csv('worldmap_nodes.csv'), pd.read_csv('worldmap_links_plot.csv')
+worldmap_nodes, worldmap_links, sector_group_scheme = pd.read_csv('worldmap_nodes.csv'), pd.read_csv('worldmap_links_plot.csv'), Image.open('worldmap_scheme.png')
 NS, NC, NY = 163, 49, 26
 N, Ntot = NS*NC, NS*NC*NY
 regions, countries, sectors = H.region.iloc[np.arange(0,N,NS)], H.country.unique(), H.sector.unique()
@@ -205,14 +206,17 @@ app.layout = html.Div(children=[
     	dbc.AccordionItem([
     		# insert number of edges (max, per sector group)
     		# add details on what are Rest of World regions
-    		dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2),
+    		dbc.Row([
+    		dbc.Col([dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=3),
     			    dbc.Col([html.Br(), html.Br(), daq.Slider(min=1995, max=2020, step=1, value=2000, labelPosition='bottom', handleLabel={'showCurrentValue':True, 'label':' ', 'color':'#3e7cc8'}, size=500, id='year6')])]),
-    		dbc.Row([dbc.Col(dcc.Markdown('**Select vulnerability (country color)**', style={'textAlign':'right'}), width=2),
-    		        dbc.Col(dmc.SegmentedControl(vulnerability_list, 'oil vulnerability', id='metric6'), width=6),]),
-    		dbc.Row([dbc.Col(dcc.Markdown('**Select number of links per sector group**', style={'textAlign':'right'}), width=2),
-    			    dbc.Col([html.Br(), html.Br(), daq.Slider(min=10, max=100, step=10, value=50, labelPosition='bottom', handleLabel={'showCurrentValue':True, 'label':' ', 'color':'#3e7cc8'}, size=500, id='nbedges6')])]),
-                		
-    		dbc.Row(dcc.Graph(figure={}, id='map6'))]
+    		dbc.Row([dbc.Col(dcc.Markdown('**Select vulnerability\n(country color)**', style={'textAlign':'right'}), width=3),
+    		        dbc.Col(dmc.SegmentedControl(vulnerability_list, 'oil vulnerability', id='metric6'), width=5),]),
+    		dbc.Row([dbc.Col(dcc.Markdown('**Select number of links \nper sector group**', style={'textAlign':'right'}), width=3),
+    			    dbc.Col([html.Br(), html.Br(), daq.Slider(min=10, max=100, step=10, value=50, labelPosition='bottom', handleLabel={'showCurrentValue':True, 'label':' ', 'color':'#3e7cc8'}, size=500, id='nbedges6')])]),], width=8),
+    		dbc.Col([html.Img(src=sector_group_scheme),], width=4),]),
+    		dbc.Row([
+    		dbc.Col(dcc.Markdown('Ndlr: All 163 sectors are aggregated into 5 main sector groups. Transactions are represented by links whose colors corresponds to the sector group of the exporter node (see image above). Hover the mouse over a link to see more details: source and target sectors and countries, and transaction amount in M$.', style={'font-size':13}), width=8),
+    		dbc.Row(dcc.Graph(figure={}, id='map6'))]),]
     		, title='Worldmap'),
 			], flush=True)
 			])

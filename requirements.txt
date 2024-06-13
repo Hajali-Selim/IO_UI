@@ -5,7 +5,7 @@ scikit_learn
 pillow
 plotly
 dash_bootstrap_components
-dash_mantine_components
+dash_mantine_components==0.12
 dash_daq
 pickle-mixin
 gunicorn

@@ -160,11 +160,11 @@ app.layout = html.Div(children=[
 			    dbc.Col(dcc.Dropdown(structural_list+economic_list, 'backward linkage', id='metric4y_s1'), width=2)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select marker size**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dmc.SegmentedControl(vulnerability_list+ ['structural index', 'linkage index'], 'oil vulnerability', id='metric4i_s1'), width=5)]),
-			dbc.Row([dbc.Col(dcc.Markdown('**Display regions\n(marker style)**', style={'textAlign':'right', 'white-space':'pre'}), width=2),
+			dbc.Row([dbc.Col(dcc.Markdown('**Display regions (marker style)**', style={'textAlign':'right', 'white-space':'pre'}), width=2),
     		    dbc.Col(dcc.Checklist(regions_list, ['Europe'], id='group4_c', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=5), ]),
     		   
     		dbc.Row([dbc.Col(dcc.Markdown('**Display sector groups (marker color)**', style={'textAlign':'right'}), width=2),
-    			dbc.Col(dcc.Checklist(names7, names7[:-1], id='group4_s', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=5), ]),
+    			dbc.Col(dcc.Checklist(names7, names7[:-1], id='group4_s', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px', 'margin-bottom':'10px'}), width=5), ]),
     		
     		dbc.Row([dbc.Col(dcc.Markdown('**Select color according to**', style={'textAlign':'right'}), width=2),
     		        dbc.Col([
@@ -215,7 +215,7 @@ app.layout = html.Div(children=[
     			    dbc.Col([html.Br(), html.Br(), daq.Slider(min=10, max=100, step=10, value=50, labelPosition='bottom', handleLabel={'showCurrentValue':True, 'label':' ', 'color':'#3e7cc8'}, size=500, id='nbedges6')])]),], width=8),
     		dbc.Col([html.Img(src=sector_group_scheme),], width=4),]),
     		dbc.Row([
-    		dbc.Col(dcc.Markdown('Ndlr: All 163 sectors are aggregated into 5 main sector groups. Transactions are represented by links whose colors corresponds to the sector group of the exporter node (see image above). Hover the mouse over a link to see more details: source and target sectors and countries, and transaction amount in M$.', style={'font-size':13}), width=8),
+    		dbc.Col(dcc.Markdown('Ndlr: All 163 sectors are aggregated into 5 main sector groups. Transactions are represented by links whose colors corresponds to the sector group of the exporter node (see image above). Hover the mouse over a link to see more details: source and target sectors and countries, and transaction amount in M$.', style={'font-size':14}), width=8),
     		dbc.Row(dcc.Graph(figure={}, id='map6'))]),]
     		, title='Worldmap'),
 			], flush=True)
@@ -296,7 +296,7 @@ def update_s1bubble(metric4x_s1,metric4y_s1,metric4i_s1,group4_c,unit4_s1c,group
         fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=color4, labels={'x':xlabel, 'y':ylabel}, range_x=[xmin-.1,xmax+.1], range_y=[ymin-.1,ymax+.1], range_color=[zmin-.02, zmax+.02], hover_name='sector', symbol='region_marker', opacity=.7, color_continuous_scale='Jet', custom_data= ['sector','country',zlabel, xlabel,ylabel])
     except:
         fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=color4, labels={'x':xlabel, 'y':ylabel}, range_x=[xmin-.1,xmax+.1], range_y=[ymin-.1,ymax+.1], range_color=[zmin-.02, zmax+.02], hover_name='sector', symbol='region_marker', opacity=.7, color_continuous_scale='Jet', custom_data= ['sector','country',zlabel, xlabel,ylabel])
-    fig.update_layout(width=900, height=700, xaxis_range=[xmin,xmax], yaxis_range=[ymin,ymax], font={'size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v'}, hoverlabel={'font_size':18}).add_hline(y=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).add_vline(x=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]}, %{customdata[1]}</b><br>', str(zlabel)+': %{customdata[2]:.2f}%', str(xlabel)+': %{customdata[3]:.2f}', str(ylabel)+': %{customdata[4]:.2f}']))
+    fig.update_layout(width=1200, height=1000, xaxis_range=[xmin,xmax], yaxis_range=[ymin,ymax], font={'size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v'}, hoverlabel={'font_size':18}).add_hline(y=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).add_vline(x=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]}, %{customdata[1]}</b><br>', str(zlabel)+': %{customdata[2]:.2f}%', str(xlabel)+': %{customdata[3]:.2f}', str(ylabel)+': %{customdata[4]:.2f}']))
     if color4=='sector_color':
         fig.update_layout(legend={'title':'sector group, region'})
         fig.for_each_trace(lambda t: t.update(name=color_to_sector[t.name], legendgroup=color_to_sector[t.name], hovertemplate=t.hovertemplate.replace(t.name, color_to_sector[t.name])))
@@ -315,7 +315,7 @@ def update_s2bubble(metric4x_s2,metric4y_s2,group4_s2,unit4_s2c,metric4i_s2,metr
         fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=metric4v_s2, labels={'x':xlabel, 'y':ylabel}, range_x=[xmin-.1,xmax+.1], range_y=[ymin-.1,ymax+.1], range_color=[zmin-.02, zmax+.02], hover_name='sector', opacity=.7, color_continuous_scale='Jet', custom_data=['sector',zlabel, xlabel,ylabel])
     except:
         fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=metric4v_s2, labels={'x':xlabel, 'y':ylabel}, range_x=[xmin-.1,xmax+.1], range_y=[ymin-.1,ymax+.1], range_color=[zmin-.02, zmax+.02], hover_name='sector', opacity=.7, color_continuous_scale='Jet', custom_data=['sector',zlabel, xlabel,ylabel])
-    fig.update_layout(width=900, height=700, font={'size':16}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v'}, hoverlabel={'font_size':18}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}).add_hline(y=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).add_vline(x=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]}</b><br>', str(zlabel)+': %{customdata[1]}', str(xlabel)+': %{customdata[2]:.2f})', str(ylabel)+': %{customdata[3]:.2f}']))
+    fig.update_layout(width=1150, height=950, font={'size':16}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v'}, hoverlabel={'font_size':18}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}).add_hline(y=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).add_vline(x=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]}</b><br>', str(zlabel)+': %{customdata[1]}', str(xlabel)+': %{customdata[2]:.2f})', str(ylabel)+': %{customdata[3]:.2f}']))
     return fig
 
 @callback(Output('waves5', 'figure'), Input('unit5', 'value'))
@@ -325,9 +325,9 @@ def update_waves(unit5):
     else:
         dataset = data_cvuln
     try:
-        fig = px.area(dataset[unit5], x='year', y='vulnerability', color='sector', width=950, height=450, labels={'y':'cumulative vulnerability (%)'})
+        fig = px.area(dataset[unit5], x='year', y='vulnerability', color='sector', width=950, height=500, labels={'y':'cumulative vulnerability (%)'})
     except:
-        fig = px.area(dataset[unit5], x='year', y='vulnerability', color='sector', width=950, height=450, labels={'y':'cumulative vulnerability (%)'})
+        fig = px.area(dataset[unit5], x='year', y='vulnerability', color='sector', width=950, height=500, labels={'y':'cumulative vulnerability (%)'})
     fig.update_traces(hovertemplate='%{y:.2f}%')
     return fig
 

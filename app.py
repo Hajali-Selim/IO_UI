@@ -284,10 +284,10 @@ def update_cline(metric3_c,unit3_c,region3_c):
         dataset = H[H['sector']==unit3_c].iloc[c_indices]
         dataset['country'] = deepcopy(dataset)['country'].cat.set_categories(np.array(countries)[inds], ordered=True)
     try:
-        fig = px.line(dataset, x='year', y=metric3_c, color='country', labels={'x':'year', 'y':metric3_c, 'color':'country'}, markers=True, hover_name='country')
+        fig = px.line(dataset, x='year', y=metric3_c, color='country', labels={'x':'year', 'y':metric3_c, 'color':'country'}, markers=True, custom_data=['country'])
     except:
-        fig = px.line(dataset, x='year', y=metric3_c, color='country', labels={'x':'year', 'y':metric3_c, 'color':'country'}, markers=True, hover_name='country')
-    fig.update_xaxes(tickvals= np.arange(1995,2023,3)).update_layout(font={'size':15}, height=700, width=1500, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10}, hovertemplate='<br>year: %{x}<br>'+str(metric3_c)+': %{y:.2f}%')
+        fig = px.line(dataset, x='year', y=metric3_c, color='country', labels={'x':'year', 'y':metric3_c, 'color':'country'}, markers=True, custom_data=['country'])
+    fig.update_xaxes(tickvals= np.arange(1995,2023,3)).update_layout(font={'size':15}, height=700, width=1300, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10}, hovertemplate='<b>%{customdata[0]}</b><br>year: %{x}<br>'+str(metric3_c)+': %{y:.2f}%')
     return fig
 
 @callback(Output('lines3_s', 'figure'), [Input(s, 'value') for s in ['metric3_s','unit3_s']])
@@ -297,10 +297,10 @@ def update_sline(metric3_s,unit3_s):
     else:
         dataset = H[H.country==unit3_s]
     try:
-        fig = px.line(dataset, x='year', y=metric3_s, color='sector', labels={'x':'year', 'y':metric3_s, 'color':'country'}, markers=True, hover_name='sector')
+        fig = px.line(dataset, x='year', y=metric3_s, color='sector', labels={'x':'year', 'y':metric3_s, 'color':'country'}, markers=True, custom_data=['sector'])
     except:
-        fig = px.line(dataset, x='year', y=metric3_s, color='sector', labels={'x':'year', 'y':metric3_s, 'color':'country'}, markers=True, hover_name='sector')
-    fig.update_xaxes(tickvals=np.arange(1995,2023,3)).update_layout(font={'size':15}, height=700, width=1600, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10}, hovertemplate='year: %{x}<br>'+str(metric3_s)+': %{y:.2f}%')
+        fig = px.line(dataset, x='year', y=metric3_s, color='sector', labels={'x':'year', 'y':metric3_s, 'color':'country'}, markers=True, custom_data=['sector'])
+    fig.update_xaxes(tickvals=np.arange(1995,2023,3)).update_layout(font={'size':15}, height=700, width=1300, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10}, hovertemplate='<b>%{customdata[0]}</b><br>year: %{x}<br>'+str(metric3_s)+': %{y:.2f}%')
     return fig
 
 @callback(Output('bubble4_s1', 'figure'), [Input(s, 'value') for s in ['metric4x_s1','metric4y_s1','metric4i_s1', 'group4_c','unit4_s1c', 'group4_s','year4_s1', 'color4', 'metric4v_s1']])

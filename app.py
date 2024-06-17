@@ -74,7 +74,7 @@ decarb_groups = {names7[i]:list(np.where(H.sector_color[:NS]==colors7[i])[0]) fo
 data_y = {int(c[0]):c[1] for c in H.groupby('year', observed=False)[units_list+metrics_list]}
 
 app.layout = html.Div(children=[
-    dcc.Markdown('''# World vulnerability''', style={'textAlign':'center'}),
+    dcc.Markdown('''# World vulnerability (beta)''', style={'textAlign':'center'}),
     html.Hr(),
     dbc.Accordion([
     	dbc.AccordionItem([
@@ -84,7 +84,19 @@ app.layout = html.Div(children=[
     		        dbc.Col(dcc.Markdown('**Decompose metric**', style={'textAlign':'right'}), width=2), dbc.Col(dbc.Checklist(id='type1', switch=True, value=[], options=[{'label':'', 'value':'On'}], inputStyle={'margin-right':'10px'}), width=4),]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select unit**', style={'textAlign':'right'}), width=2), dbc.Col(dcc.Dropdown(units_list, 'country', id='unit1'), width=2),
     		        dbc.Col(dcc.Markdown('**Select ordering**', style={'textAlign':'right'}), width=2), dbc.Col(dmc.SegmentedControl(ordering_list, 'original', id='order1'), width=5), ]),
-    		dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2), dbc.Col([html.Br(), html.Br(), daq.Slider(min=1995, max=2020, step=1, value=2000, labelPosition='bottom', handleLabel={'showCurrentValue':True, 'label':' ', 'color':'#3e7cc8'}, size=500, id='year1')], width=5), ]),
+    		dbc.Row([dbc.Col(dcc.Markdown('**Select type of data**', style={'textAlign':'right'}), width=2),
+    		        dbc.Col(
+    		        dbc.Row([
+        		        dbc.Col(
+        		        dmc.SegmentedControl(['single year', 'range of years'], 'single year', id='changes1'), width=3),
+        		        dcc.Markdown('if \'single year\', select which one:'), html.Br(),
+        		        dcc.Slider(min=1995, max=2020, step=1, value=2000, marks={1995:'1995', 2020:'2020'}, tooltip={'placement':'top', 'always_visible':True}, id='year1'),
+        		        #daq.Slider(min=1995, max=2020, step=1, value=2000, labelPosition='bottom', handleLabel={'showCurrentValue':True, 'label':' ', 'color':'#3e7cc8'}, size=500, id='year1'),
+        		        dcc.Markdown('if \'range of years\', select a range:'), html.Br(),
+        		        dcc.RangeSlider(min=1995, max=2020, step=1, value=[2015,2020], marks={1995:'1995', 2020:'2020'}, tooltip={'placement':'top', 'always_visible':True}, id='range1'),
+        		        ]), width=8)
+    		        ]),
+    		#dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2), dbc.Col([html.Br(), html.Br(), daq.Slider(min=1995, max=2020, step=1, value=2000, labelPosition='bottom', handleLabel={'showCurrentValue':True, 'label':' ', 'color':'#3e7cc8'}, size=500, id='year1')], width=5), ]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Display regions**', style={'textAlign':'right'}), width=2), dbc.Col(dcc.Checklist(regions_list, regions_list, id='group1_c', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=6), ]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Display sector groups**', style={'textAlign':'right'}), width=2), dbc.Col(dcc.Checklist(sector_groups, sector_groups, id='group1_s', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=6)
     		        ])], ), ]),
@@ -160,11 +172,11 @@ app.layout = html.Div(children=[
 			    dbc.Col(dcc.Dropdown(structural_list+economic_list, 'backward linkage', id='metric4y_s1'), width=2)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select marker size**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dmc.SegmentedControl(vulnerability_list+ ['structural index', 'linkage index'], 'oil vulnerability', id='metric4i_s1'), width=5)]),
-			dbc.Row([dbc.Col(dcc.Markdown('**Display regions (marker style)**', style={'textAlign':'right', 'white-space':'pre'}), width=2),
+			dbc.Row([dbc.Col(dcc.Markdown('**Display regions\n(marker style)**', style={'textAlign':'right', 'white-space':'pre'}), width=2),
     		    dbc.Col(dcc.Checklist(regions_list, ['Europe'], id='group4_c', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=5), ]),
     		   
     		dbc.Row([dbc.Col(dcc.Markdown('**Display sector groups (marker color)**', style={'textAlign':'right'}), width=2),
-    			dbc.Col(dcc.Checklist(names7, names7[:-1], id='group4_s', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px', 'margin-bottom':'10px'}), width=5), ]),
+    			dbc.Col(dcc.Checklist(names7, names7[:-1], id='group4_s', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=5), ]),
     		
     		dbc.Row([dbc.Col(dcc.Markdown('**Select color according to**', style={'textAlign':'right'}), width=2),
     		        dbc.Col([
@@ -215,19 +227,26 @@ app.layout = html.Div(children=[
     			    dbc.Col([html.Br(), html.Br(), daq.Slider(min=10, max=100, step=10, value=50, labelPosition='bottom', handleLabel={'showCurrentValue':True, 'label':' ', 'color':'#3e7cc8'}, size=500, id='nbedges6')])]),], width=8),
     		dbc.Col([html.Img(src=sector_group_scheme),], width=4),]),
     		dbc.Row([
-    		dbc.Col(dcc.Markdown('Ndlr: All 163 sectors are aggregated into 5 main sector groups. Transactions are represented by links whose colors corresponds to the sector group of the exporter node (see image above). Hover the mouse over a link to see more details: source and target sectors and countries, and transaction amount in M$.', style={'font-size':14}), width=8),
+    		dbc.Col(dcc.Markdown('Ndlr: All 163 sectors are aggregated into 5 main sector groups. Transactions are represented by links whose colors corresponds to the sector group of the exporter node (see image above). Hover the mouse over a link to see more details: source and target sectors and countries, and transaction amount in M$.', style={'font-size':13}), width=8),
     		dbc.Row(dcc.Graph(figure={}, id='map6'))]),]
     		, title='Worldmap'),
 			], flush=True)
 			])
 
-@callback(Output('hist1', 'figure'), [Input(s, 'value') for s in ['metric1','unit1','group1_s','group1_c','year1','order1','type1']])
-def update_histogram(metric1,unit1,group1_s,group1_c,year1,order1,type1):
-    order, dataset, color = (order1=='original')*'trace' + (order1=='descending')*'total descending' + (order1=='ascending')*'total ascending', data_y[year1].reset_index(), 'sector'*(unit1 in ['country','region']) + 'country'*(unit1=='sector')
+@callback(Output('hist1', 'figure'), [Input(s, 'value') for s in ['metric1','unit1','group1_s','group1_c','year1','order1','type1','changes1', 'range1']])
+def update_histogram(metric1,unit1,group1_s,group1_c,year1,order1,type1,changes1,range1):
+    order, color = (order1=='original')*'trace' + (order1=='descending')*'total descending' + (order1=='ascending')*'total ascending', 'sector'*(unit1 in ['country','region']) + 'country'*(unit1=='sector')
     gsinds, gcinds = sum([sector_groupmap[g] for g in group1_s],[]), sum([country_groups[c] for c in group1_c],[])
-    dataset = deepcopy(dataset.iloc[sorted([NS*c+s for c in gcinds for s in gsinds])])
-    if type1:
-        return px.bar(dataset, x=metric1, y=unit1, orientation='h', color=color, custom_data=[color]).update_yaxes(categoryorder=order, autorange='reversed').update_layout(xaxis_title='cumulative '+metric1, yaxis_title=unit1, font={'size':11}, height=820+1450*(unit1=='sector')).update_traces(hovertemplate='<b>%{customdata[0]} (%{y}, '+str(year1)+')</b><br>'+str(metric1)+': %{x:.2f}%')
+    if changes1 == 'range of years': # if looking at variations
+        year0, year1 = range1
+        dataset_previous, dataset = data_y[year0][metric1].reset_index(), data_y[year1][['region','country','sector',metric1]].reset_index()
+        dataset[metric1] = dataset[metric1].subtract(dataset_previous[metric1])
+    else:
+        dataset = data_y[year1][['region','country','sector',metric1]]
+    dataset = deepcopy(dataset.iloc[sorted([NS*c+s for c in gcinds for s in gsinds])]).reset_index()
+    if type1: # if decomp
+        decomp = 'country'*(unit1 == 'sector') + 'sector'*(unit1 in ['country','region'])
+        return px.bar(dataset, x=metric1, y=unit1, orientation='h', color=color, custom_data=[decomp]).update_yaxes(categoryorder=order, autorange='reversed').update_layout(xaxis_title='cumulative '+metric1, yaxis_title=unit1, font={'size':11}, height=820+1450*(unit1=='sector')).update_traces(hovertemplate='<b>%{customdata[0]} (%{y}, '+str(year1)+')</b><br>'+str(metric1)+': %{x:.2f}%')
     else:
         return px.histogram(dataset, x=metric1, y=unit1, histfunc='avg', orientation='h').update_yaxes(categoryorder=order, autorange='reversed').update_layout(xaxis_title=metric1, yaxis_title=unit1, font={'size':11}, height=820+1450*(unit1=='sector')).update_traces(hovertemplate='<b>%{y}, '+str(year1)+'</b><br>average '+str(metric1)+': %{x:.2f}%')
 

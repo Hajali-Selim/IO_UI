@@ -270,7 +270,7 @@ def update_sheatmap(segment2_s,metric2_s,group2_s,order2_s,unit2_s):
         fig = make_subplots(rows=1, cols=4, horizontal_spacing=.005, shared_yaxes=True, subplot_titles=['<b>'+str(i)+'</b>' for i in regions_list])
         for r_idx in range(len(regions_list)):
             r = regions_list[r_idx]
-            fig.add_trace(px.density_heatmap(data_s2avg[r], x='year', y='sector', z=metric2_s, nbinsx=NY, nbinsy=len(sinds)).data[0], row=1, col=r_idx+1).update_traces(hovertemplate='<b>%{y} ('+r+', %{x})</b><br>'+str(metric2_s)+': %{z:.2f}%')
+            fig.add_trace(px.density_heatmap(data_s2avg[r].iloc[sorted([k*NS+i for k in range(NY) for i in sinds])], x='year', y='sector', z=metric2_s, nbinsx=NY, nbinsy=len(sinds)).data[0], row=1, col=r_idx+1).update_traces(hovertemplate='<b>%{y} ('+r+', %{x})</b><br>'+str(metric2_s)+': %{z:.2f}%')
         fig.update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(height=15+45*len(sinds)**.78, width=720+4*260, font={'size':15}, showlegend=True, coloraxis_colorbar={'title':metric2_s, 'orientation':'v'}, coloraxis={'colorscale':'Jet'})
         return fig
 

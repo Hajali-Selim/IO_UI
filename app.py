@@ -20,6 +20,7 @@ server = app.server
 
 H = pd.read_csv('processed_data_update.csv', compression='gzip')
 worldmap_nodes, worldmap_links, sector_group_scheme = pd.read_csv('worldmap_nodes.csv'), pd.read_csv('worldmap_links_plot.csv'), Image.open('worldmap_scheme.png')
+
 NS, NC, NY = 163, 49, 26
 N, Ntot = NS*NC, NS*NC*NY
 regions, countries, sectors = H.region.iloc[np.arange(0,N,NS)], H.country.unique(), H.sector.unique()
@@ -36,7 +37,7 @@ for c in countries:
     country_to_idx[c], k2 = k2, k2+1
 
 units_list = ['region', 'country', 'sector']
-vulnerability_list, structural_list, economic_list = ['coal vulnerability', 'gas vulnerability', 'oil vulnerability', 'vulnerability index'], ['out-degree', 'in-degree', 'total degree', 'betweenness', 'weighted in-degree', 'weighted out-degree', 'weighted total degree', 'structural index'], ['forward linkage', 'backward linkage', 'linkage index']
+vulnerability_list, structural_list, economic_list, structuralnorm_list = ['coal vulnerability', 'gas vulnerability', 'oil vulnerability', 'vulnerability index'], ['out-degree', 'in-degree', 'total degree', 'betweenness', 'weighted in-degree', 'weighted out-degree', 'weighted total degree', 'structural index'], ['forward linkage', 'backward linkage', 'linkage index'], ['normalised out-degree', 'normalised in-degree', 'normalised total degree', 'normalised betweenness', 'normalised weighted in-degree', 'normalised weighted out-degree', 'normalised weighted total degree']
 
 metrics_list = vulnerability_list+structural_list+economic_list
 ordering_list = ['original', 'descending', 'ascending']
@@ -72,7 +73,6 @@ sector_groupmap = {'Agriculture, forestry and fishing':list(range(19)), 'Extract
 country_groups = {r:list(np.where(regions==r)[0]) for r in regions_list}
 decarb_groups = {names7[i]:list(np.where(H.sector_color[:NS]==colors7[i])[0]) for i in range(7)}
 data_y = {int(c[0]):c[1] for c in H.groupby('year', observed=False)[units_list+metrics_list]}
-
 
 app.layout = html.Div(children=[
     dcc.Markdown('''# World vulnerability (beta)''', style={'textAlign':'center'}),
@@ -168,13 +168,13 @@ app.layout = html.Div(children=[
     	    dbc.Row([dbc.Col(dbc.Button('Display countries', id='open_canvas4_s1c', n_clicks=0), width=1.5)]),
     	    html.Br(),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select x-axis**', style={'textAlign':'right'}), width=2),
-			    dbc.Col(dcc.Dropdown(structural_list+economic_list, 'forward linkage', id='metric4x_s1'), width=2)]),
+			    dbc.Col(dcc.Dropdown(structuralnorm_list+economic_list, 'forward linkage', id='metric4x_s1'), width=3)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select y-axis**', style={'textAlign':'right'}), width=2),
-			    dbc.Col(dcc.Dropdown(structural_list+economic_list, 'backward linkage', id='metric4y_s1'), width=2)]),
+			    dbc.Col(dcc.Dropdown(structuralnorm_list+economic_list, 'backward linkage', id='metric4y_s1'), width=3)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select marker size**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dmc.SegmentedControl(vulnerability_list+ ['structural index', 'linkage index'], 'oil vulnerability', id='metric4i_s1'), width=5)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Display regions\n(marker style)**', style={'textAlign':'right', 'white-space':'pre'}), width=2),
-    		    dbc.Col(dcc.Checklist(regions_list, ['Europe'], id='group4_c', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=5), ]),
+    		    dbc.Col(dcc.Checklist(regions_list, ['Europe'], id='group4_c', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=6), ]),
     		   
     		dbc.Row([dbc.Col(dcc.Markdown('**Display sector groups (marker color)**', style={'textAlign':'right'}), width=2),
     			dbc.Col(dcc.Checklist(names7, names7[:-1], id='group4_s', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=5), ]),
@@ -196,9 +196,9 @@ app.layout = html.Div(children=[
     		dbc.Col(dbc.Button('Display sectors', id='open_canvas4_s2', n_clicks=0), width=2),
     		html.Br(),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select x-axis**', style={'textAlign':'right'}), width=2),
-			    dbc.Col(dcc.Dropdown(structural_list+economic_list, 'forward linkage', id='metric4x_s2'), width=2)]),
+			    dbc.Col(dcc.Dropdown(structuralnorm_list+economic_list, 'forward linkage', id='metric4x_s2'), width=2)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select y-axis**', style={'textAlign':'right'}), width=2),
-			    dbc.Col(dcc.Dropdown(structural_list+economic_list, 'backward linkage', id='metric4y_s2'), width=2)]),
+			    dbc.Col(dcc.Dropdown(structuralnorm_list+economic_list, 'backward linkage', id='metric4y_s2'), width=2)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select country**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dcc.Dropdown(countries, 'USA', id='unit4_s2c'), width=2)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select marker size**', style={'textAlign':'right'}), width=2),
@@ -225,7 +225,7 @@ app.layout = html.Div(children=[
     		dbc.Row([dbc.Col(dcc.Markdown('**Select vulnerability (country color)**', style={'textAlign':'right'}), width=3),
     		        dbc.Col(dmc.SegmentedControl(vulnerability_list, 'oil vulnerability', id='metric6'), width=5),]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select number of links per sector group**', style={'textAlign':'right'}), width=3),
-    			    dbc.Col(dcc.Slider(min=1995, max=2020, step=1, value=2000, marks={1995:'1995', 2020:'2020'}, tooltip={'placement':'top', 'always_visible':True}, id='nbedges6'))]),], width=8),
+    			    dbc.Col(dcc.Slider(min=10, max=100, step=10, value=50, marks={10:'10', 100:'100'}, tooltip={'placement':'top', 'always_visible':True}, id='nbedges6'))]),], width=8),
     		dbc.Col([html.Img(src=sector_group_scheme),], width=4),]),
     		dbc.Row([
     		dbc.Col(dcc.Markdown('Ndlr: All 163 sectors are aggregated into 5 main sector groups. Transactions are represented by links whose colors corresponds to the sector group of the exporter node (see image above). Hover the mouse over a link to see more details: source and target sectors and countries, and transaction amount in M$.', style={'font-size':13}), width=8),
@@ -311,7 +311,15 @@ def update_s1bubble(metric4x_s1,metric4y_s1,metric4i_s1,group4_c,unit4_s1c,group
     cinds = list(set([country_to_idx[c] for c in unit4_s1c]) & set(gcinds))
     dataset = deepcopy(H[H.year==year4_s1].reset_index().iloc[sorted([c*NS+s for c in cinds for s in sinds]),1:])
     size = deepcopy(dataset[zlabel]*1000)
-    xmin, xmax, ymin, ymax, zmin, zmax = .5, 2, .5, 2, dataset[zlabel].min(), dataset[zlabel].max()
+    if xlabel in structuralnorm_list:
+        xmin, xmax = .01, .5
+    else:
+        xmin, xmax = .5, 2
+    if ylabel in structuralnorm_list:
+        ymin, ymax = .01, .5
+    else:
+        ymin, ymax = .5, 2
+    zmin, zmax = dataset[zlabel].min(), dataset[zlabel].max()
     color4 = 'sector_color'*(color4=='sector group') + metric4v_s1*(color4=='vulnerability')
     try:
         fig = px.scatter(dataset, x=xlabel, y=ylabel, size=size, color=color4, labels={'x':xlabel, 'y':ylabel}, range_x=[xmin-.1,xmax+.1], range_y=[ymin-.1,ymax+.1], range_color=[zmin-.02, zmax+.02], hover_name='sector', symbol='region_marker', opacity=.7, color_continuous_scale='Jet', custom_data= ['country','sector',zlabel,xlabel,ylabel])
@@ -331,7 +339,15 @@ def update_s2bubble(metric4x_s2,metric4y_s2,group4_s2,unit4_s2c,metric4i_s2,metr
     gsinds = sum([sector_groupmap[g] for g in group4_s2],[])
     sinds = list(set([sector_to_idx[s] for s in unit4_s2]) & set(gsinds))
     dataset = deepcopy(H[H.year==year4_s2].reset_index().iloc[sorted([country_to_idx[unit4_s2c]*NS+s for s in sinds]),1:])
-    xmin, xmax, ymin, ymax, zmin, zmax = .5, 2, .5, 2, dataset[zlabel].min(), dataset[zlabel].max()
+    if xlabel in structuralnorm_list:
+        xmin, xmax = .01, .5
+    else:
+        xmin, xmax = .5, 2
+    if ylabel in structuralnorm_list:
+        ymin, ymax = .01, .5
+    else:
+        ymin, ymax = .5, 2
+    zmin, zmax = dataset[zlabel].min(), dataset[zlabel].max()
     try:
         fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=metric4v_s2, labels={'x':xlabel, 'y':ylabel}, range_x=[xmin-.1,xmax+.1], range_y=[ymin-.1,ymax+.1], range_color=[zmin-.02, zmax+.02], hover_name='sector', opacity=.7, color_continuous_scale='Jet', custom_data=['sector',zlabel, xlabel,ylabel])
     except:
@@ -392,4 +408,4 @@ def toggle_4s2canvas(n, is_open):
     return is_open
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)

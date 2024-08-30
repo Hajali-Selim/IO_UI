@@ -380,15 +380,12 @@ def update_waves(unit5):
 def update_maps(year6, metric6, nbedges6):
     dataset, colorbar_legend = worldmap_plot[worldmap_plot.year==year6].reset_index(), metric6
     fig = go.Figure(go.Choropleth(locations=countries_code, z=data_cavg[data_cavg.year==year6][metric6], colorscale='Reds', colorbar={'title': colorbar_legend}, hoverinfo='skip'))
-    #for s in range(5):
-    #    fig.add_scattergeo(lat=worldmap_nodes['lat'+str(s)], lon=worldmap_nodes['lon'+str(s)], marker={'size':7, 'color':sector_group_colors[s]}, showlegend=False, hoverinfo='skip')
     for idx in range(nbedges6//10):
         for s in range(1,5):
             batch, color = deepcopy(dataset.iloc[3*(100*s+10*idx): 3*(100*s+10*(idx+1))]), sector_group_colors[s]
             fig.add_scattergeo(lat=batch.latitude, lon=batch.longitude, mode='lines', line={'width':1.5, 'color':color}, showlegend=False, hoverinfo='skip')
-    #fig.add_scattergeo(lat=worldmap_nodes.lat, lon=worldmap_nodes.lon, marker={'size':4, 'symbol':'circle-open', 'color':'black', 'opacity':0.8}, showlegend=False, customdata=worldmap_nodes.EXIOBASE_name, hoverinfo='skip')
     fig.add_scattergeo(lat=worldmap_nodes.lat, lon=worldmap_nodes.lon, marker={'size':5, 'symbol':'circle-open', 'color':'black', 'opacity':0.8}, showlegend=False, customdata=worldmap_nodes.EXIOBASE_name, hovertemplate='%{customdata}<extra></extra>').update_layout(clickmode='event+select')
-    _ = fig.update_geos(lataxis_range=[-55, 90], showocean=True, oceancolor='LightBlue').update_layout(width=1100, height=500, margin=dict(l=20, r=20, t=0, b=0))
+    _ = fig.update_geos(lataxis_range=[-55, 90], showocean=True, oceancolor='LightBlue').update_layout(width=1300, height=500, margin=dict(l=20, r=20, t=0, b=0))
     return fig
 
 @callback(Output('title6_exports', 'children'), [Input('map6', 'clickData'), Input('year6', 'value')])

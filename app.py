@@ -228,7 +228,7 @@ app.layout = html.Div(children=[
     			    dbc.Col(dcc.Slider(min=10, max=100, step=10, value=50, marks={10:'10', 100:'100'}, tooltip={'placement':'top', 'always_visible':True}, id='nbedges6'))]),], width=8),
     		dbc.Col([html.Img(src=sector_group_scheme),], width=4),]),
     		dbc.Row([
-    		dbc.Col(dcc.Markdown('Ndlr: All 163 sectors are aggregated into 5 main sector groups. Transactions are represented by links whose colors corresponds either to the exporting sector group, according to the color coding in the opposite image. Click on a country (node) to visualise a table below detailing its major imports and exports (links). Amounts are reported in millions of USD.', style={'font-size':13}), width=8),
+    		dbc.Col(dcc.Markdown('Ndlr: All 163 sectors are aggregated into 5 main sector groups. Transactions are represented by links whose colours correspond to the exporting sector group, as shown in the colour coding in the image opposite. Please click on a country (node) to view a table below detailing its major imports and exports (links), which may overlap on the world map figure. Amounts are in millions of USD.', style={'font-size':13}), width=8),
     		dbc.Row(dcc.Graph(figure={}, id='map6')),
             dbc.Row([html.Pre(id='title6_exports'),
                     dash_table.DataTable(id='table6_exports', css=[{'selector': '.dash-spreadsheet td div', 'rule':'''max-height: 10px'''}], style_data={'whiteSpace':'normal'}),
@@ -238,7 +238,7 @@ app.layout = html.Div(children=[
                     #html.Pre(id='table6_imports')
                     ,
                     ]),]),]
-    		, title='Worldmap'),
+    		, title='World map'),
 			], flush=True)
 			])
 
@@ -296,7 +296,7 @@ def update_cline(metric3_c,unit3_c,region3_c):
         fig = px.line(dataset, x='year', y=metric3_c, color='country', labels={'x':'year', 'y':metric3_c, 'color':'country'}, markers=True, custom_data=['country'])
     except:
         fig = px.line(dataset, x='year', y=metric3_c, color='country', labels={'x':'year', 'y':metric3_c, 'color':'country'}, markers=True, custom_data=['country'])
-    fig.update_xaxes(tickvals= np.arange(1995,2023,3)).update_layout(font={'size':15}, height=700, width=1300, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10}, hovertemplate='<b>%{customdata[0]}</b><br>year: %{x}<br>'+str(metric3_c)+': %{y:.2f}%')
+    fig.update_xaxes(tickvals= np.arange(1995,2023,3)).update_layout(font={'size':15}, height=700, width=1300, hoverlabel={'font_size':14}).update_traces(line={'width':4}, marker={'size':10}, hovertemplate='<b>%{customdata[0]}</b><br>year: %{x}<br>'+str(metric3_c)+': %{y:.2f}<extra></extra>')
     return fig
 
 @callback(Output('lines3_s', 'figure'), [Input(s, 'value') for s in ['metric3_s','unit3_s']])
@@ -309,7 +309,7 @@ def update_sline(metric3_s,unit3_s):
         fig = px.line(dataset, x='year', y=metric3_s, color='sector', labels={'x':'year', 'y':metric3_s, 'color':'country'}, markers=True, custom_data=['sector'])
     except:
         fig = px.line(dataset, x='year', y=metric3_s, color='sector', labels={'x':'year', 'y':metric3_s, 'color':'country'}, markers=True, custom_data=['sector'])
-    fig.update_xaxes(tickvals=np.arange(1995,2023,3)).update_layout(font={'size':15}, height=700, width=1300, hoverlabel={'font_size':16}).update_traces(line={'width':4}, marker={'size':10}, hovertemplate='<b>%{customdata[0]}</b><br>year: %{x}<br>'+str(metric3_s)+': %{y:.2f}%')
+    fig.update_xaxes(tickvals=np.arange(1995,2023,3)).update_layout(font={'size':15}, height=700, width=1300, hoverlabel={'font_size':14}).update_traces(line={'width':4}, marker={'size':10}, hovertemplate='<b>%{customdata[0]}</b><br>year: %{x}<br>'+str(metric3_s)+': %{y:.2f}<extra></extra>')
     return fig
 
 @callback(Output('bubble4_s1', 'figure'), [Input(s, 'value') for s in ['metric4x_s1','metric4y_s1','metric4i_s1', 'group4_c','unit4_s1c', 'group4_s','year4_s1', 'color4', 'metric4v_s1']])
@@ -383,12 +383,12 @@ def update_maps(year6, metric6, nbedges6):
     #for s in range(5):
     #    fig.add_scattergeo(lat=worldmap_nodes['lat'+str(s)], lon=worldmap_nodes['lon'+str(s)], marker={'size':7, 'color':sector_group_colors[s]}, showlegend=False, hoverinfo='skip')
     for idx in range(nbedges6//10):
-        for s in range(5):
+        for s in range(1,5):
             batch, color = deepcopy(dataset.iloc[3*(100*s+10*idx): 3*(100*s+10*(idx+1))]), sector_group_colors[s]
             fig.add_scattergeo(lat=batch.latitude, lon=batch.longitude, mode='lines', line={'width':1.5, 'color':color}, showlegend=False, hoverinfo='skip')
     #fig.add_scattergeo(lat=worldmap_nodes.lat, lon=worldmap_nodes.lon, marker={'size':4, 'symbol':'circle-open', 'color':'black', 'opacity':0.8}, showlegend=False, customdata=worldmap_nodes.EXIOBASE_name, hoverinfo='skip')
     fig.add_scattergeo(lat=worldmap_nodes.lat, lon=worldmap_nodes.lon, marker={'size':5, 'symbol':'circle-open', 'color':'black', 'opacity':0.8}, showlegend=False, customdata=worldmap_nodes.EXIOBASE_name, hovertemplate='%{customdata}<extra></extra>').update_layout(clickmode='event+select')
-    _ = fig.update_geos(lataxis_range=[-55, 90], showocean=True, oceancolor='LightBlue').update_layout(width=1400, height=600, margin=dict(l=20, r=20, t=0, b=0))
+    _ = fig.update_geos(lataxis_range=[-55, 90], showocean=True, oceancolor='LightBlue').update_layout(width=1100, height=500, margin=dict(l=20, r=20, t=0, b=0))
     return fig
 
 @callback(Output('title6_exports', 'children'), [Input('map6', 'clickData'), Input('year6', 'value')])

@@ -18,7 +18,7 @@ external_stylesheets = [dbc.themes.CERULEAN]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
-H = pd.read_csv('processed_data_update.csv', compression='gzip')
+H = pd.read_csv('processed_data.csv', compression='bz2')
 worldmap_nodes, worldmap_table, worldmap_plot, sector_group_scheme = pd.read_csv('worldmap_nodes.csv'), pd.read_csv('worldmap_table.csv'), pd.read_csv('worldmap_plot.csv'), Image.open('worldmap_scheme.png')
 
 NS, NC, NY = 163, 49, 26

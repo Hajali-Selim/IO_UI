@@ -19,7 +19,7 @@ app = Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
 H = pd.read_csv('processed_data_update.csv', compression='gzip')
-worldmap_nodes, worldmap_links, sector_group_scheme = pd.read_csv('worldmap_nodes.csv'), pd.read_csv('worldmap_links_plot.csv'), Image.open('worldmap_scheme.png')
+worldmap_nodes, worldmap_table, worldmap_plot, sector_group_scheme = pd.read_csv('worldmap_nodes.csv'), pd.read_csv('worldmap_table.csv'), pd.read_csv('worldmap_plot.csv'), Image.open('worldmap_scheme.png')
 
 NS, NC, NY = 163, 49, 26
 N, Ntot = NS*NC, NS*NC*NY
@@ -37,7 +37,8 @@ for c in countries:
     country_to_idx[c], k2 = k2, k2+1
 
 units_list = ['region', 'country', 'sector']
-vulnerability_list, structural_list, economic_list, structuralnorm_list = ['coal vulnerability', 'gas vulnerability', 'oil vulnerability', 'vulnerability index'], ['out-degree', 'in-degree', 'total degree', 'betweenness', 'weighted in-degree', 'weighted out-degree', 'weighted total degree', 'structural index'], ['forward linkage', 'backward linkage', 'linkage index'], ['normalised out-degree', 'normalised in-degree', 'normalised total degree', 'normalised betweenness', 'normalised weighted in-degree', 'normalised weighted out-degree', 'normalised weighted total degree']
+vulnerability_list, structural_list, economic_list = ['coal vulnerability', 'gas vulnerability', 'oil vulnerability', 'vulnerability index'], ['out-degree', 'in-degree', 'total degree', 'betweenness', 'weighted in-degree', 'weighted out-degree', 'weighted total degree', 'structural index'], ['forward linkage', 'backward linkage', 'linkage index']
+structuralnorm_list = ['normalised '+s for s in structural_list]
 
 metrics_list = vulnerability_list+structural_list+economic_list
 ordering_list = ['original', 'descending', 'ascending']
@@ -81,9 +82,9 @@ app.layout = html.Div(children=[
     	dbc.AccordionItem([
     		dbc.Row([# row of data selection (parameter+ordering)
     		dbc.Col([# column of parameter selection
-    		dbc.Row([dbc.Col(dcc.Markdown('**Select metric**', style={'textAlign':'right'}), width=2), dbc.Col(dcc.Dropdown(vulnerability_list+ structural_list+economic_list, 'coal vulnerability', id='metric1'), width=2),
+    		dbc.Row([dbc.Col(dcc.Markdown('**Select metric**', style={'textAlign':'right'}), width=2), dbc.Col(dcc.Dropdown(vulnerability_list+ structural_list+economic_list, 'coal vulnerability', id='metric1'), width=3),
     		        dbc.Col(dcc.Markdown('**Decompose metric**', style={'textAlign':'right'}), width=2), dbc.Col(dbc.Checklist(id='type1', switch=True, value=[], options=[{'label':'', 'value':'On'}], inputStyle={'margin-right':'10px'}), width=4),]),
-    		dbc.Row([dbc.Col(dcc.Markdown('**Select unit**', style={'textAlign':'right'}), width=2), dbc.Col(dcc.Dropdown(units_list, 'country', id='unit1'), width=2),
+    		dbc.Row([dbc.Col(dcc.Markdown('**Select unit**', style={'textAlign':'right'}), width=2), dbc.Col(dcc.Dropdown(units_list, 'country', id='unit1'), width=3),
     		        dbc.Col(dcc.Markdown('**Select ordering**', style={'textAlign':'right'}), width=2), dbc.Col(dmc.SegmentedControl(ordering_list, 'original', id='order1'), width=5), ]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select type of data**', style={'textAlign':'right'}), width=2),
     		        dbc.Col(
@@ -97,7 +98,6 @@ app.layout = html.Div(children=[
         		        dcc.RangeSlider(min=1995, max=2020, step=1, value=[2015,2020], marks={1995:'1995', 2020:'2020'}, tooltip={'placement':'top', 'always_visible':True}, id='range1'),
         		        ]), width=8)
     		        ]),
-    		#dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2), dbc.Col([html.Br(), html.Br(), daq.Slider(min=1995, max=2020, step=1, value=2000, labelPosition='bottom', handleLabel={'showCurrentValue':True, 'label':' ', 'color':'#3e7cc8'}, size=500, id='year1')], width=5), ]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Display regions**', style={'textAlign':'right'}), width=2), dbc.Col(dcc.Checklist(regions_list, regions_list, id='group1_c', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=6), ]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Display sector groups**', style={'textAlign':'right'}), width=2), dbc.Col(dcc.Checklist(sector_groups, sector_groups, id='group1_s', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=6)
     		        ])], ), ]),
@@ -109,7 +109,7 @@ app.layout = html.Div(children=[
     				dcc.Checklist(countries, countries, id='unit2_c', inputStyle={'margin-right':'10px'})], id='canvas2_c', is_open=False, placement='end', scrollable=True),
     				dbc.Row([
     					dbc.Col(dcc.Markdown('**Select metric**', style={'textAlign':'right'}), width=2),
-    					dbc.Col(dcc.Dropdown(metrics_list, 'coal vulnerability', id='metric2_c'), width=2),]),
+    					dbc.Col(dcc.Dropdown(metrics_list, 'coal vulnerability', id='metric2_c'), width=3),]),
     				dbc.Row([
     					dbc.Col(dcc.Markdown('**Select ordering**', style={'textAlign':'right'}), width=2),
     					dbc.Col(dmc.SegmentedControl(ordering_list, 'original', id='order2_c',), width=4)]),
@@ -123,12 +123,13 @@ app.layout = html.Div(children=[
     			dbc.Tab([dbc.Row(dbc.Col(dmc.SegmentedControl(id='segment2_s', value='Worldwide averages', data=['Worldwide averages', 'Regional averages'], radius=5, size='md'), width=3),),
     			html.Br(),
     			dbc.Offcanvas([
-    			dcc.Checklist(sector_groups, sector_groups, id='group2_s', inline=False, inputStyle={'margin-top':'10px','margin-right':'5px','margin-left':'30px'}),
-    			dcc.Checklist(sectors, sectors, id='unit2_s', inputStyle={'margin-right':'10px'})], id='canvas2_s', is_open=False, placement='end', scrollable=True),
+                dcc.Checklist(sectors, sectors, id='unit2_s', inputStyle={'margin-right':'10px'})], id='canvas2_s', is_open=False, placement='end', scrollable=True),
     			dbc.Row([dbc.Col(dcc.Markdown('**Select metric**', style={'textAlign':'right'}), width=2),
-    					dbc.Col(dcc.Dropdown(metrics_list, 'coal vulnerability', id='metric2_s'), width=2),]),
+    					dbc.Col(dcc.Dropdown(metrics_list, 'coal vulnerability', id='metric2_s'), width=3),]),
     			dbc.Row([dbc.Col(dcc.Markdown('**Select ordering**', style={'textAlign':'right'}), width=2),
     					dbc.Col(dmc.SegmentedControl(ordering_list, 'original', id='order2_s'), width=6)]),
+                dbc.Row([dbc.Col(dcc.Markdown('**Select sector groups**', style={'textAlign':'right'}), width=2),
+    				dbc.Col(dcc.Checklist(sector_groups, sector_groups, id='group2_s', inline=True, inputStyle={'margin-top':'10px','margin-right':'5px','margin-left':'30px'}), width=6)]),
     			dbc.Row([dbc.Col(width=1), dbc.Col(dbc.Button('Display sectors', id='open_canvas2_s', n_clicks=0), width=2),]),
     			dbc.Row(dcc.Graph(figure={}, id='heatmap2_s')),]
     			, label='Sectors', activeTabClassName='fw-bold')]),
@@ -143,7 +144,7 @@ app.layout = html.Div(children=[
     				dbc.Col(dcc.Markdown('**Select sectors**', style={'textAlign':'right'}), width=2),
     				dbc.Col(dcc.Dropdown(['All sectors (average)']+list(sectors), 'All sectors (average)', id='unit3_c'), width=4),]),
 	    		dbc.Row([dbc.Col(dcc.Markdown('**Select metric**', style={'textAlign':'right'}), width=2),
-    				dbc.Col(dcc.Dropdown(metrics_list, 'coal vulnerability', id='metric3_c'), width=2), ]),
+    				dbc.Col(dcc.Dropdown(metrics_list, 'coal vulnerability', id='metric3_c'), width=3), ]),
     			dbc.Row([dbc.Col(dcc.Markdown('**Display region**', style={'textAlign':'right'}), width=2),
     				dbc.Col(dcc.Checklist(regions_list, regions_list, id='region3_c', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=6)]),
     			dbc.Row(dcc.Graph(figure={}, id='lines3_c')),],
@@ -151,9 +152,9 @@ app.layout = html.Div(children=[
     			
     			dbc.Tab([html.Br(),
     			dbc.Row([dbc.Col(dcc.Markdown('**Select countries**', style={'textAlign':'right'}), width=2),
-    				dbc.Col(dcc.Dropdown(['All countries (average)']+list(countries), 'All countries (average)', id='unit3_s'), width=2),]),
+    				dbc.Col(dcc.Dropdown(['All countries (average)']+list(countries), 'All countries (average)', id='unit3_s'), width=3),]),
 	    		dbc.Row([dbc.Col(dcc.Markdown('**Select metric**', style={'textAlign':'right'}), width=2),
-    				dbc.Col(dcc.Dropdown(metrics_list, 'gas vulnerability', id='metric3_s'), width=2), ]),
+    				dbc.Col(dcc.Dropdown(metrics_list, 'gas vulnerability', id='metric3_s'), width=3), ]),
     			dbc.Row(dcc.Graph(figure={}, id='lines3_s')),],
     			label='Sectors', activeTabClassName='fw-bold')])
     		
@@ -190,17 +191,18 @@ app.layout = html.Div(children=[
     		dbc.Row(dcc.Graph(figure={}, id='bubble4_s1'))], label='Worldwide (decarbonization-related sectors)', activeTabClassName='fw-bold'),
     	    
     	    dbc.Tab([html.Br(),
-    	    dbc.Offcanvas([dcc.Checklist(sector_groups, sector_groups, id='group4_s2', inline=False, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}),
-    	    html.Br(),
+    	    dbc.Offcanvas([
     		dcc.Checklist(sectors, sectors, id='unit4_s2', inputStyle={'margin-right':'10px'})], id='canvas4_s2', is_open=False, placement='end', scrollable=True),
     		dbc.Col(dbc.Button('Display sectors', id='open_canvas4_s2', n_clicks=0), width=2),
     		html.Br(),
+            dbc.Row([dbc.Col(dcc.Markdown('**Select sector groups**', style={'textAlign':'right'}), width=2),
+			    dbc.Col(dcc.Checklist(sector_groups, sector_groups, id='group4_s2', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=6)]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select x-axis**', style={'textAlign':'right'}), width=2),
-			    dbc.Col(dcc.Dropdown(structuralnorm_list+economic_list, 'forward linkage', id='metric4x_s2'), width=2)]),
+			    dbc.Col(dcc.Dropdown(structuralnorm_list+economic_list, 'forward linkage', id='metric4x_s2'), width=3)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select y-axis**', style={'textAlign':'right'}), width=2),
-			    dbc.Col(dcc.Dropdown(structuralnorm_list+economic_list, 'backward linkage', id='metric4y_s2'), width=2)]),
+			    dbc.Col(dcc.Dropdown(structuralnorm_list+economic_list, 'backward linkage', id='metric4y_s2'), width=3)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select country**', style={'textAlign':'right'}), width=2),
-			    dbc.Col(dcc.Dropdown(countries, 'USA', id='unit4_s2c'), width=2)]),
+			    dbc.Col(dcc.Dropdown(countries, 'USA', id='unit4_s2c'), width=3)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select marker size**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dmc.SegmentedControl(['structural index', 'vulnerability index', 'linkage index'], 'structural index', id='metric4i_s2'))]),
 		    dbc.Row([dbc.Col(dcc.Markdown('**Select color**', style={'textAlign':'right'}), width=2),
@@ -211,14 +213,12 @@ app.layout = html.Div(children=[
     		]), title='Scatter plots'),
     	
     	dbc.AccordionItem([
-    		dbc.Row([dbc.Col(dcc.Markdown('**Select region or country**', style={'textAlign':'right'}), width=2),
+    		dbc.Row([dbc.Col(dcc.Markdown('**Select region or country**', style={'textAlign':'right'}), width=3),
     		        dbc.Col(dcc.Dropdown(['Worldwide (average)']+[r+' (average)' for r in regions_list]+countries_list, 'Brazil', id='unit5'), width=3)]),
     		dbc.Row(dcc.Graph(figure={}, id='waves5'))]
     		, title='Waves'),
     	
     	dbc.AccordionItem([
-    		# insert number of edges (max, per sector group)
-    		# add details on what are Rest of World regions
     		dbc.Row([
     		dbc.Col([dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=3),
     			    dbc.Col(dcc.Slider(min=1995, max=2020, step=1, value=2000, marks={1995:'1995', 2020:'2020'}, tooltip={'placement':'top', 'always_visible':True}, id='year6'))]),
@@ -228,8 +228,16 @@ app.layout = html.Div(children=[
     			    dbc.Col(dcc.Slider(min=10, max=100, step=10, value=50, marks={10:'10', 100:'100'}, tooltip={'placement':'top', 'always_visible':True}, id='nbedges6'))]),], width=8),
     		dbc.Col([html.Img(src=sector_group_scheme),], width=4),]),
     		dbc.Row([
-    		dbc.Col(dcc.Markdown('Ndlr: All 163 sectors are aggregated into 5 main sector groups. Transactions are represented by links whose colors corresponds to the sector group of the exporter node (see image above). Hover the mouse over a link to see more details: source and target sectors and countries, and transaction amount in M$.', style={'font-size':13}), width=8),
-    		dbc.Row(dcc.Graph(figure={}, id='map6'))]),]
+    		dbc.Col(dcc.Markdown('Ndlr: All 163 sectors are aggregated into 5 main sector groups. Transactions are represented by links whose colors corresponds either to the exporting sector group, according to the color coding in the opposite image. Click on a country (node) to visualise a table below detailing its major imports and exports (links). Amounts are reported in millions of USD.', style={'font-size':13}), width=8),
+    		dbc.Row(dcc.Graph(figure={}, id='map6')),
+            dbc.Row([html.Pre(id='title6_exports'),
+                    dash_table.DataTable(id='table6_exports', css=[{'selector': '.dash-spreadsheet td div', 'rule':'''max-height: 10px'''}], style_data={'whiteSpace':'normal'}),
+                    html.Br(),
+                    html.Pre(id='title6_imports'),
+                    dash_table.DataTable(id='table6_imports', css=[{'selector': '.dash-spreadsheet td div', 'rule':'''max-height: 10px'''}], style_data={'whiteSpace':'normal'})
+                    #html.Pre(id='table6_imports')
+                    ,
+                    ]),]),]
     		, title='Worldmap'),
 			], flush=True)
 			])
@@ -362,26 +370,55 @@ def update_waves(unit5):
     else:
         dataset = data_cvuln
     try:
-        fig = px.area(dataset[unit5], x='year', y='vulnerability', color='sector', width=950, height=450, labels={'y':'cumulative vulnerability (%)'})
+        fig = px.area(dataset[unit5], x='year', y='vulnerability', color='sector', width=950, height=450, labels={'y':'cumulative vulnerability (%)'}).update_layout(legend={'font_size':16})
     except:
-        fig = px.area(dataset[unit5], x='year', y='vulnerability', color='sector', width=950, height=450, labels={'y':'cumulative vulnerability (%)'})
+        fig = px.area(dataset[unit5], x='year', y='vulnerability', color='sector', width=950, height=450, labels={'y':'cumulative vulnerability (%)'}).update_layout(legend={'font_size':16})
     fig.update_traces(hovertemplate='%{x}: %{y:.2f}%')
     return fig
 
 @callback(Output('map6', 'figure'), [Input(s, 'value') for s in ['year6', 'metric6', 'nbedges6']])
 def update_maps(year6, metric6, nbedges6):
-    dataset, colorbar_legend = worldmap_links[worldmap_links.year==year6].reset_index(), metric6
-    fig = go.Figure(go.Choropleth(locations=countries_code, z=data_cavg[data_cavg.year==year6][metric6], colorscale='Reds', colorbar={'title': colorbar_legend}))
-    for s in range(5):
-        fig.add_scattergeo(lat=worldmap_nodes['lat'+str(s)], lon=worldmap_nodes['lon'+str(s)], marker={'size':7, 'color':sector_group_colors[s]}, showlegend=False)
-    #fig.add_scattergeo(lat=worldmap_nodes.lat, lon=worldmap_nodes.lon, marker={'size':18, 'symbol':'circle-open', 'color':'black'})
-    fig.add_scattergeo(lat=worldmap_nodes.lat, lon=worldmap_nodes.lon, marker={'size':7, 'symbol':'circle-open', 'color':'black'}, showlegend=False)
+    dataset, colorbar_legend = worldmap_plot[worldmap_plot.year==year6].reset_index(), metric6
+    fig = go.Figure(go.Choropleth(locations=countries_code, z=data_cavg[data_cavg.year==year6][metric6], colorscale='Reds', colorbar={'title': colorbar_legend}, hoverinfo='skip'))
+    #for s in range(5):
+    #    fig.add_scattergeo(lat=worldmap_nodes['lat'+str(s)], lon=worldmap_nodes['lon'+str(s)], marker={'size':7, 'color':sector_group_colors[s]}, showlegend=False, hoverinfo='skip')
     for idx in range(nbedges6//10):
         for s in range(5):
             batch, color = deepcopy(dataset.iloc[3*(100*s+10*idx): 3*(100*s+10*(idx+1))]), sector_group_colors[s]
-            fig.add_scattergeo(lat=batch.latitude, lon=batch.longitude, mode='lines', line={'width':1.5, 'color':color}, showlegend=False)
-    _ = fig.update_geos(lataxis_range=[-55, 90], showocean=True, oceancolor='LightBlue').update_layout(width=1400, height=600)
+            fig.add_scattergeo(lat=batch.latitude, lon=batch.longitude, mode='lines', line={'width':1.5, 'color':color}, showlegend=False, hoverinfo='skip')
+    #fig.add_scattergeo(lat=worldmap_nodes.lat, lon=worldmap_nodes.lon, marker={'size':4, 'symbol':'circle-open', 'color':'black', 'opacity':0.8}, showlegend=False, customdata=worldmap_nodes.EXIOBASE_name, hoverinfo='skip')
+    fig.add_scattergeo(lat=worldmap_nodes.lat, lon=worldmap_nodes.lon, marker={'size':5, 'symbol':'circle-open', 'color':'black', 'opacity':0.8}, showlegend=False, customdata=worldmap_nodes.EXIOBASE_name, hovertemplate='%{customdata}<extra></extra>').update_layout(clickmode='event+select')
+    _ = fig.update_geos(lataxis_range=[-55, 90], showocean=True, oceancolor='LightBlue').update_layout(width=1400, height=600, margin=dict(l=20, r=20, t=0, b=0))
     return fig
+
+@callback(Output('title6_exports', 'children'), [Input('map6', 'clickData'), Input('year6', 'value')])
+def update_export_title(clickData, year6):
+    if clickData:
+        return 'Largest exports from '+str(clickData['points'][0]['customdata'])+' (source country) in '+str(year6)+'.'
+
+@callback(Output('table6_exports', 'data'), [Input('map6', 'clickData')]+[Input(s, 'value') for s in ['year6', 'nbedges6']])
+def update_export_table(click_data, year6, nbedges6):
+    if click_data:
+        dataset = worldmap_table[worldmap_table.year==year6]
+        dataset = dataset.iloc[[100*g+s for g in range(5) for s in range(nbedges6)],:-1]
+        dataset = dataset[dataset['source country']==click_data['points'][0]['customdata']]
+        #country_table = dataset[(dataset['source country']==click_data['points'][0]['customdata'])][['source sector', 'source sector group', 'color', 'target country', 'target sector', 'target sector group', 'amount']]
+        return dataset.to_dict('records')
+
+@callback(Output('title6_imports', 'children'), [Input('map6', 'clickData'), Input('year6', 'value')])
+def update_import_title(clickData, year6):
+    if clickData:
+        return 'Largest imports to '+str(clickData['points'][0]['customdata'])+' (target country) in '+str(year6)+'.'
+
+@callback(Output('table6_imports', 'data'), [Input('map6', 'clickData')]+[Input(s, 'value') for s in ['year6', 'nbedges6']])
+def update_import_table(click_data, year6, nbedges6):
+    if click_data:
+        dataset = worldmap_table[(worldmap_table.year==year6)]
+        dataset = dataset.iloc[[100*g+s for g in range(5) for s in range(nbedges6)],:-1]
+        dataset = dataset[dataset['target country']==click_data['points'][0]['customdata']]
+        #[['source country', 'source sector', 'source sector group', 'color', 'target sector', 'target sector group', 'amount']]
+        return dataset.to_dict('records')
+        #return click_data
 
 @app.callback(Output('canvas2_c', 'is_open'), Input('open_canvas2_c', 'n_clicks'), State('canvas2_c', 'is_open'))
 def toggle_2ccanvas(n, is_open):
@@ -408,4 +445,4 @@ def toggle_4s2canvas(n, is_open):
     return is_open
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True, port=8050)

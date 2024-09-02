@@ -76,7 +76,7 @@ decarb_groups = {names7[i]:list(np.where(H.sector_color[:NS]==colors7[i])[0]) fo
 data_y = {int(c[0]):c[1] for c in H.groupby('year', observed=False)[units_list+metrics_list]}
 
 app.layout = html.Div(children=[
-    dcc.Markdown('''# World vulnerability (beta)''', style={'textAlign':'center'}),
+    dcc.Markdown('''# Global Economic Vulnerability''', style={'textAlign':'center'}),
     html.Hr(),
     dbc.Accordion([
     	dbc.AccordionItem([

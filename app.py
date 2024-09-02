@@ -93,7 +93,6 @@ app.layout = html.Div(children=[
         		        dmc.SegmentedControl(['single year', 'range of years'], 'single year', id='changes1'), width=3),
         		        dcc.Markdown('If \'single year\', select which one:'), html.Br(),
         		        dcc.Slider(min=1995, max=2020, step=1, value=2000, marks={1995:'1995', 2020:'2020'}, tooltip={'placement':'top', 'always_visible':True}, id='year1'),
-        		        #daq.Slider(min=1995, max=2020, step=1, value=2000, labelPosition='bottom', handleLabel={'showCurrentValue':True, 'label':' ', 'color':'#3e7cc8'}, size=500, id='year1'),
         		        dcc.Markdown('If \'range of years\', select a range:'), html.Br(),
         		        dcc.RangeSlider(min=1995, max=2020, step=1, value=[2015,2020], marks={1995:'1995', 2020:'2020'}, tooltip={'placement':'top', 'always_visible':True}, id='range1'),
         		        ]), width=8)
@@ -225,7 +224,7 @@ app.layout = html.Div(children=[
     		dbc.Row([dbc.Col(dcc.Markdown('**Select vulnerability (country color)**', style={'textAlign':'right'}), width=3),
     		        dbc.Col(dmc.SegmentedControl(vulnerability_list, 'oil vulnerability', id='metric6'), width=5),]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select number of links per sector group**', style={'textAlign':'right'}), width=3),
-    			    dbc.Col(dcc.Slider(min=10, max=100, step=10, value=50, marks={10:'10', 100:'100'}, tooltip={'placement':'top', 'always_visible':True}, id='nbedges6'))]),], width=8),
+    			    dbc.Col(dcc.Slider(min=10, max=100, step=10, value=40, marks={10:'10', 100:'100'}, tooltip={'placement':'top', 'always_visible':True}, id='nbedges6'))]),], width=8),
     		dbc.Col([html.Img(src=sector_group_scheme),], width=4),]),
     		dbc.Row([
     		dbc.Col(dcc.Markdown('Ndlr: All 163 sectors are aggregated into 5 main sector groups. Transactions are represented by links whose colours correspond to the exporting sector group, as shown in the colour coding in the image opposite. Click on a country (node) to view a table below detailing its major imports and exports (links), as links may overlap on the world map figure. Amounts are in millions of USD.', style={'font-size':13}), width=8),
@@ -234,9 +233,7 @@ app.layout = html.Div(children=[
                     dash_table.DataTable(id='table6_exports', css=[{'selector': '.dash-spreadsheet td div', 'rule':'''max-height: 10px'''}], style_data={'whiteSpace':'normal'}),
                     html.Br(),
                     html.Pre(id='title6_imports'),
-                    dash_table.DataTable(id='table6_imports', css=[{'selector': '.dash-spreadsheet td div', 'rule':'''max-height: 10px'''}], style_data={'whiteSpace':'normal'})
-                    #html.Pre(id='table6_imports')
-                    ,
+                    dash_table.DataTable(id='table6_imports', css=[{'selector': '.dash-spreadsheet td div', 'rule':'''max-height: 10px'''}], style_data={'whiteSpace':'normal'})                    ,
                     ]),]),]
     		, title='World map'),
 			], flush=True)
@@ -382,7 +379,7 @@ def update_maps(year6, metric6, nbedges6):
     fig = go.Figure(go.Choropleth(locations=countries_code, z=data_cavg[data_cavg.year==year6][metric6], colorscale='Reds', colorbar={'title': colorbar_legend}, hoverinfo='skip'))
     for idx in range(nbedges6//10):
         for s in range(5):
-            batch = deepcopy(dataset.iloc[3*(100*s+10*idx): 3*(100*s+10*(idx+1))])#, sector_group_colors[s] 
+            batch = deepcopy(dataset.iloc[3*(100*s+10*idx): 3*(100*s+10*(idx+1))])
             fig.add_scattergeo(lat=batch.latitude, lon=batch.longitude, mode='lines', line={'width':1.5, 'color':batch.color.iloc[0]}, showlegend=False, hoverinfo='skip')
     fig.add_scattergeo(lat=worldmap_nodes.lat, lon=worldmap_nodes.lon, marker={'size':5, 'symbol':'circle-open', 'color':'black', 'opacity':0.8}, showlegend=False, customdata=worldmap_nodes.EXIOBASE_name, hovertemplate='%{customdata}<extra></extra>').update_layout(clickmode='event+select')
     _ = fig.update_geos(lataxis_range=[-55, 90], showocean=True, oceancolor='LightBlue').update_layout(width=1400, height=500, margin=dict(l=20, r=20, t=0, b=0))
@@ -399,7 +396,6 @@ def update_export_table(click_data, year6, nbedges6):
         dataset = worldmap_table[worldmap_table.year==year6]
         dataset = dataset.iloc[[100*g+s for g in range(5) for s in range(nbedges6)],:-1]
         dataset = dataset[dataset['source country']==click_data['points'][0]['customdata']]
-        #country_table = dataset[(dataset['source country']==click_data['points'][0]['customdata'])][['source sector', 'source sector group', 'color', 'target country', 'target sector', 'target sector group', 'amount']]
         return dataset.to_dict('records')
 
 @callback(Output('title6_imports', 'children'), [Input('map6', 'clickData'), Input('year6', 'value')])
@@ -413,9 +409,7 @@ def update_import_table(click_data, year6, nbedges6):
         dataset = worldmap_table[(worldmap_table.year==year6)]
         dataset = dataset.iloc[[100*g+s for g in range(5) for s in range(nbedges6)],:-1]
         dataset = dataset[dataset['target country']==click_data['points'][0]['customdata']]
-        #[['source country', 'source sector', 'source sector group', 'color', 'target sector', 'target sector group', 'amount']]
         return dataset.to_dict('records')
-        #return click_data
 
 @app.callback(Output('canvas2_c', 'is_open'), Input('open_canvas2_c', 'n_clicks'), State('canvas2_c', 'is_open'))
 def toggle_2ccanvas(n, is_open):

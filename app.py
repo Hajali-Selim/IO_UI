@@ -227,8 +227,8 @@ app.layout = html.Div(children=[
     			    dbc.Col(dcc.Slider(min=10, max=100, step=10, value=40, marks={10:'10', 100:'100'}, tooltip={'placement':'top', 'always_visible':True}, id='nbedges6'))]),], width=8),
     		dbc.Col([html.Img(src=sector_group_scheme),], width=4),]),
     		dbc.Row([
-    		dbc.Col([dcc.Markdown('Ndlr: All 163 sectors are aggregated into 5 main sector groups. Transactions are represented by links whose colours correspond to the exporting sector group, as shown in the colour coding in the image opposite.', style={'font-size':13}),
-			dcc.Markdown('Please click on a country (node) to view a table below detailing its major imports and exports (links), as links may overlap on the world map figure. Amounts are in millions of USD.', style={'font-size':13})], width=8),
+    		dbc.Col([dcc.Markdown('Please click on a country (node) to view a table below detailing its major imports and exports (links), as links may overlap on the world map figure. Amounts are in millions of USD.', style={'font-size':13}),
+			 dcc.Markdown('Ndlr: All 163 sectors are aggregated into 5 main sector groups. Transactions are represented by links whose colours correspond to the exporting sector group, as shown in the colour coding in the image opposite.', style={'font-size':13})], width=8),
     		dbc.Row(dcc.Graph(figure={}, id='map6')),
             dbc.Row([html.Pre(id='title6_exports'),
                     dash_table.DataTable(id='table6_exports', css=[{'selector': '.dash-spreadsheet td div', 'rule':'''max-height: 10px'''}], style_data={'whiteSpace':'normal'}),

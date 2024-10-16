@@ -201,7 +201,7 @@ app.layout = html.Div(children=[
 			dbc.Row([dbc.Col(dcc.Markdown('**Select y-axis**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dcc.Dropdown(structuralnorm_list+economic_list, 'backward linkage', id='metric4y_s2'), width=3)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select country**', style={'textAlign':'right'}), width=2),
-			    dbc.Col(dcc.Dropdown(countries, 'USA', id='unit4_s2c'), width=3)]),
+			    dbc.Col(dcc.Dropdown(countries, 'United States', id='unit4_s2c'), width=3)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select marker size**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dmc.SegmentedControl(['structural index', 'vulnerability index', 'linkage index'], 'structural index', id='metric4i_s2'))]),
 		    dbc.Row([dbc.Col(dcc.Markdown('**Select color**', style={'textAlign':'right'}), width=2),

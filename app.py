@@ -1,4 +1,4 @@
-from dash import Dash, html, dash_table, dcc, callback, Output, Input, State, no_update, callback_context
+from dash import Dash, html, dash_table, dcc, callback, Output, Input, State, no_update
 import dash_daq as daq
 import dash_mantine_components as dmc
 import plotly.express as px
@@ -111,7 +111,7 @@ app.layout = html.Div(children=[
     					dbc.Col(dmc.SegmentedControl(ordering_list, 'original', id='order2_c',), width=4)]),
     				dbc.Row([
     				    dbc.Col(dcc.Markdown('**Select regions**', style={'textAlign':'right'}), width=2),
-    				    dbc.Col(dcc.Checklist(regions_list, regions_list, id='group2_c', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=5), ]),                    
+    				    dbc.Col(dcc.Checklist(regions_list, regions_list, id='region2_c', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=5), ]),                    
                     dbc.Row([dbc.Col(dcc.Markdown('**Hide countries**', style={'textAlign':'right'}), width=2),
                         dbc.Col(dcc.Dropdown(countries, [], id='unselect2_c', multi=True), width=3)]),
                     dbc.Col(dbc.Button('Reset selection', id='reset2_c', n_clicks=0, outline=True, color='dark'), width=2),
@@ -229,7 +229,7 @@ app.layout = html.Div(children=[
     		dbc.Row(dcc.Graph(figure={}, id='map6')),
             dbc.Row([html.Pre(id='title6_exports'),
                     dash_table.DataTable(id='table6_exports', css=[{'selector': '.dash-spreadsheet td div', 'rule':'''max-height: 10px'''}], style_data={'whiteSpace':'normal'}, export_format='csv'),
-                    html.Br(),
+                    html.Br(), html.Br(),
                     html.Pre(id='title6_imports'),
                     dash_table.DataTable(id='table6_imports', css=[{'selector': '.dash-spreadsheet td div', 'rule':'''max-height: 10px'''}], style_data={'whiteSpace':'normal'}, export_format='csv'),]),]
     		, title='World map'),
@@ -259,10 +259,10 @@ def update_histogram(metric1,unit1,group1_s,group1_c,year1,order1,type1,changes1
     else:
         return fig, None
 
-@callback(Output('heatmap2_c', 'figure'), Output('data2_c','data'), [Input(s, 'value') for s in ['metric2_c','group2_c','order2_c','unselect2_c']], Input('csv2_c', 'n_clicks'))
-def update_cheatmap(metric2_c,group2_c,order2_c,unselect2_c,csv2_c):
+@callback(Output('heatmap2_c', 'figure'), Output('data2_c','data'), [Input(s, 'value') for s in ['metric2_c','region2_c','order2_c','unselect2_c']], Input('csv2_c', 'n_clicks'))
+def update_cheatmap(metric2_c,region2_c,order2_c,unselect2_c,csv2_c):
     order = (order2_c=='original')*'trace' + (order2_c=='descending')*'total descending' + (order2_c=='ascending')*'total ascending'
-    dataset = data_cavg[data_cavg.region.isin(group2_c)&~data_cavg.country.isin(unselect2_c)]
+    dataset = data_cavg[data_cavg.region.isin(region2_c)&~data_cavg.country.isin(unselect2_c)]
     nb_countries = len(dataset.country.unique())
     fig = px.density_heatmap(dataset, x='year', y='country', z=metric2_c, height=70*nb_countries**.63, width=450+260, labels={'x':'year','y':'country'}, nbinsx=NY, nbinsy=nb_countries, color_continuous_scale='Turbo').update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':15}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v'}).update_traces(hovertemplate='<b>%{y}</b><br>year: %{x}<br>'+str(metric2_c)+': %{z:.2f}')
     if csv2_c:
@@ -270,7 +270,7 @@ def update_cheatmap(metric2_c,group2_c,order2_c,unselect2_c,csv2_c):
     else:
         return fig, None
 
-@callback(Output('group2_c','value'), Output('unselect2_c','value'), Input('reset2_c','n_clicks'))
+@callback(Output('region2_c','value'), Output('unselect2_c','value'), Input('reset2_c','n_clicks'))
 def sync_selection_cheatmap(reset):
     if reset:
         return regions_list, []
@@ -281,14 +281,15 @@ def sync_selection_cheatmap(reset):
 def update_sheatmap(segment2_s,metric2_s,group2_s,order2_s,unselect2_s,csv2_s):
     order = (order2_s=='original')*'trace' + (order2_s=='descending')*'total descending' + (order2_s=='ascending')*'total ascending'
     if segment2_s == 'Worldwide averages':
-        dataset = data_s1avg[data_s1avg.group.isin(group2_s)&data_s1avg.sector.isin(unselect2_s)]
+        dataset = data_s1avg[data_s1avg.group.isin(group2_s)&~data_s1avg.sector.isin(unselect2_s)]
         nb_sectors = len(dataset.sector.unique())
         fig = px.density_heatmap(dataset, x='year', y='sector', z=metric2_s, height=45*nb_sectors**.78, width=680+260, labels={'x':'year','y':'sector'}, nbinsx=NY, nbinsy=nb_sectors, color_continuous_scale='Jet').update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':15}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v'}).update_traces(hovertemplate='<b>%{y}</b><br>year: %{x}<br>'+str(metric2_s)+': %{z:.2f}')
     else:
         fig = make_subplots(rows=1, cols=4, horizontal_spacing=.005, shared_yaxes=True, subplot_titles=['<b>'+str(i)+'</b>' for i in regions_list])
-        dataset = {r: data_s2avg[r][data_s2avg[r].group.isin(group2_s)&data_s2avg[r].sector.isin(unit2_s)] for r in regions_list}
+        dataset = {r: data_s2avg[r][data_s2avg[r].group.isin(group2_s)&~data_s2avg[r].sector.isin(unselect2_s)] for r in regions_list}
         for r_idx in range(len(regions_list)):
-            nb_sectors, r = len(dataset.sector.unique()), regions_list[r_idx]
+            r = regions_list[r_idx]
+            nb_sectors = len(dataset[r].sector.unique())
             fig.add_trace(px.density_heatmap(dataset[r], x='year', y='sector', z=metric2_s, nbinsx=NY, nbinsy=nb_sectors).data[0], row=1, col=r_idx+1).update_traces(hovertemplate='<b>%{y} ('+r+', %{x})</b><br>'+str(metric2_s)+': %{z:.2f}')
         fig.update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(height=15+45*nb_sectors**.78, width=720+4*260, font={'size':15}, showlegend=True, coloraxis_colorbar={'title':metric2_s, 'orientation':'v'}, coloraxis={'colorscale':'Jet'})
     if csv2_s:
@@ -303,7 +304,7 @@ def update_sheatmap(segment2_s,metric2_s,group2_s,order2_s,unselect2_s,csv2_s):
 @callback([Output('group2_s','value'), Output('unselect2_s','value')], Input('reset2_s','n_clicks'))
 def sync_selection_sheatmap(reset):
     if reset:
-        return regions_list, []
+        return groups_list, []
     else:
         return no_update
 
@@ -403,7 +404,7 @@ def sync_selection_sscatter(reset):
     global clicked_sectors
     if reset:
         clicked_sectors = []
-        return sectors_list
+        return groups_list
     else:
         return no_update
 

@@ -26,7 +26,6 @@ N, Ntot = NS*NC, NS*NC*NY
 regions, countries, sectors = H.region.iloc[np.arange(0,N,NS)], H.country.unique(), H.sector.unique()
 regions_list, countries_list, sectors_list = list(regions.unique()), list(countries), list(sectors)
 countries_code = [worldmap_nodes.CODE[np.where(worldmap_nodes.EXIOBASE_name==c)[0][0]] for c in countries]
-#names7, colors7 = ['Plastics', 'Mining', 'Machinery', 'Nonmetallic products', 'Metallic products', 'Construction', 'Other sectors'], ['pink', 'gold', 'red', 'green', 'blue', 'cyan', 'grey']
 
 sector_to_idx, country_to_idx, k1, k2 = {}, {}, 0, 0
 for s in sectors:
@@ -103,8 +102,6 @@ app.layout = html.Div(children=[
     	
     	dbc.AccordionItem(
     		dbc.Tabs([dbc.Tab([
-    				dbc.Offcanvas([
-    				dcc.Checklist(countries, countries, id='unit2_c', inputStyle={'margin-right':'10px'})], id='canvas2_c', is_open=False, placement='end', scrollable=True),
     				dbc.Row([
     					dbc.Col(dcc.Markdown('**Select metric**', style={'textAlign':'right'}), width=2),
     					dbc.Col(dcc.Dropdown(metrics_list, 'coal vulnerability', id='metric2_c'), width=3),]),
@@ -113,21 +110,23 @@ app.layout = html.Div(children=[
     					dbc.Col(dmc.SegmentedControl(ordering_list, 'original', id='order2_c',), width=4)]),
     				dbc.Row([
     				    dbc.Col(dcc.Markdown('**Select regions**', style={'textAlign':'right'}), width=2),
-    				    dbc.Col(dcc.Checklist(regions_list, regions_list, id='group2_c', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=5), ]),
-    				dbc.Row([dbc.Col(width=1), dbc.Col(dbc.Button('Select countries', id='open_canvas2_c', n_clicks=0, outline=True, color='dark'), width=2),]),
+    				    dbc.Col(dcc.Checklist(regions_list, regions_list, id='group2_c', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=5), ]),                    
+                    dbc.Row([dbc.Col(dcc.Markdown('**Unselect countries**', style={'textAlign':'right'}), width=2),
+                        dbc.Col(dcc.Dropdown(countries, [], id='unselect2_c', multi=True), width=3)]),
+                    dbc.Row(dbc.Col(dbc.Button('Reset selection', id='reset2_c', n_clicks=0, outline=True, color='dark'), width=2)),
     				dbc.Row(dcc.Graph(figure={}, id='heatmap2_c')),
     				], label='Countries', activeTabClassName='fw-bold'),
     			
     			dbc.Tab([dbc.Row(dbc.Col(dmc.SegmentedControl(id='segment2_s', value='Worldwide averages', data=['Worldwide averages', 'Regional averages'], radius=5, size='md'), width=3),),
-    			dbc.Offcanvas([
-                dcc.Checklist(sectors, sectors, id='unit2_s', inputStyle={'margin-right':'10px'})], id='canvas2_s', is_open=False, placement='end', scrollable=True),
     			dbc.Row([dbc.Col(dcc.Markdown('**Select metric**', style={'textAlign':'right'}), width=2),
     					dbc.Col(dcc.Dropdown(metrics_list, 'coal vulnerability', id='metric2_s'), width=3),]),
     			dbc.Row([dbc.Col(dcc.Markdown('**Select ordering**', style={'textAlign':'right'}), width=2),
     					dbc.Col(dmc.SegmentedControl(ordering_list, 'original', id='order2_s'), width=6)]),
                 dbc.Row([dbc.Col(dcc.Markdown('**Select sector groups**', style={'textAlign':'right'}), width=2),
     				dbc.Col(dcc.Checklist(groups_list, groups_list, id='group2_s', inline=True, inputStyle={'margin-top':'10px','margin-right':'5px','margin-left':'30px'}), )]),
-    			dbc.Row([dbc.Col(width=1), dbc.Col(dbc.Button('Select sectors', id='open_canvas2_s', n_clicks=0, outline=True, color='dark'), width=2),]),
+                dbc.Row([dbc.Col(dcc.Markdown('**Unselect countries**', style={'textAlign':'right'}), width=2),
+                    dbc.Col(dcc.Dropdown(countries, [], id='unselect2_s', multi=True), width=3)]),
+                dbc.Row(dbc.Col(dbc.Button('Reset selection', id='reset2_s', n_clicks=0, outline=True, color='dark'), width=2)),
     			dbc.Row(dcc.Graph(figure={}, id='heatmap2_s')),]
     			, label='Sectors', activeTabClassName='fw-bold')]),
     			
@@ -175,7 +174,7 @@ app.layout = html.Div(children=[
     			dbc.Col(dmc.SegmentedControl(['vulnerability', 'regions'], 'vulnerability', id='color4_c'), width=3), ]),    		
     		dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2),
     			dbc.Col(dcc.Slider(min=1995, max=2019, step=1, value=2000, marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year4_c'), )]),
-            dbc.Row([dbc.Col(dcc.Markdown('**Filter regions**', style={'textAlign':'right'}), width=2),
+            dbc.Row([dbc.Col(dcc.Markdown('**Select regions**', style={'textAlign':'right'}), width=2),
                 dbc.Col(dcc.Checklist(regions_list, regions_list, inline=True, id='group4_c', inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=5)]),
             dbc.Row(dcc.Markdown('Note: Please click on individual data points to hide them and rescale the color-coding and marker sizes accordingly.')),
             dbc.Row(dbc.Col(dbc.Button('Reset selection', id='reset4_c', n_clicks=0, outline=True, color='dark'), width=2)),
@@ -195,7 +194,7 @@ app.layout = html.Div(children=[
     			dbc.Col(dmc.SegmentedControl(['vulnerability', 'sector groups'], 'vulnerability', id='color4_s'), width=6), ]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2),
     			dbc.Col(dcc.Slider(min=1995, max=2019, step=1, value=2000, marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year4_s'), )]),
-            dbc.Row([dbc.Col(dcc.Markdown('Filter sector groups', style={'textAlign':'right'}), width=2),
+            dbc.Row([dbc.Col(dcc.Markdown('Select sector groups', style={'textAlign':'right'}), width=2),
                 dbc.Col(dcc.Checklist(groups_list, groups_list, inline=True, id='group4_s', inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), )]),
             dbc.Row(dcc.Markdown('Note: Please click on individual data points to hide them and rescale the color-coding and marker sizes accordingly.')),
             dbc.Row(dbc.Col(dbc.Button('Reset selection', id='reset4_s', n_clicks=0, outline=True, color='dark'), width=2)),
@@ -246,18 +245,25 @@ def update_histogram(metric1,unit1,group1_s,group1_c,year1,order1,type1,changes1
     else:
         return px.histogram(dataset, x=metric1, y=unit1, histfunc='avg', orientation='h').update_yaxes(categoryorder=order, autorange='reversed').update_layout(xaxis_title=xlabel, yaxis_title=unit1, font={'size':11}, height=820+1450*(unit1=='sector')).update_traces(hovertemplate='<b>%{y}, '+str(year1)+'</b><br>average '+str(metric1)+': %{x:.2f}')
 
-@callback(Output('heatmap2_c', 'figure'), [Input(s, 'value') for s in ['metric2_c','group2_c','order2_c','unit2_c']])
-def update_cheatmap(metric2_c,group2_c,order2_c,unit2_c):
+@callback(Output('heatmap2_c', 'figure'), [Input(s, 'value') for s in ['metric2_c','group2_c','order2_c','unselect2_c']])
+def update_cheatmap(metric2_c,group2_c,order2_c,unselect2_c):
     order = (order2_c=='original')*'trace' + (order2_c=='descending')*'total descending' + (order2_c=='ascending')*'total ascending'
-    dataset = data_cavg[data_cavg.region.isin(group2_c)&data_cavg.country.isin(unit2_c)]
+    dataset = data_cavg[data_cavg.region.isin(group2_c)&~data_cavg.country.isin(unselect2_c)]
     nb_countries = len(dataset.country.unique())
     return px.density_heatmap(dataset, x='year', y='country', z=metric2_c, height=70*nb_countries**.63, width=450+260, labels={'x':'year','y':'country'}, nbinsx=NY, nbinsy=nb_countries, color_continuous_scale='Turbo').update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':15}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v'}).update_traces(hovertemplate='<b>%{y}</b><br>year: %{x}<br>'+str(metric2_c)+': %{z:.2f}')
 
-@callback(Output('heatmap2_s', 'figure'), [Input(s, 'value') for s in ['segment2_s','metric2_s','group2_s', 'order2_s','unit2_s']])
-def update_sheatmap(segment2_s,metric2_s,group2_s,order2_s,unit2_s):
+@callback([Output('group2_c','value'), Output('unselect2_c','value')], Input('reset2_c','n_clicks'))
+def sync_selection_cheatmap(reset):
+    if reset:
+        return regions_list, []
+    else:
+        return no_update
+
+@callback(Output('heatmap2_s', 'figure'), [Input(s, 'value') for s in ['segment2_s','metric2_s','group2_s', 'order2_s','unselect2_s']])
+def update_sheatmap(segment2_s,metric2_s,group2_s,order2_s,unselect2_s):
     order = (order2_s=='original')*'trace' + (order2_s=='descending')*'total descending' + (order2_s=='ascending')*'total ascending'
     if segment2_s == 'Worldwide averages':
-        dataset = data_s1avg[data_s1avg.group.isin(group2_s)&data_s1avg.sector.isin(unit2_s)]
+        dataset = data_s1avg[data_s1avg.group.isin(group2_s)&data_s1avg.sector.isin(unselect2_s)]
         nb_sectors = len(dataset.sector.unique())
         return px.density_heatmap(dataset, x='year', y='sector', z=metric2_s, height=45*nb_sectors**.78, width=680+260, labels={'x':'year','y':'sector'}, nbinsx=NY, nbinsy=nb_sectors, color_continuous_scale='Jet').update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':15}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v'}).update_traces(hovertemplate='<b>%{y}</b><br>year: %{x}<br>'+str(metric2_s)+': %{z:.2f}')
     else:
@@ -269,14 +275,19 @@ def update_sheatmap(segment2_s,metric2_s,group2_s,order2_s,unit2_s):
         fig.update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(height=15+45*nb_sectors**.78, width=720+4*260, font={'size':15}, showlegend=True, coloraxis_colorbar={'title':metric2_s, 'orientation':'v'}, coloraxis={'colorscale':'Jet'})
         return fig
 
+@callback([Output('group2_s','value'), Output('unselect2_s','value')], Input('reset2_s','n_clicks'))
+def sync_selection_sheatmap(reset):
+    if reset:
+        return regions_list, []
+    else:
+        return no_update
+
 @callback(Output('lines3_c', 'figure'), [Input(s, 'value') for s in ['metric3_c','unit3_c','region3_c']])
 def update_cline(metric3_c,unit3_c,region3_c):
     if unit3_c == 'All sectors (average)':
         dataset = data_cavg[data_cavg.region.isin(region3_c)]
-        #dataset['country'] = deepcopy(dataset)['country'].cat.set_categories(np.array(countries)[inds], ordered=True)#why this line
     else:
         dataset = H[H.region.isin(region3_c)&(H.sector==unit3_c)&(H.year>1)]
-        #dataset['country'] = deepcopy(dataset)['country'].cat.set_categories(np.array(countries)[inds], ordered=True)
     dataset.country = deepcopy(dataset)['country'].cat.set_categories(countries, ordered=True)
     ylabel = metric3_c+' (%)'*(metric3_c[-13:]=='vulnerability')
     try:
@@ -416,18 +427,6 @@ def update_import_table(clickData, year6, nbedges6):
         dataset = dataset.iloc[[100*g+s for g in range(5) for s in range(nbedges6)],:-1]
         dataset = dataset[dataset['target country']==clickData['points'][0]['customdata']]
         return dataset.to_dict('records')
-
-@callback(Output('canvas2_c', 'is_open'), Input('open_canvas2_c', 'n_clicks'), State('canvas2_c', 'is_open'))
-def toggle_2ccanvas(n, is_open):
-    if n:
-        return not is_open
-    return is_open
-
-@callback(Output('canvas2_s', 'is_open'), Input('open_canvas2_s', 'n_clicks'), State('canvas2_s', 'is_open'))
-def toggle_2scanvas(n, is_open):
-    if n:
-        return not is_open
-    return is_open
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=8051)

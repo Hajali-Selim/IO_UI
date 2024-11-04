@@ -283,7 +283,7 @@ def update_histogram(metric1,unit1,group1_s,group1_c,year1,order1,type1,changes1
         fig = px.bar(dataset, x=metric1, y=unit1, orientation='h', color=color, custom_data=[decomp]).update_traces(hovertemplate='<b>%{customdata[0]} (%{y}, '+str(year1)+')</b><br>'+str(metric1)+': %{x:.2f}')
     else:
         fig = px.histogram(dataset, x=metric1, y=unit1, histfunc='avg', orientation='h').update_traces(hovertemplate='<b>%{y}, '+str(year1)+'</b><br>average '+str(metric1)+': %{x:.2f}')
-    fig.update_yaxes(categoryorder=order, autorange='reversed').update_layout(xaxis_title=xlabel, yaxis_title=unit1, font={'size':11}, height=820+1450*(unit1=='sector'), paper_bgcolor="rgb(0,0,0,0)")
+    fig.update_yaxes(categoryorder=order, autorange='reversed').update_layout(xaxis_title=xlabel, yaxis_title=unit1, font={'size':11}, height=820+1450*(unit1=='sector'), paper_bgcolor='white')
     y = str(year1)
     if csv1:
         if changes1 == 'range of years':
@@ -297,7 +297,7 @@ def update_cheatmap(metric2_c,region2_c,order2_c,unselect2_c,csv2_c):
     order = (order2_c=='original')*'trace' + (order2_c=='descending')*'total descending' + (order2_c=='ascending')*'total ascending'
     dataset = data_cavg[data_cavg.region.isin(region2_c)&~data_cavg.country.isin(unselect2_c)]
     nb_countries = len(dataset.country.unique())
-    fig = px.density_heatmap(dataset, x='year', y='country', z=metric2_c, height=70*nb_countries**.63, width=450+260, labels={'x':'year','y':'country'}, nbinsx=NY, nbinsy=nb_countries, color_continuous_scale='Turbo').update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':14}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, paper_bgcolor="rgb(0,0,0,0)").update_traces(hovertemplate='<b>%{y}</b><br>year: %{x}<br>'+str(metric2_c)+': %{z:.2f}')
+    fig = px.density_heatmap(dataset, x='year', y='country', z=metric2_c, height=70*nb_countries**.63, width=450+260, labels={'x':'year','y':'country'}, nbinsx=NY, nbinsy=nb_countries, color_continuous_scale='Turbo').update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':14}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, paper_bgcolor='white').update_traces(hovertemplate='<b>%{y}</b><br>year: %{x}<br>'+str(metric2_c)+': %{z:.2f}')
     if csv2_c:
         return fig, dcc.send_data_frame(dataset.to_csv, 'heatmap_'+str(metric2_s.replace(' ','_'))+'_countries.csv'), None
     else:
@@ -325,7 +325,7 @@ def update_sheatmap(segment2_s,metric2_s,group2_s,order2_s,unselect2_s,csv2_s):
             nb_sectors = len(dataset[r].sector.unique())
             fig.add_trace(px.density_heatmap(dataset[r], x='year', y='sector', z=metric2_s, nbinsx=NY, nbinsy=nb_sectors).data[0], row=1, col=r_idx+1)
         fig.update_layout(height=15+45*nb_sectors**.78, width=720+4*260)
-    fig.update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':14}, showlegend=True, coloraxis_colorbar={'title':metric2_s, 'orientation':'v', 'len':.8, 'thickness':15}, coloraxis={'colorscale':'Jet'}, paper_bgcolor='rgb(0,0,0,0)').update_traces(hovertemplate='<b>%{y}</b><br>year: %{x}<br>'+str(metric2_s)+': %{z:.2f}')
+    fig.update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':14}, showlegend=True, coloraxis_colorbar={'title':metric2_s, 'orientation':'v', 'len':.8, 'thickness':15}, coloraxis={'colorscale':'Jet'}, paper_bgcolor='white').update_traces(hovertemplate='<b>%{y}</b><br>year: %{x}<br>'+str(metric2_s)+': %{z:.2f}')
     if csv2_s:
         df = pd.DataFrame()
         for r in regions_list:
@@ -451,7 +451,7 @@ def update_sscatter(country4_s, metric4x_s, log4x_s, metric4y_s, log4y_s, metric
             fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=color4_s, labels={'x':xlabel, 'y':ylabel}, hover_name='sector', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=30, log_x=log4x_s, log_y=log4y_s)
         except:
             fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=color4_s, labels={'x':xlabel, 'y':ylabel}, hover_name='sector', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=30, log_x=log4x_s, log_y=log4y_s)
-    fig.update_layout(width=900, height=650, font={'size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, hoverlabel={'font_size':14}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}, clickmode='event+select', paper_bgcolor="rgb(0,0,0,0)").add_hline(y=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).add_vline(x=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]}</b>', str(zlabel)+': %{customdata[1]:.2f}', str(xlabel)+': %{customdata[2]:.2f}', str(ylabel)+': %{customdata[3]:.2f}', str(filtermetric4_s)+': %{customdata[4]:.2f}']))
+    fig.update_layout(width=900, height=650, font={'size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, hoverlabel={'font_size':14}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}, clickmode='event+select', paper_bgcolor='white').add_hline(y=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).add_vline(x=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]}</b>', str(zlabel)+': %{customdata[1]:.2f}', str(xlabel)+': %{customdata[2]:.2f}', str(ylabel)+': %{customdata[3]:.2f}', str(filtermetric4_s)+': %{customdata[4]:.2f}']))
     if csv4_s:
         return fig, dcc.send_data_frame(dataset.to_csv, 'scatterplot_'+str(country4_s)+'_'+str(year4_s)+'.csv'), None
     else:
@@ -486,7 +486,7 @@ def update_waves(unit5, csv5):
         fig = px.area(dataset, x='year', y='vulnerability', color='sector', width=950, height=450, labels={'y':'cumulative vulnerability (%)'})
     except:
         fig = px.area(dataset, x='year', y='vulnerability', color='sector', width=950, height=450, labels={'y':'cumulative vulnerability (%)'})
-    fig.update_traces(hovertemplate='%{x}: %{y:.2f}%').update_layout(paper_bgcolor='rgb(0,0,0,0)', legend={'font_size':16})
+    fig.update_traces(hovertemplate='%{x}: %{y:.2f}%').update_layout(paper_bgcolor='white', legend={'font_size':16})
     if csv5:
         return fig, dcc.send_data_frame(dataset.to_csv, 'areachart_'+str(unit5)+'.csv'), None
     else:
@@ -500,7 +500,7 @@ def update_maps(year6, metric6, nbedges6):
         for s in range(5):
             batch, color = deepcopy(dataset.iloc[3*(100*s+10*idx): 3*(100*s+10*(idx+1))]), sector_group_colors[s]
             fig.add_scattergeo(lat=batch.latitude, lon=batch.longitude, mode='lines', line={'width':1.5, 'color':color}, showlegend=False, hoverinfo='skip')
-    fig.add_scattergeo(lat=worldmap_nodes.lat, lon=worldmap_nodes.lon, marker={'size':5, 'symbol':'circle-open', 'color':'black', 'opacity':0.8}, showlegend=False, customdata=worldmap_nodes.EXIOBASE_name, hovertemplate='%{customdata}<extra></extra>').update_layout(clickmode='event+select', width=1400, height=500, margin=dict(l=20, r=20, t=0, b=0), paper_bgcolor="rgb(0,0,0,0)")
+    fig.add_scattergeo(lat=worldmap_nodes.lat, lon=worldmap_nodes.lon, marker={'size':5, 'symbol':'circle-open', 'color':'black', 'opacity':0.8}, showlegend=False, customdata=worldmap_nodes.EXIOBASE_name, hovertemplate='%{customdata}<extra></extra>').update_layout(clickmode='event+select', width=1400, height=500, margin=dict(l=20, r=20, t=0, b=0), paper_bgcolor='white')
     _ = fig.update_geos(lataxis_range=[-55, 90], showocean=True, oceancolor='LightBlue')
     return fig
 

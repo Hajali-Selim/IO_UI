@@ -85,53 +85,48 @@ app.layout = html.Div(children=[
                     dbc.Col(dbc.Checklist(id='type1', switch=True, value=['On'], options=[{'label':'', 'value':'On'}],
                                                                                 inputStyle={'margin-right':'10px'}), width=4)]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select unit**', style={'textAlign':'right'}), width=2),
-                    dbc.Col(dcc.Dropdown(units_list[:-1], 'country', id='unit1'), width=3),]),
-            dbc.Row([dbc.Col(dcc.Markdown('**Select ordering**', style={'textAlign':'right'}), width=2),
-                    dbc.Col(dmc.SegmentedControl(ordering_list, 'original', id='order1'), width=5), ]),
+                    dbc.Col(dcc.Dropdown(units_list[:-1], 'country', id='unit1'), width=3),
+                    dbc.Col(dcc.Markdown('**Select ordering**', style={'textAlign':'right'}), width=2),
+                    dbc.Col(dmc.SegmentedControl(ordering_list, 'original', id='order1'), width=5),]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select type of data**', style={'textAlign':'right'}), width=2),
-    		        dbc.Col(dbc.Row([
-                            dbc.Col(dmc.SegmentedControl(['single year', 'range of years'], 'single year', id='changes1'), width=3),
-                            dcc.Markdown('if \'single year\', select which one'),
-                            dcc.Slider(min=1995, max=2019, step=1, value=2000, marks={1995:'2019', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year1'),
-                            dcc.Markdown('if \'range of years\', select a range'),
-                            dcc.RangeSlider(min=1995, max=2019, step=1, value=[2015,2019], marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='range1'),]), width=5)]),
+    		        dbc.Col(dbc.Tabs([dbc.Tab(dcc.Slider(min=1995, max=2019, step=1, value=2000, marks={1995:'2019', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year1'), label='single year', tab_id='single year', activeTabClassName='fw-bold'),
+                            dbc.Tab(dcc.RangeSlider(min=1995, max=2019, step=1, value=[2015,2019], marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='range1'), label='range of years', tab_id='range of years', activeTabClassName='fw-bold'),], id='changes1', active_tab='single year'), width=5)]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select regions**', style={'textAlign':'right'}), width=2),
-                    dbc.Col(dcc.Checklist(regions_list, regions_list, id='group1_c', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=6), ]),
+                    dbc.Col(dcc.Checklist(regions_list, regions_list, id='group1_c', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=6),
+                    dbc.Col(dbc.Button('Download spreadsheet', id='csv1', n_clicks=0, outline=True, color='dark'), width=3), dcc.Download(id='data1')]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select sector groups**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dcc.Checklist(groups_list, groups_list, id='group1_s', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), )]),
-            dbc.Button('Download spreadsheet', id='csv1', n_clicks=0, outline=True, color='dark'), dcc.Download(id='data1'),
        		dcc.Graph(figure={}, id='hist1')], title='Bar plots'),
     	
     	dbc.AccordionItem(
     		dbc.Tabs([dbc.Tab([
     				dbc.Row([
     					dbc.Col(dcc.Markdown('**Select metric**', style={'textAlign':'right'}), width=2),
-    					dbc.Col(dcc.Dropdown(metrics_list, 'coal vulnerability', id='metric2_c'), width=3),]),
-    				dbc.Row([
+    					dbc.Col(dcc.Dropdown(metrics_list, 'coal vulnerability', id='metric2_c'), width=3),
     					dbc.Col(dcc.Markdown('**Select ordering**', style={'textAlign':'right'}), width=2),
     					dbc.Col(dmc.SegmentedControl(ordering_list, 'original', id='order2_c',), width=4)]),
     				dbc.Row([
     				    dbc.Col(dcc.Markdown('**Select regions**', style={'textAlign':'right'}), width=2),
     				    dbc.Col(dcc.Checklist(regions_list, regions_list, id='region2_c', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=5), ]),                    
                     dbc.Row([dbc.Col(dcc.Markdown('**Hide countries**', style={'textAlign':'right'}), width=2),
-                        dbc.Col(dcc.Dropdown(countries, [], id='unselect2_c', multi=True), width=3)]),
-                    dbc.Col(dbc.Button('Reset selection', id='reset2_c', outline=True, color='dark'), width=2),
-    				dbc.Button('Download spreadsheet', id='csv2_c', outline=True, color='dark'), dcc.Download(id='data2_c'),
+                        dbc.Col(dcc.Dropdown(countries, [], id='unselect2_c', multi=True), width=3),
+                        dbc.Col(dbc.Button('Reset selection', id='reset2_c', outline=True, color='dark'), width=2),
+                        dbc.Col(dbc.Button('Download spreadsheet', id='csv2_c', outline=True, color='dark')), dcc.Download(id='data2_c'),]),
                     dbc.Row(dcc.Graph(figure={}, id='heatmap2_c')),
     				], label='Countries', activeTabClassName='fw-bold'),
     			
-    			dbc.Tab([dbc.Row(dbc.Col(dmc.SegmentedControl(id='segment2_s', value='Worldwide averages', data=['Worldwide averages', 'Regional averages'], radius=5, size='md'), width=3),),
-    			dbc.Row([dbc.Col(dcc.Markdown('**Select metric**', style={'textAlign':'right'}), width=2),
-    					dbc.Col(dcc.Dropdown(metrics_list, 'coal vulnerability', id='metric2_s'), width=3),]),
-    			dbc.Row([dbc.Col(dcc.Markdown('**Select ordering**', style={'textAlign':'right'}), width=2),
+    			dbc.Tab([dbc.Row([dbc.Col(dcc.Markdown('**Select metric**', style={'textAlign':'right'}), width=2),
+    					dbc.Col(dcc.Dropdown(metrics_list, 'coal vulnerability', id='metric2_s'), width=3),
+                        dbc.Col(dcc.Markdown('**Select ordering**', style={'textAlign':'right'}), width=2),
     					dbc.Col(dmc.SegmentedControl(ordering_list, 'original', id='order2_s'), width=6)]),
                 dbc.Row([dbc.Col(dcc.Markdown('**Select sector groups**', style={'textAlign':'right'}), width=2),
     				dbc.Col(dcc.Checklist(groups_list, groups_list, id='group2_s', inline=True, inputStyle={'margin-top':'10px','margin-right':'5px','margin-left':'30px'}), )]),
                 dbc.Row([dbc.Col(dcc.Markdown('**Hide sectors**', style={'textAlign':'right'}), width=2),
-                    dbc.Col(dcc.Dropdown(sectors, [], id='unselect2_s', multi=True), width=3)]),
-                dbc.Row(dbc.Col(dbc.Button('Reset selection', id='reset2_s', outline=True, color='dark'), width=2)),
-                dbc.Button('Download spreadsheet', id='csv2_s', outline=True, color='dark'), dcc.Download(id='data2_s'),
-    			dbc.Row(dcc.Graph(figure={}, id='heatmap2_s')),]
+                    dbc.Col(dcc.Dropdown(sectors, [], id='unselect2_s', multi=True), width=5),
+                    dbc.Col(dbc.Button('Reset selection', id='reset2_s', outline=True, color='dark'), width=2),
+                    dbc.Col(dbc.Button('Download spreadsheet', id='csv2_s', outline=True, color='dark')), dcc.Download(id='data2_s'),]),
+    			dbc.Row(dbc.Col(dmc.SegmentedControl(id='segment2_s', value='Worldwide averages', data=['Worldwide averages', 'Regional averages'], radius=5, size='md'), width=3)),
+                dbc.Row(dcc.Graph(figure={}, id='heatmap2_s')),]
     			, label='Sectors', activeTabClassName='fw-bold')]),
     			
     			title='Heatmaps'),
@@ -144,10 +139,10 @@ app.layout = html.Div(children=[
     				dbc.Col(dcc.Markdown('**Select sectors**', style={'textAlign':'right'}), width=2),
     				dbc.Col(dcc.Dropdown(['All sectors (average)']+list(sectors), 'All sectors (average)', id='unit3_c'), width=4),]),
 	    		dbc.Row([dbc.Col(dcc.Markdown('**Select metric**', style={'textAlign':'right'}), width=2),
-    				dbc.Col(dcc.Dropdown(metrics_list, 'coal vulnerability', id='metric3_c'), width=3), ]),
+    				dbc.Col(dcc.Dropdown(metrics_list, 'coal vulnerability', id='metric3_c'), width=3),
+                    dbc.Col(dbc.Button('Download spreadsheet', id='csv3_c', outline=True, color='dark')), dcc.Download(id='data3_c')]),
     			dbc.Row([dbc.Col(dcc.Markdown('**Select region**', style={'textAlign':'right'}), width=2),
     				dbc.Col(dcc.Checklist(regions_list, regions_list, id='region3_c', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=6)]),
-  				dbc.Button('Download spreadsheet', id='csv3_c', outline=True, color='dark'), dcc.Download(id='data3_c'),
     			dbc.Row(dcc.Graph(figure={}, id='lines3_c')),],
 	    		label='Countries', activeTabClassName='fw-bold'),
     			
@@ -155,10 +150,10 @@ app.layout = html.Div(children=[
     			dbc.Row([dbc.Col(dcc.Markdown('**Select countries**', style={'textAlign':'right'}), width=2),
     				dbc.Col(dcc.Dropdown(['All countries (average)']+list(countries), 'All countries (average)', id='unit3_s'), width=3),]),
 	    		dbc.Row([dbc.Col(dcc.Markdown('**Select y-axis**', style={'textAlign':'right'}), width=2),
-                        dbc.Col(dcc.Dropdown(metrics_list, 'gas vulnerability', id='metric3_s'), width=3),]),
+                        dbc.Col(dcc.Dropdown(metrics_list, 'gas vulnerability', id='metric3_s'), width=3),
+                        dbc.Col(dbc.Button('Download spreadsheet', id='csv3_s', outline=True, color='dark')), dcc.Download(id='data3_s')]),
                 dbc.Row([dbc.Col(dcc.Markdown('**Select sector groups**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dcc.Checklist(groups_list, groups_list, id='group3_s', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), ) ]),
-  				dbc.Button('Download spreadsheet', id='csv3_s', outline=True, color='dark'), dcc.Download(id='data3_s'),
     			dbc.Row(dcc.Graph(figure={}, id='lines3_s')),],
     			label='Sectors', activeTabClassName='fw-bold')])
     		
@@ -188,8 +183,6 @@ app.layout = html.Div(children=[
                 dbc.Col(dcc.Markdown('log2-scaled color', style={'textAlign':'right'}), width=2),
                 dbc.Col(dbc.Checklist(id='log4i_s', switch=True, value=[], options=[{'label':'', 'value':'On'}], inputStyle={'margin-right':'10px'}))
                 ]),
-    		dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2),
-    			dbc.Col(dcc.Slider(min=1995, max=2019, step=1, value=2000, marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year4_s'), )]),
             dbc.Row([dbc.Col(dcc.Markdown('**Select sector groups**', style={'textAlign':'right'}), width=2),
                 dbc.Col(dcc.Checklist(groups_list, groups_list, inline=True, id='group4_s', inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), )]),
             dbc.Row([dbc.Col(dcc.Markdown('**Filter-out**', style={'textAlign':'right'}), width=2),
@@ -197,11 +190,11 @@ app.layout = html.Div(children=[
                 dbc.Col(dcc.Markdown('**under**'), width=1),
                 dbc.Col(dcc.Input(value=0, type='number', min=0, inputMode='numeric', style={'width':60}, id='filternb4_s'), width=1)
                 ]),
-            
-            dbc.Row(dcc.Markdown('Note: Please click on individual data points to hide them and rescale the color-coding and marker sizes accordingly.')),
-            dbc.Row(dbc.Col(dbc.Button('Reset selection', id='reset4_s', outline=True, color='dark'), width=2)),
-            dcc.Store(id='click4_s'),
-            dbc.Button('Download spreadsheet', id='csv4_s', outline=True, color='dark'), dcc.Download(id='data4_s'), 
+            dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2),
+    			dbc.Col(dcc.Slider(min=1995, max=2019, step=1, value=2000, marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year4_s'), width=7)]),
+            dbc.Row([dbc.Col(dcc.Markdown('Note: Please click on individual data points to hide them and rescale the color-coding and marker sizes accordingly.'), width=7),
+                    dbc.Col(dbc.Button('Reset selection', id='reset4_s', outline=True, color='dark'), width=2),
+                    dbc.Col(dbc.Button('Download spreadsheet', id='csv4_s', outline=True, color='dark')), dcc.Store(id='click4_s'), dcc.Download(id='data4_s')]),
             dbc.Row(dcc.Graph(figure={}, id='scatter4_s')),], label='Countries', activeTabClassName='fw-bold'),
             
             dbc.Tab([
@@ -224,8 +217,6 @@ app.layout = html.Div(children=[
                     dbc.Col(dcc.Markdown('log2-scaled color', style={'textAlign':'right'}), width=2),
                     dbc.Col(dbc.Checklist(id='log4i_c', switch=True, value=[], options=[{'label':'', 'value':'On'}], inputStyle={'margin-right':'10px'}))
                 ]),    		
-    		dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2),
-    			dbc.Col(dcc.Slider(min=1995, max=2019, step=1, value=2000, marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year4_c'), )]),
             dbc.Row([dbc.Col(dcc.Markdown('**Select regions**', style={'textAlign':'right'}), width=2),
                 dbc.Col(dcc.Checklist(regions_list, regions_list, inline=True, id='group4_c', inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=5)]),
             dbc.Row([dbc.Col(dcc.Markdown('**Filter-out**', style={'textAlign':'right'}), width=2),
@@ -233,7 +224,9 @@ app.layout = html.Div(children=[
                 dbc.Col(dcc.Markdown('**under**'), width=1),
                 dbc.Col(dcc.Input(value=0, type='number', min=0, inputMode='numeric', style={'width':60}, id='filternb4_c'), width=1)
                 ]),
-            dbc.Row([dbc.Col(dcc.Markdown('Note: Please click on individual data points to hide them and rescale the color-coding and marker sizes.'), width=7),
+            dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2),
+    			dbc.Col(dcc.Slider(min=1995, max=2019, step=1, value=2000, marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year4_c'), width=7)]),
+            dbc.Row([dbc.Col(dcc.Markdown('Note: Please click on individual data points to hide them and rescale the color-coding and marker sizes accordingly.'), width=7),
                     dbc.Col(dbc.Button('Reset selection', id='reset4_c', outline=True, color='dark'), width=2),
                     dbc.Col(dbc.Button('Download spreadsheet', id='csv4_c', outline=True, color='dark'),),]),
             dcc.Download(id='data4_c'), dcc.Store(id='click4_c'),
@@ -243,15 +236,15 @@ app.layout = html.Div(children=[
     	
     	dbc.AccordionItem([
     		dbc.Row([dbc.Col(dcc.Markdown('**Select region or country**', style={'textAlign':'right'}), width=3),
-    		        dbc.Col(dcc.Dropdown(['Worldwide (average)']+[r+' (average)' for r in regions_list]+countries_list, 'Brazil', id='unit5'), width=3)]),
-            dbc.Button('Download spreadsheet', id='csv5', outline=True, color='dark'), dcc.Download(id='data5'),
+    		        dbc.Col(dcc.Dropdown(['Worldwide (average)']+[r+' (average)' for r in regions_list]+countries_list, 'Brazil', id='unit5'), width=3),
+                    dbc.Col(dbc.Button('Download spreadsheet', id='csv5', outline=True, color='dark')), dcc.Download(id='data5'),]),
     		dbc.Row(dcc.Graph(figure={}, id='waves5'))]
     		, title='Area charts'),
     	
     	dbc.AccordionItem([
     		dbc.Row([
     		dbc.Col([dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=3),
-    			    dbc.Col([dcc.Slider(min=1995, max=2019, step=1, value=2000, marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year6'), html.Br()])]),
+    			    dbc.Col(dcc.Slider(min=1995, max=2019, step=1, value=2000, marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year6'), width=7)]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select vulnerability (country color)**', style={'textAlign':'right'}), width=3),
     		        dbc.Col(dmc.SegmentedControl(vulnerability_list, 'oil vulnerability', id='metric6'), width=5),]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select number of links\n per sector group**', style={'textAlign':'right'}), width=3),
@@ -268,8 +261,8 @@ app.layout = html.Div(children=[
 			], flush=True)
 			])
 
-@callback([Output('hist1', 'figure'), Output('data1','data'), Output('csv1','n_clicks')], [Input(s, 'value') for s in ['metric1','unit1','group1_s','group1_c','year1','order1','type1','changes1', 'range1']], Input('csv1', 'n_clicks'))
-def update_histogram(metric1,unit1,group1_s,group1_c,year1,order1,type1,changes1,range1,csv1):
+@callback([Output('hist1', 'figure'), Output('data1','data'), Output('csv1','n_clicks')], [Input(s, 'value') for s in ['metric1','unit1','group1_s','group1_c','year1','order1','type1','range1']], Input('changes1','active_tab'), Input('csv1', 'n_clicks'))
+def update_histogram(metric1,unit1,group1_s,group1_c,year1,order1,type1,range1,changes1,csv1):
     order, color = (order1=='original')*'trace' + (order1=='descending')*'total descending' + (order1=='ascending')*'total ascending', 'sector'*(unit1 in ['country','region']) + 'country'*(unit1=='sector')
     if changes1 == 'range of years': # if looking at variations
         year0, year1 = range1

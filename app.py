@@ -1,5 +1,4 @@
 from dash import Dash, html, dash_table, dcc, callback, Output, Input, State, no_update
-from dash.exceptions import PreventUpdate
 import dash_mantine_components as dmc
 import plotly.express as px
 import pandas as pd
@@ -181,7 +180,7 @@ app.layout = html.Div(children=[
 			dbc.Row([dbc.Col(dcc.Markdown('**Select marker size\n (vulnerability)**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dmc.SegmentedControl(vulnerability_list, 'gas vulnerability', id='metric4i_s'), width=5),
                 dbc.Col(dcc.Markdown('size scaling', style={'textAlign':'right'}), width=2),
-                dbc.Col(dcc.Input(value=25, type='number', step=1, inputMode='numeric', style={'width':60}, id='size4_s'), width=1),]),
+                dbc.Col(dcc.Input(value=30, type='number', step=1, inputMode='numeric', style={'width':60}, id='size4_s'), width=1),]),
 		    dbc.Row([dbc.Col(dcc.Markdown('**Select marker color**', style={'textAlign':'right'}), width=2),
     			dbc.Col(dmc.SegmentedControl(['vulnerability', 'sector groups'], 'vulnerability', id='color4_s'), width=4),
                 dbc.Col(dcc.Markdown('log2-scaled color', style={'textAlign':'right'}), width=3),
@@ -220,7 +219,7 @@ app.layout = html.Div(children=[
 			dbc.Row([dbc.Col(dcc.Markdown('**Select marker size\n (vulnerability)**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dmc.SegmentedControl(vulnerability_list, 'oil vulnerability', id='metric4i_c'), width=5),
     		        dbc.Col(dcc.Markdown('size scaling', style={'textAlign':'right'}), width=2),
-                    dbc.Col(dcc.Input(value=25, type='number', step=1, inputMode='numeric', style={'width':60}, id='size4_c'), width=1),]),
+                    dbc.Col(dcc.Input(value=30, type='number', step=1, inputMode='numeric', style={'width':60}, id='size4_c'), width=1),]),
             dbc.Row([dbc.Col(dcc.Markdown('**Select marker color**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dmc.SegmentedControl(['vulnerability', 'regions'], 'vulnerability', id='color4_c'), width=4),
                     dbc.Col(dcc.Markdown('log2-scaled color', style={'textAlign':'right'}), width=3),
@@ -399,7 +398,7 @@ def update_cscatter(sector4_c, metric4x_c,log4x_c, metric4y_c,log4y_c, metric4i_
     if (color4_c == 'vulnerability') & len(log4i_c):
         color4_c = zlabel
         color = np.log2(dataset[zlabel]+1)
-        final_tick = int(color.max())-1
+        final_tick = int(color.max())
         cticks = np.array([2**k for k in range(final_tick+1)])
         try:
             fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=np.log2(dataset[color4_c]), labels={'x':xlabel, 'y':ylabel}, hover_name='country', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_c, log_x=log4x_c, log_y=log4y_c, symbol=symbol)

@@ -89,7 +89,7 @@ app.layout = html.Div(children=[
                     dbc.Col(dcc.Markdown('**Select ordering**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dmc.SegmentedControl(ordering_list, 'original', id='order1'), width=5),]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select type of data**', style={'textAlign':'right'}), width=2),
-    		        dbc.Col(dbc.Tabs([dbc.Tab(dcc.Slider(min=1995, max=2019, step=1, value=2000, marks={1995:'2019', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year1'), label='single year', tab_id='single year', activeTabClassName='fw-bold'),
+    		        dbc.Col(dbc.Tabs([dbc.Tab(dcc.Slider(min=1995, max=2019, step=1, value=2016, marks={1995:'2019', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year1'), label='single year', tab_id='single year', activeTabClassName='fw-bold'),
                             dbc.Tab(dcc.RangeSlider(min=1995, max=2019, step=1, value=[2015,2019], marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='range1'), label='range of years', tab_id='range of years', activeTabClassName='fw-bold'),], id='changes1', active_tab='single year'), width=5)]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select regions**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dcc.Checklist(regions_list, regions_list, id='group1_c', inline=True, inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=6),
@@ -165,25 +165,25 @@ app.layout = html.Div(children=[
     	    dbc.Tab([
 			dbc.Row([dbc.Col(dcc.Markdown('**Select country**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dcc.Dropdown(countries, ['United States'], id='country4_s', multi=True), width=3),
-                dbc.Col(dcc.Markdown('different marker symbols', style={'textAlign':'right'}), width=3),
+                dbc.Col(dcc.Markdown('different marker symbols', style={'textAlign':'right'}), width=4),
                 dbc.Col(dbc.Checklist(id='symbol4_s', switch=True, value=[], options=[{'label':'', 'value':'country'}],
                                                                                 inputStyle={'margin-right':'10px'}), width=1)]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select x-axis**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dcc.Dropdown(importance_list, 'forward linkage', id='metric4x_s'), width=3),
-                dbc.Col(dcc.Markdown('log-scaled x-axis', style={'textAlign':'right'}), width=3),
+                dbc.Col(dcc.Markdown('log-scaled x-axis', style={'textAlign':'right'}), width=4),
                 dbc.Col(dbc.Checklist(id='log4x_s', switch=True, value=[], options=[{'label':'', 'value':'On'}], inputStyle={'margin-right':'10px'}))
                 ]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select y-axis**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dcc.Dropdown(importance_list, 'backward linkage', id='metric4y_s'), width=3),
-                dbc.Col(dcc.Markdown('log-scaled x-axis', style={'textAlign':'right'}), width=3),
+                dbc.Col(dcc.Markdown('log-scaled x-axis', style={'textAlign':'right'}), width=4),
                 dbc.Col(dbc.Checklist(id='log4y_s', switch=True, value=[], options=[{'label':'', 'value':'On'}], inputStyle={'margin-right':'10px'}))
                 ]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select marker size\n (vulnerability)**', style={'textAlign':'right'}), width=2),
 			    dbc.Col(dmc.SegmentedControl(vulnerability_list, 'gas vulnerability', id='metric4i_s'), width=5),
                 dbc.Col(dcc.Markdown('size scaling', style={'textAlign':'right'}), width=2),
-                dbc.Col(dcc.Input(value=30, type='number', step=1, inputMode='numeric', style={'width':60}, id='size4_s'), width=1),]),
+                dbc.Col(dcc.Input(value=25, type='number', step=1, inputMode='numeric', style={'width':60}, id='size4_s'), width=1),]),
 		    dbc.Row([dbc.Col(dcc.Markdown('**Select marker color**', style={'textAlign':'right'}), width=2),
-    			dbc.Col(dmc.SegmentedControl(['vulnerability', 'sector groups'], 'vulnerability', id='color4_s'), width=3),
+    			dbc.Col(dmc.SegmentedControl(['vulnerability', 'sector groups'], 'vulnerability', id='color4_s'), width=4),
                 dbc.Col(dcc.Markdown('log2-scaled color', style={'textAlign':'right'}), width=3),
                 dbc.Col(dbc.Checklist(id='log4i_s', switch=True, value=[], options=[{'label':'', 'value':'On'}], inputStyle={'margin-right':'10px'}))
                 ]),
@@ -195,7 +195,7 @@ app.layout = html.Div(children=[
                 dbc.Col(dcc.Input(value=0, type='number', min=0, inputMode='numeric', style={'width':60}, id='filternb4_s'), width=1)
                 ]),
             dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2),
-    			dbc.Col(dcc.Slider(min=1995, max=2019, step=1, value=2000, marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year4_s'), width=7)]),
+    			dbc.Col(dcc.Slider(min=1995, max=2019, step=1, value=2016, marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year4_s'), width=7)]),
             dbc.Row([dbc.Col(dcc.Markdown('Note: Please click on individual data points to hide them and rescale the color-coding and marker sizes.'), width=7),
                     dbc.Col(dbc.Button('Reset selection', id='reset4_s', outline=True, color='dark'), width=2),
                     dbc.Col(dbc.Button('Download spreadsheet', id='csv4_s', outline=True, color='dark')), dcc.Store(id='click4_s'), dcc.Download(id='data4_s')]),
@@ -203,26 +203,26 @@ app.layout = html.Div(children=[
             
             dbc.Tab([
     	    dbc.Row([dbc.Col(dcc.Markdown('**Select sector**', style={'textAlign':'right'}), width=2),
-                dbc.Col(dcc.Dropdown(sectors_list, ['Chemicals'], id='sector4_c', multi=True), width=3),
+                dbc.Col(dcc.Dropdown(sectors_list, ['Chemicals'], id='sector4_c', multi=True), width=4),
                 dbc.Col(dcc.Markdown('different marker symbols', style={'textAlign':'right'}), width=3),
                 dbc.Col(dbc.Checklist(id='symbol4_c', switch=True, value=[], options=[{'label':'', 'value':'sector'}],
                                                                                 inputStyle={'margin-right':'10px'}), width=1)]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select x-axis**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dcc.Dropdown(importance_list, 'forward linkage', id='metric4x_c'), width=3),
-                    dbc.Col(dcc.Markdown('log-scaled x-axis', style={'textAlign':'right'}), width=3),
+                    dbc.Col(dcc.Markdown('log-scaled x-axis', style={'textAlign':'right'}), width=4),
                     dbc.Col(dbc.Checklist(id='log4x_c', switch=True, value=[], options=[{'label':'', 'value':'On'}], inputStyle={'margin-right':'10px'}))
                     ]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select y-axis**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dcc.Dropdown(importance_list, 'backward linkage', id='metric4y_c'), width=3),
-                    dbc.Col(dcc.Markdown('log-scaled y-axis', style={'textAlign':'right'}), width=3),
+                    dbc.Col(dcc.Markdown('log-scaled y-axis', style={'textAlign':'right'}), width=4),
                     dbc.Col(dbc.Checklist(id='log4y_c', switch=True, value=[], options=[{'label':'', 'value':'On'}], inputStyle={'margin-right':'10px'}))
                     ]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select marker size\n (vulnerability)**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dmc.SegmentedControl(vulnerability_list, 'oil vulnerability', id='metric4i_c'), width=5),
     		        dbc.Col(dcc.Markdown('size scaling', style={'textAlign':'right'}), width=2),
-                    dbc.Col(dcc.Input(value=30, type='number', step=1, inputMode='numeric', style={'width':60}, id='size4_c'), width=1),]),
+                    dbc.Col(dcc.Input(value=25, type='number', step=1, inputMode='numeric', style={'width':60}, id='size4_c'), width=1),]),
             dbc.Row([dbc.Col(dcc.Markdown('**Select marker color**', style={'textAlign':'right'}), width=2),
-                    dbc.Col(dmc.SegmentedControl(['vulnerability', 'regions'], 'vulnerability', id='color4_c'), width=3),
+                    dbc.Col(dmc.SegmentedControl(['vulnerability', 'regions'], 'vulnerability', id='color4_c'), width=4),
                     dbc.Col(dcc.Markdown('log2-scaled color', style={'textAlign':'right'}), width=3),
                     dbc.Col(dbc.Checklist(id='log4i_c', switch=True, value=[], options=[{'label':'', 'value':'On'}], inputStyle={'margin-right':'10px'}))
                 ]),    		
@@ -234,7 +234,7 @@ app.layout = html.Div(children=[
                 dbc.Col(dcc.Input(value=0, type='number', min=0, inputMode='numeric', style={'width':60}, id='filternb4_c'), width=1)
                 ]),
             dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2),
-    			dbc.Col(dcc.Slider(min=1995, max=2019, step=1, value=2000, marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year4_c'), width=7)]),
+    			dbc.Col(dcc.Slider(min=1995, max=2019, step=1, value=2016, marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year4_c'), width=7)]),
             dbc.Row([dbc.Col(dcc.Markdown('Note: Please click on individual data points to hide them and rescale the color-coding and marker sizes.'), width=7),
                     dbc.Col(dbc.Button('Reset selection', id='reset4_c', outline=True, color='dark'), width=2),
                     dbc.Col(dbc.Button('Download spreadsheet', id='csv4_c', outline=True, color='dark'),),]),
@@ -253,7 +253,7 @@ app.layout = html.Div(children=[
     	dbc.AccordionItem([
     		dbc.Row([
     		dbc.Col([dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=3),
-    			    dbc.Col(dcc.Slider(min=1995, max=2019, step=1, value=2000, marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year6'), width=7)]),
+    			    dbc.Col(dcc.Slider(min=1995, max=2019, step=1, value=2016, marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year6'), width=7)]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select vulnerability (country color)**', style={'textAlign':'right'}), width=3),
     		        dbc.Col(dmc.SegmentedControl(vulnerability_list, 'oil vulnerability', id='metric6'), width=5),]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select number of links\n per sector group**', style={'textAlign':'right'}), width=3),
@@ -286,7 +286,7 @@ def update_histogram(metric1,unit1,group1_s,group1_c,year1,order1,type1,range1,c
         fig = px.bar(dataset, x=metric1, y=unit1, orientation='h', color=color, custom_data=[decomp]).update_traces(hovertemplate='<b>%{customdata[0]} (%{y}, '+str(year1)+')</b><br>'+str(metric1)+': %{x:.2f}')
     else:
         fig = px.histogram(dataset, x=metric1, y=unit1, histfunc='avg', orientation='h').update_traces(hovertemplate='<b>%{y}, '+str(year1)+'</b><br>average '+str(metric1)+': %{x:.2f}')
-    fig.update_yaxes(categoryorder=order, autorange='reversed').update_layout(xaxis_title=xlabel, yaxis_title=unit1, font={'size':11}, height=820+1450*(unit1=='sector'), paper_bgcolor='white')
+    fig.update_yaxes(categoryorder=order, autorange='reversed').update_layout(xaxis_title=xlabel, yaxis_title=unit1, font={'size':11}, height=820+1450*(unit1=='sector'))
     y = str(year1)
     if csv1:
         if changes1 == 'range of years':
@@ -300,7 +300,7 @@ def update_cheatmap(metric2_c,region2_c,order2_c,unselect2_c,csv2_c):
     order = (order2_c=='original')*'trace' + (order2_c=='descending')*'total descending' + (order2_c=='ascending')*'total ascending'
     dataset = data_cavg[data_cavg.region.isin(region2_c)&~data_cavg.country.isin(unselect2_c)]
     nb_countries = len(dataset.country.unique())
-    fig = px.density_heatmap(dataset, x='year', y='country', z=metric2_c, height=70*nb_countries**.63, width=450+260, labels={'x':'year','y':'country'}, nbinsx=NY, nbinsy=nb_countries, color_continuous_scale='Turbo').update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':14}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, paper_bgcolor='white').update_traces(hovertemplate='<b>%{y}</b><br>year: %{x}<br>'+str(metric2_c)+': %{z:.2f}')
+    fig = px.density_heatmap(dataset, x='year', y='country', z=metric2_c, height=70*nb_countries**.63, width=450+260, labels={'x':'year','y':'country'}, nbinsx=NY, nbinsy=nb_countries, color_continuous_scale='Turbo').update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':14}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}).update_traces(hovertemplate='<b>%{y}</b><br>year: %{x}<br>'+str(metric2_c)+': %{z:.2f}')
     if csv2_c:
         return fig, dcc.send_data_frame(dataset.to_csv, 'heatmap_'+str(metric2_s.replace(' ','_'))+'_countries.csv'), None
     else:
@@ -328,7 +328,7 @@ def update_sheatmap(segment2_s,metric2_s,group2_s,order2_s,unselect2_s,csv2_s):
             nb_sectors = len(dataset[r].sector.unique())
             fig.add_trace(px.density_heatmap(dataset[r], x='year', y='sector', z=metric2_s, nbinsx=NY, nbinsy=nb_sectors).data[0], row=1, col=r_idx+1)
         fig.update_layout(height=15+45*nb_sectors**.78, width=720+4*260)
-    fig.update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':14}, showlegend=True, coloraxis_colorbar={'title':metric2_s, 'orientation':'v', 'len':.8, 'thickness':15}, coloraxis={'colorscale':'Jet'}, paper_bgcolor='white').update_traces(hovertemplate='<b>%{y}</b><br>year: %{x}<br>'+str(metric2_s)+': %{z:.2f}')
+    fig.update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':14}, showlegend=True, coloraxis_colorbar={'title':metric2_s, 'orientation':'v', 'len':.8, 'thickness':15}, coloraxis={'colorscale':'Jet'}).update_traces(hovertemplate='<b>%{y}</b><br>year: %{x}<br>'+str(metric2_s)+': %{z:.2f}')
     if csv2_s:
         df = pd.DataFrame()
         for r in regions_list:
@@ -386,8 +386,12 @@ def update_sline(metric3_s,unit3_s,group3_s,csv3_s):
 def update_cscatter(sector4_c, metric4x_c,log4x_c, metric4y_c,log4y_c, metric4i_c,log4i_c, year4_c,color4_c,group4_c, filtermetric4_c, filternb4_c, size4_c, symbol4_c, click4_c, csv4_c):
     global clicked_countries
     xlabel, ylabel, zlabel, symbol = metric4x_c, metric4y_c, metric4i_c, symbol4_c
-    if type(symbol4_c)!=str:
-        symbol4_c = None
+    print(symbol4_c)
+    if symbol4_c:
+        symbol = symbol4_c[0]
+    else:
+        symbol = None
+    print(symbol)
     dataset = H[(H.year==year4_c)&H.region.isin(group4_c)&H.sector.isin(sector4_c)&(H[filtermetric4_c]>filternb4_c)].reset_index(drop=True)
     if click4_c:
         dataset = dataset[~dataset.country.isin(clicked_countries)]
@@ -398,17 +402,17 @@ def update_cscatter(sector4_c, metric4x_c,log4x_c, metric4y_c,log4y_c, metric4i_
         final_tick = int(color.max())-1
         cticks = np.array([2**k for k in range(final_tick+1)])
         try:
-            fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=np.log2(dataset[color4_c]), labels={'x':xlabel, 'y':ylabel}, hover_name='country', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_c, log_x=log4x_c, log_y=log4y_c, symbol=symbol4_c)
+            fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=np.log2(dataset[color4_c]), labels={'x':xlabel, 'y':ylabel}, hover_name='country', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_c, log_x=log4x_c, log_y=log4y_c, symbol=symbol)
         except:
-            fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=np.log2(dataset[color4_c]), labels={'x':xlabel, 'y':ylabel}, hover_name='country', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_c, log_x=log4x_c, log_y=log4y_c, symbol=symbol4_c)
+            fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=np.log2(dataset[color4_c]), labels={'x':xlabel, 'y':ylabel}, hover_name='country', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_c, log_x=log4x_c, log_y=log4y_c, symbol=symbol)
         fig.update_layout(coloraxis_colorbar={'tickvals':np.log2(cticks), 'ticktext':cticks.astype(str)})
     else:
         color4_c = (color4_c=='vulnerability')*zlabel + (color4_c=='regions')*'region'
         try:
-            fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=dataset[color4_c], labels={'x':xlabel, 'y':ylabel}, hover_name='country', opacity=.7,color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_c, log_x=log4x_c, log_y=log4y_c, symbol=symbol4_c)
+            fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=dataset[color4_c], labels={'x':xlabel, 'y':ylabel}, hover_name='country', opacity=.7,color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_c, log_x=log4x_c, log_y=log4y_c, symbol=symbol)
         except:
-            fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=dataset[color4_c], labels={'x':xlabel, 'y':ylabel}, hover_name='country', opacity=.7,color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_c, log_x=log4x_c, log_y=log4y_c, symbol=symbol4_c)
-    fig.update_layout(width=950, height=650, font={'size':14}, hoverlabel={'font_size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}).add_hline(y=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).add_vline(x=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]}</b> (%{customdata[1]})', str(zlabel)+': %{customdata[2]:.2f}%', str(xlabel)+': %{customdata[3]:.2f}', str(ylabel)+': %{customdata[4]:.2f}', str(filtermetric4_c)+': %{customdata[5]:.2f}']))
+            fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=dataset[color4_c], labels={'x':xlabel, 'y':ylabel}, hover_name='country', opacity=.7,color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_c, log_x=log4x_c, log_y=log4y_c, symbol=symbol)
+    fig.update_layout(width=950, height=650, font={'size':14}, hoverlabel={'font_size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}).add_hline(y=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).add_vline(x=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]} (%{customdata[1]})</b>', str(zlabel)+': %{customdata[2]:.2f}%', str(xlabel)+': %{customdata[3]:.2f}', str(ylabel)+': %{customdata[4]:.2f}', str(filtermetric4_c)+': %{customdata[5]:.2f}<extra></extra>']))
     if csv4_c:
         return fig, dcc.send_data_frame(dataset.to_csv, 'scatterplot_'+str(sector4_c)+'_'+str(year4_c)+'.csv'), None
     else:
@@ -436,8 +440,12 @@ def sync_selection_cscatter(reset):
 def update_sscatter(country4_s, metric4x_s, log4x_s, metric4y_s, log4y_s, metric4i_s,log4i_s, year4_s, color4_s, group4_s, filtermetric4_s, filternb4_s, size4_s, symbol4_s, click4_s, csv4_s): # SINGLE COUNTRY select
     global clicked_sectors
     xlabel, ylabel, zlabel = metric4x_s, metric4y_s, metric4i_s
-    if type(symbol4_s)!=str:
-        symbol4_s = None
+    print(symbol4_s)
+    if symbol4_s:
+        symbol = symbol4_s[0]
+    else:
+        symbol = None
+    print(symbol)
     dataset = H[(H.year==year4_s)&H.group.isin(group4_s)&H.country.isin(country4_s)&(H[filtermetric4_s]>filternb4_s)].reset_index(drop=True)
     if click4_s:
         dataset = dataset[~dataset.sector.isin(clicked_sectors)]
@@ -448,17 +456,17 @@ def update_sscatter(country4_s, metric4x_s, log4x_s, metric4y_s, log4y_s, metric
         final_tick = int(np.nanmax(color))
         cticks = np.array([2**k for k in range(final_tick+1)])
         try:
-            fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=np.log2(dataset[color4_s]), labels={'x':xlabel, 'y':ylabel}, hover_name='sector', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_s, log_x=log4x_s, log_y=log4y_s, symbol=symbol4_s)
+            fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=np.log2(dataset[color4_s]), labels={'x':xlabel, 'y':ylabel}, hover_name='sector', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_s, log_x=log4x_s, log_y=log4y_s, symbol=symbol)
         except:
-            fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=np.log2(dataset[color4_s]), labels={'x':xlabel, 'y':ylabel}, hover_name='sector', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_s, log_x=log4x_s, log_y=log4y_s, symbol=symbol4_s)
+            fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=np.log2(dataset[color4_s]), labels={'x':xlabel, 'y':ylabel}, hover_name='sector', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_s, log_x=log4x_s, log_y=log4y_s, symbol=symbol)
         fig.update_layout(coloraxis_colorbar={'tickvals':np.log2(cticks), 'ticktext':cticks.astype(str)})
     else:
         color4_s = (color4_s=='vulnerability')*zlabel + (color4_s=='sector groups')*'group'
         try:
-            fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=color4_s, labels={'x':xlabel, 'y':ylabel}, hover_name='sector', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_s, log_x=log4x_s, log_y=log4y_s, symbol=symbol4_s)
+            fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=color4_s, labels={'x':xlabel, 'y':ylabel}, hover_name='sector', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_s, log_x=log4x_s, log_y=log4y_s, symbol=symbol)
         except:
-            fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=color4_s, labels={'x':xlabel, 'y':ylabel}, hover_name='sector', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_s, log_x=log4x_s, log_y=log4y_s, symbol=symbol4_s)
-    fig.update_layout(width=900, height=650, font={'size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, hoverlabel={'font_size':14}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}, clickmode='event+select', paper_bgcolor='white').add_hline(y=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).add_vline(x=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]}</b> (%{customdata[1]})', str(zlabel)+': %{customdata[2]:.2f}%', str(xlabel)+': %{customdata[3]:.2f}', str(ylabel)+': %{customdata[4]:.2f}', str(filtermetric4_s)+': %{customdata[5]:.2f}']))
+            fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=color4_s, labels={'x':xlabel, 'y':ylabel}, hover_name='sector', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_s, log_x=log4x_s, log_y=log4y_s, symbol=symbol)
+    fig.update_layout(width=900, height=650, font={'size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, hoverlabel={'font_size':14}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}, clickmode='event+select').add_hline(y=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).add_vline(x=1, line_width=3, line_dash='dash', line_color='red', opacity=.7).update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]} (%{customdata[1]})</b>', str(zlabel)+': %{customdata[2]:.2f}%', str(xlabel)+': %{customdata[3]:.2f}', str(ylabel)+': %{customdata[4]:.2f}', str(filtermetric4_s)+': %{customdata[5]:.2f}}<extra></extra>']))
     if csv4_s:
         return fig, dcc.send_data_frame(dataset.to_csv, 'scatterplot_'+str(country4_s)+'_'+str(year4_s)+'.csv'), None
     else:
@@ -493,7 +501,7 @@ def update_waves(unit5, csv5):
         fig = px.area(dataset, x='year', y='vulnerability', color='sector', width=950, height=450, labels={'y':'cumulative vulnerability (%)'})
     except:
         fig = px.area(dataset, x='year', y='vulnerability', color='sector', width=950, height=450, labels={'y':'cumulative vulnerability (%)'})
-    fig.update_traces(hovertemplate='%{x}: %{y:.2f}%').update_layout(paper_bgcolor='white', legend={'font_size':16})
+    fig.update_traces(hovertemplate='%{x}: %{y:.2f}%').update_layout(legend={'font_size':16})
     if csv5:
         return fig, dcc.send_data_frame(dataset.to_csv, 'areachart_'+str(unit5)+'.csv'), None
     else:
@@ -507,7 +515,7 @@ def update_maps(year6, metric6, nbedges6):
         for s in range(5):
             batch, color = deepcopy(dataset.iloc[3*(100*s+10*idx): 3*(100*s+10*(idx+1))]), sector_group_colors[s]
             fig.add_scattergeo(lat=batch.latitude, lon=batch.longitude, mode='lines', line={'width':1.5, 'color':color}, showlegend=False, hoverinfo='skip')
-    fig.add_scattergeo(lat=worldmap_nodes.lat, lon=worldmap_nodes.lon, marker={'size':5, 'symbol':'circle-open', 'color':'black', 'opacity':0.8}, showlegend=False, customdata=worldmap_nodes.EXIOBASE_name, hovertemplate='%{customdata}<extra></extra>').update_layout(clickmode='event+select', width=1400, height=500, margin=dict(l=20, r=20, t=0, b=0), paper_bgcolor='white')
+    fig.add_scattergeo(lat=worldmap_nodes.lat, lon=worldmap_nodes.lon, marker={'size':5, 'symbol':'circle-open', 'color':'black', 'opacity':0.8}, showlegend=False, customdata=worldmap_nodes.EXIOBASE_name, hovertemplate='%{customdata}<extra></extra>').update_layout(clickmode='event+select', width=1400, height=500, margin=dict(l=20, r=20, t=0, b=0))
     _ = fig.update_geos(lataxis_range=[-55, 90], showocean=True, oceancolor='LightBlue')
     return fig
 

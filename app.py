@@ -238,7 +238,7 @@ app.layout = html.Div(children=[
             dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2),
                 
                 dbc.Col(dbc.Tabs([dbc.Tab(dcc.Slider(min=1995, max=2019, step=1, value=2016, marks={1995:'2019', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year4_s'), label='single year', tab_id='single year', activeTabClassName='fw-bold'),
-                            dbc.Tab(dcc.RangeSlider(min=1995, max=2019, step=1, value=[2015,2019], marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='range4_s'), label='difference between', tab_id='difference between', activeTabClassName='fw-bold'),], id='changes4_s', active_tab='single year'), width=5),
+                            dbc.Tab(dcc.RangeSlider(min=1995, max=2019, step=1, value=[2015,2019], marks={1995:'1995', 2019:'2019'}, tooltip={'placement':'bottom', 'always_visible':True}, id='range4_s'), label='difference', tab_id='difference', activeTabClassName='fw-bold'),], id='changes4_s', active_tab='single year'), width=5),
                 
                 dbc.Col(dcc.Markdown('**Fixed color-range**', style={'textAlign':'right'}), width=2),
                 dbc.Col(dbc.Checklist(id='cmax4_s', switch=True, value=[], options=[{'label':'', 'value':'On'}], inputStyle={'margin-right':'10px'}))]),
@@ -408,7 +408,7 @@ def update_cscatter(country4_c, metric4x_c, log4x_c, metric4y_c, log4y_c, metric
         cmax, cmin = dataset[zlabel].max(), dataset[zlabel].min()
     else:
         cmax, cmin = None, None
-    custom_data, dashed_line, label_var = ['sector',custom1,zlabel,xlabel,ylabel,filtermetric4_c], int(changes4_c=='single year'), int(changes4_c=='between')*' variation'
+    custom_data, dashed_line, label_var = ['sector',custom1,zlabel,xlabel,ylabel,filtermetric4_c], int(changes4_c=='single year'), int(changes4_c=='difference')*' variation'
     if changes4_c == 'difference':
         year0, year1 = range4_c
         dataset_y0, dataset_y = dataset[dataset.year==year0][custom_data].reset_index(drop=True), dataset[dataset.year==year1][custom_data].reset_index(drop=True)
@@ -475,7 +475,7 @@ def update_sscatter(sector4_s, metric4x_s,log4x_s, metric4y_s,log4y_s, metric4i_
         cmax, cmin = dataset[zlabel].max(), dataset[zlabel].min()
     else:
         cmax, cmin = None, None
-    custom_data, dashed_line, label_var = ['country',custom1,zlabel,xlabel,ylabel,filtermetric4_s], int(changes4_s=='single year'), int(changes4_s=='between')*' variation'
+    custom_data, dashed_line, label_var = ['country',custom1,zlabel,xlabel,ylabel,filtermetric4_s], int(changes4_s=='single year'), int(changes4_s=='difference')*' variation'
     if changes4_s == 'difference':
         year0, year1 = range4_s
         dataset_y0, dataset_y = dataset[dataset.year==year0][custom_data].reset_index(drop=True), dataset[dataset.year==year1][custom_data].reset_index(drop=True)

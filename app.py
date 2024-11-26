@@ -408,7 +408,7 @@ def update_cscatter(country4_c, metric4x_c, log4x_c, metric4y_c, log4y_c, metric
         cmax, cmin = dataset[zlabel].max(), dataset[zlabel].min()
     else:
         cmax, cmin = None, None
-    custom_data, dashed_line = ['sector',custom1,zlabel,xlabel,ylabel,filtermetric4_c], int(changes4_c=='single year')
+    custom_data, dashed_line, label_var = ['sector',custom1,zlabel,xlabel,ylabel,filtermetric4_c], int(changes4_c=='single year'), int(changes4_c=='between')*' variation'
     if changes4_c == 'difference':
         year0, year1 = range4_c
         dataset_y0, dataset_y = dataset[dataset.year==year0][custom_data].reset_index(drop=True), dataset[dataset.year==year1][custom_data].reset_index(drop=True)
@@ -421,9 +421,9 @@ def update_cscatter(country4_c, metric4x_c, log4x_c, metric4y_c, log4y_c, metric
         final_tick = int(np.nanmax(color))
         cticks = np.array([2**k for k in range(final_tick+1)])
         try:
-            fig = px.scatter(dataset_y, x=xlabel, y=ylabel, size=zlabel, color=np.log2(dataset_y[color4_c]), labels={'x':xlabel, 'y':ylabel}, hover_name=custom1, opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_c, log_x=log4x_c, log_y=log4y_c, symbol=symbol)
+            fig = px.scatter(dataset_y, x=xlabel, y=ylabel, size=zlabel, color=np.log2(dataset_y[color4_c]), labels={'x':xlabel+label_var, 'y':ylabel+label_var}, hover_name=custom1, opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_c, log_x=log4x_c, log_y=log4y_c, symbol=symbol)
         except:
-            fig = px.scatter(dataset_y, x=xlabel, y=ylabel, size=zlabel, color=np.log2(dataset_y[color4_c]), labels={'x':xlabel, 'y':ylabel}, hover_name=custom1, opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_c, log_x=log4x_c, log_y=log4y_c, symbol=symbol)
+            fig = px.scatter(dataset_y, x=xlabel, y=ylabel, size=zlabel, color=np.log2(dataset_y[color4_c]), labels={'x':xlabel+label_var, 'y':ylabel+label_var}, hover_name=custom1, opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_c, log_x=log4x_c, log_y=log4y_c, symbol=symbol)
         fig.update_layout(coloraxis_colorbar={'tickvals':np.log2(cticks), 'ticktext':cticks.astype(str)})
     else:
         color4_c = (color4_c=='vulnerability')*zlabel + (color4_c=='sector groups')*'group'
@@ -475,7 +475,7 @@ def update_sscatter(sector4_s, metric4x_s,log4x_s, metric4y_s,log4y_s, metric4i_
         cmax, cmin = dataset[zlabel].max(), dataset[zlabel].min()
     else:
         cmax, cmin = None, None
-    custom_data, dashed_line = ['country',custom1,zlabel,xlabel,ylabel,filtermetric4_s], int(changes4_s=='single year')
+    custom_data, dashed_line, label_var = ['country',custom1,zlabel,xlabel,ylabel,filtermetric4_s], int(changes4_s=='single year'), int(changes4_s=='between')*' variation'
     if changes4_s == 'difference':
         year0, year1 = range4_s
         dataset_y0, dataset_y = dataset[dataset.year==year0][custom_data].reset_index(drop=True), dataset[dataset.year==year1][custom_data].reset_index(drop=True)
@@ -488,9 +488,9 @@ def update_sscatter(sector4_s, metric4x_s,log4x_s, metric4y_s,log4y_s, metric4i_
         final_tick = int(color.max())
         cticks = np.array([2**k for k in range(final_tick+1)])
         try:
-            fig = px.scatter(dataset_y, x=xlabel, y=ylabel, size=zlabel, color=np.log2(dataset_y[color4_s]), labels={'x':xlabel, 'y':ylabel}, hover_name=custom1, opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_s, log_x=log4x_s, log_y=log4y_s, symbol=symbol)
+            fig = px.scatter(dataset_y, x=xlabel, y=ylabel, size=zlabel, color=np.log2(dataset_y[color4_s]), labels={'x':xlabel+label_var, 'y':ylabel+label_var}, hover_name=custom1, opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_s, log_x=log4x_s, log_y=log4y_s, symbol=symbol)
         except:
-            fig = px.scatter(dataset_y, x=xlabel, y=ylabel, size=zlabel, color=np.log2(dataset_y[color4_s]), labels={'x':xlabel, 'y':ylabel}, hover_name=custom1, opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_s, log_x=log4x_s, log_y=log4y_s, symbol=symbol)
+            fig = px.scatter(dataset_y, x=xlabel, y=ylabel, size=zlabel, color=np.log2(dataset_y[color4_s]), labels={'x':xlabel+label_var, 'y':ylabel+label_var}, hover_name=custom1, opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_s, log_x=log4x_s, log_y=log4y_s, symbol=symbol)
         fig.update_layout(coloraxis_colorbar={'tickvals':np.log2(cticks), 'ticktext':cticks.astype(str)})
     else:
         color4_s = (color4_s=='vulnerability')*zlabel + (color4_s=='regions')*'region'

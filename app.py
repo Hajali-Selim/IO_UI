@@ -18,6 +18,7 @@ app = Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
 H = pd.read_csv('processed_data_new.csv', compression='bz2')
+H = H[H.year>1].reset_index(drop=True)
 worldmap_nodes, worldmap_table, worldmap_plot, sector_group_scheme = pd.read_csv('worldmap_nodes.csv'), pd.read_csv('worldmap_table.csv'), pd.read_csv('worldmap_plot.csv'), Image.open('worldmap_scheme.png')
 
 NS, NC, NY = 163, 49, 25
@@ -48,24 +49,24 @@ for i,j in [('coal vulnerability','Mining of coal, lignite and peat'), ('oil vul
     row, col = H[H.sector==j].index, np.where(H.columns==i)[0][0]
     H.iloc[row,col] = 0
 
-data_cavg = H[H.year>1].groupby(['year','country'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','country']).iloc[2*NC:]
+data_cavg = H.groupby(['year','country'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','country'])
 data_cavg.insert(1, 'region', list(regions)*NY)
-data_s1avg = H[H.year>1].groupby(['year','sector'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','sector']).iloc[2*NS:]
+data_s1avg = H.groupby(['year','sector'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','sector'])
 data_s1avg.insert(4, 'group', list(H.group.iloc[:NS])*NY)
-data_s2avg = {c[0]:c[1].groupby(['year','sector'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','sector']).iloc[2*NS:] for c in H.groupby('region', observed=False)}
+data_s2avg = {c[0]:c[1].groupby(['year','sector'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','sector']) for c in H.groupby('region', observed=False)}
 _ = [data_s2avg[r].insert(4, 'group', list(H.group.iloc[:NS])*NY) for r in regions_list]
 
 data_cvuln, data_rvuln, year_NYlist, sector_NYlist = {}, {}, np.array([1995+y for k in range(3) for y in range(NY)]), np.array([s for s in ['oil vulnerability','gas vulnerability','coal vulnerability'] for i in range(NY)])
 for c in countries:
-    data_cvuln[c] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg[data_cavg['country']==c][['oil vulnerability','gas vulnerability','coal vulnerability']].unstack().values)).T, columns=['year','sector','vulnerability'])
+    data_cvuln[c] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg[data_cavg.country==c][['oil vulnerability','gas vulnerability','coal vulnerability']].unstack().values)).T, columns=['year','sector','vulnerability'])
     data_cvuln[c]['year'], data_cvuln[c]['sector'], data_cvuln[c]['vulnerability'] = data_cvuln[c]['year'].astype(int), data_cvuln[c]['sector'].astype(str), data_cvuln[c]['vulnerability'].astype(float)
 
 for r in regions_list:
-    data_rvuln[r] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg[data_cavg['region']==r].groupby('year', as_index=False, observed=False)[['oil vulnerability','gas vulnerability','coal vulnerability']].sum().iloc[:-2,1:].unstack().values)).T, columns=['year','sector','vulnerability'])
+    data_rvuln[r] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg[data_cavg.region==r].groupby('year', as_index=False, observed=False)[['oil vulnerability','gas vulnerability','coal vulnerability']].sum().iloc[:,1:].unstack().values)).T, columns=['year','sector','vulnerability'])
     data_rvuln[r]['year'], data_rvuln[r]['sector'], data_rvuln[r]['vulnerability'] = data_rvuln[r]['year'].astype(int), data_rvuln[r]['sector'].astype(str), data_rvuln[r]['vulnerability'].astype(float)
 
-data_rvuln['Worldwide'] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg.groupby('year', as_index=False, observed=False)[['oil vulnerability','gas vulnerability','coal vulnerability']].sum().iloc[:-2,1:].unstack().values)).T, columns=['year','sector','vulnerability'])
-data_rvuln['Worldwide'] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg.groupby('year', as_index=False, observed=False)[['oil vulnerability','gas vulnerability','coal vulnerability']].sum().iloc[:-2,1:].unstack().values)).T, columns=['year','sector','vulnerability'])
+data_rvuln['Worldwide'] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg.groupby('year', as_index=False, observed=False)[['oil vulnerability','gas vulnerability','coal vulnerability']].sum().iloc[:,1:].unstack().values)).T, columns=['year','sector','vulnerability'])
+data_rvuln['Worldwide'] = pd.DataFrame(np.vstack((year_NYlist, sector_NYlist, data_cavg.groupby('year', as_index=False, observed=False)[['oil vulnerability','gas vulnerability','coal vulnerability']].sum().iloc[:,1:].unstack().values)).T, columns=['year','sector','vulnerability'])
 data_rvuln['Worldwide']['year'], data_rvuln['Worldwide']['sector'], data_rvuln['Worldwide']['vulnerability'] = data_rvuln['Worldwide']['year'].astype(int), data_rvuln['Worldwide']['sector'].astype(str), data_rvuln['Worldwide']['vulnerability'].astype(float)
 
 groups_list, sector_group_colors = ['Agriculture, forestry and fishing', 'Extraction and mining', 'Manufacture and production', 'Utilities', 'Services'], ['lime', 'orange', 'red', 'cyan', 'purple']
@@ -358,7 +359,7 @@ def update_cline(metric3_c,unit3_c,region3_c,csv3_c):
         dataset = data_cavg[data_cavg.region.isin(region3_c)]
         unit3_c = 'all_sectors'
     else:
-        dataset = H[H.region.isin(region3_c)&(H.sector==unit3_c)&(H.year>1)]
+        dataset = H[H.region.isin(region3_c)&(H.sector==unit3_c)]
     dataset.country = deepcopy(dataset)['country'].cat.set_categories(countries, ordered=True)
     ylabel = metric3_c+' (%)'*(metric3_c[-13:]=='vulnerability')
     try:
@@ -377,7 +378,7 @@ def update_sline(metric3_s,unit3_s,group3_s,csv3_s):
         dataset = data_s1avg[data_s1avg.group.isin(group3_s)]
         unit3_s = 'all_countries'
     else:
-        dataset = H[H.group.isin(group3_s)&(H.country==unit3_s)&(H.year>1)]
+        dataset = H[H.group.isin(group3_s)&(H.country==unit3_s)]
     ylabel = metric3_s+' (%)'*(metric3_s[-13:]=='vulnerability')
     try:
         fig = px.line(dataset, x='year', y=metric3_s, color='sector', labels={'x':'year', 'y':ylabel, 'color':'sector'}, markers=True, custom_data=['sector'])

@@ -18,6 +18,7 @@ app = Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
 H = pd.read_csv('processed_data.csv', compression='bz2')
+
 #worldmap_nodes, worldmap_table, worldmap_plot, sector_group_scheme = pd.read_csv('worldmap_nodes.csv'), pd.read_csv('worldmap_table.csv'), pd.read_csv('worldmap_plot.csv'), Image.open('worldmap_scheme.png')
 country_network_dynamics = pd.read_csv('country_network_dynamics.csv')
 
@@ -310,9 +311,9 @@ def update_cheatmap(metric2_c,region2_c,order2_c,unselect2_c,csv2_c):
     else:
         dataset = data_cavg[data_cavg.region.isin(region2_c)&~data_cavg.country.isin(unselect2_c)]
     nb_countries = len(dataset.country.unique())
-    fig = px.density_heatmap(dataset, x='year', y='country', z=metric2_c, height=70*nb_countries**.63, width=450+260, labels={'x':'year','y':'country'}, nbinsx=NY, nbinsy=nb_countries, color_continuous_scale='Turbo').update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':14}, showlegend=True, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}).update_traces(hovertemplate='<b>%{y}</b><br>year: %{x}<br>'+str(metric2_c)+': %{z:.2f}')
+    fig = px.density_heatmap(dataset, x='year', y='country', z=metric2_c, height=70*nb_countries**.63, width=450+260, labels={'x':'year','y':'country'}, nbinsx=NY, nbinsy=nb_countries, color_continuous_scale='Turbo').update_xaxes(dtick=3, ticklen=10, tickwidth=3, ticks='outside').update_yaxes(tickmode='linear', ticklen=7, tickwidth=2, ticks='outside', autorange='reversed', categoryorder=order).update_layout(font={'size':14}, showlegend=True, coloraxis_colorbar={'title':metric2_c, 'orientation':'v', 'len':.8, 'thickness':15}).update_traces(hovertemplate='<b>%{y}</b><br>year: %{x}<br>'+str(metric2_c)+': %{z:.2f}')
     if csv2_c:
-        return fig, dcc.send_data_frame(dataset.to_csv, 'heatmap_'+str(metric2_s.replace(' ','_'))+'_countries.csv'), None
+        return fig, dcc.send_data_frame(dataset.to_csv, 'heatmap_'+str(metric2_c.replace(' ','_'))+'_countries.csv'), None
     else:
         return fig, None, None
 
@@ -578,4 +579,4 @@ def update_waves(unit5, csv5):
 #        return dataset.to_dict('records')
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8050)
+    app.run_server(debug=True, port=8051)

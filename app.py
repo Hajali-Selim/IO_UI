@@ -17,7 +17,6 @@ app = Dash(__name__, external_stylesheets=external_stylesheets)
 
 server = app.server
 
-#H = pd.read_csv('processed_data.csv', compression='bz2')
 H = pd.read_csv('processed_data_non_normalised.csv', compression='bz2')
 
 #worldmap_nodes, worldmap_table, worldmap_plot, sector_group_scheme = pd.read_csv('worldmap_nodes.csv'), pd.read_csv('worldmap_table.csv'), pd.read_csv('worldmap_plot.csv'), Image.open('worldmap_scheme.png')
@@ -37,7 +36,7 @@ for c in countries:
     country_to_idx[c], k2 = k2, k2+1
 
 units_list = ['region', 'country', 'sector', 'group']
-vulnerability_list, importance_list = ['coal vulnerability', 'gas vulnerability', 'oil vulnerability'], ['forward linkage', 'backward linkage', 'in-degree', 'out-degree', 'binarised out-degree', 'binarised in-degree', 'betweenness']
+vulnerability_list, importance_list = ['coal vulnerability', 'gas vulnerability', 'oil vulnerability'], ['forward linkage', 'backward linkage', 'weighted in-degree', 'weighted out-degree', 'out-degree', 'in-degree', 'betweenness']
 metrics_list = vulnerability_list+importance_list
 country_metrics_list = ['modularity', 'in-conductance', 'out-conductance']
 ordering_list = ['original', 'descending', 'ascending']
@@ -195,7 +194,7 @@ app.layout = html.Div(children=[
             dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2),
                 
                 dbc.Col(dbc.Tabs([dbc.Tab(dcc.Slider(min=1995, max=2022, step=1, value=2016, marks={1995:'1995', 2022:'2022'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year4_c'), label='single year', tab_id='single year', activeTabClassName='fw-bold'),
-                            dbc.Tab(dcc.RangeSlider(min=1995, max=2022, step=1, value=[2015,2022], marks={1995:'1995', 2022:'2022'}, tooltip={'placement':'bottom', 'always_visible':True}, id='range4_c'), label='difference', tab_id='difference', activeTabClassName='fw-bold'),], id='changes4_c', active_tab='single year'), width=5),
+                            dbc.Tab(dcc.RangeSlider(min=1995, max=2022, step=1, value=[2015,2022], marks={1995:'1995', 2022:'2022'}, tooltip={'placement':'bottom', 'always_visible':True}, id='range4_c'), label='range of years', tab_id='range of years', activeTabClassName='fw-bold'),], id='changes4_c', active_tab='single year'), width=5),
                 
                 dbc.Col(dcc.Markdown('**Fixed color-range**', style={'textAlign':'right'}), width=2),
                 dbc.Col(dbc.Checklist(id='cmax4_c', switch=True, value=[], options=[{'label':'', 'value':'On'}], inputStyle={'margin-right':'10px'}))
@@ -240,7 +239,7 @@ app.layout = html.Div(children=[
             dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2),
                 
                 dbc.Col(dbc.Tabs([dbc.Tab(dcc.Slider(min=1995, max=2022, step=1, value=2016, marks={1995:'2023', 2022:'2022'}, tooltip={'placement':'bottom', 'always_visible':True}, id='year4_s'), label='single year', tab_id='single year', activeTabClassName='fw-bold'),
-                            dbc.Tab(dcc.RangeSlider(min=1995, max=2022, step=1, value=[2015,2022], marks={1995:'1995', 2022:'2022'}, tooltip={'placement':'bottom', 'always_visible':True}, id='range4_s'), label='difference', tab_id='difference', activeTabClassName='fw-bold'),], id='changes4_s', active_tab='single year'), width=5),
+                            dbc.Tab(dcc.RangeSlider(min=1995, max=2022, step=1, value=[2015,2022], marks={1995:'1995', 2022:'2022'}, tooltip={'placement':'bottom', 'always_visible':True}, id='range4_s'), label='range of years', tab_id='range of years', activeTabClassName='fw-bold'),], id='changes4_s', active_tab='single year'), width=5),
                 
                 dbc.Col(dcc.Markdown('**Fixed color-range**', style={'textAlign':'right'}), width=2),
                 dbc.Col(dbc.Checklist(id='cmax4_s', switch=True, value=[], options=[{'label':'', 'value':'On'}], inputStyle={'margin-right':'10px'}))]),
@@ -410,8 +409,8 @@ def update_cscatter(country4_c, metric4x_c, log4x_c, metric4y_c, log4y_c, metric
         cmax, cmin = dataset[zlabel].max(), dataset[zlabel].min()
     else:
         cmax, cmin = None, None
-    custom_data, dashed_line, label_var = ['sector',custom1,zlabel,xlabel,ylabel,filtermetric4_c], int(changes4_c=='single year'), int(changes4_c=='difference')*' variation'
-    if changes4_c == 'difference':
+    custom_data, dashed_line, label_var = ['sector',custom1,zlabel,xlabel,ylabel,filtermetric4_c], int(changes4_c=='single year'), int(changes4_c=='range of years')*' variation'
+    if changes4_c == 'range of years':
         year0, year1 = range4_c
         dataset_y0, dataset_y = dataset[dataset.year==year0][custom_data].reset_index(drop=True), dataset[dataset.year==year1][custom_data].reset_index(drop=True)
         dataset_y[[xlabel,ylabel]] = dataset_y[[xlabel,ylabel]].subtract(dataset_y0[[xlabel,ylabel]])
@@ -433,7 +432,7 @@ def update_cscatter(country4_c, metric4x_c, log4x_c, metric4y_c, log4y_c, metric
             fig = px.scatter(dataset_y, x=xlabel, y=ylabel, size=zlabel, color=color4_c, labels={'x':xlabel, 'y':ylabel}, hover_name=custom1, opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_c, log_x=log4x_c, log_y=log4y_c, symbol=symbol)
         except:
             fig = px.scatter(dataset_y, x=xlabel, y=ylabel, size=zlabel, color=color4_c, labels={'x':xlabel, 'y':ylabel}, hover_name=custom1, opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, size_max=size4_c, log_x=log4x_c, log_y=log4y_c, symbol=symbol)
-    fig.update_layout(width=900, height=650, font={'size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, coloraxis={'cmin':cmin, 'cmax':cmax}, hoverlabel={'font_size':14}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}, clickmode='event+select').add_hline(y=dashed_line, line_width=3, line_dash='dash', line_color='red', opacity=.7).add_vline(x=dashed_line, line_width=3, line_dash='dash', line_color='red', opacity=.7).update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]} (%{customdata[1]})</b>', str(zlabel)+': %{customdata[2]:.2f}%', str(xlabel)+': %{customdata[3]:.2f}', str(ylabel)+': %{customdata[4]:.2f}', str(filtermetric4_c)+': %{customdata[5]:.2f}}<extra></extra>']))
+    fig.update_layout(width=900, height=650, font={'size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, coloraxis={'cmin':cmin, 'cmax':cmax}, hoverlabel={'font_size':14}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}, clickmode='event+select').add_hline(y=dashed_line, line_width=3, line_dash='dash', line_color='red', opacity=.7).add_vline(x=dashed_line, line_width=3, line_dash='dash', line_color='red', opacity=.7).update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]} (%{customdata[1]})</b>', str(zlabel)+': %{customdata[2]:.2f}%', str(xlabel)+': %{customdata[3]:.2f}', str(ylabel)+': %{customdata[4]:.2f}', str(filtermetric4_c)+': %{customdata[5]:.2f}<extra></extra>']))
     if csv4_c:
         return fig, dcc.send_data_frame(dataset_y.to_csv, 'scatterplot_'+str(country4_c)+'_'+str(year4_c)+'.csv'), None
     else:
@@ -477,8 +476,8 @@ def update_sscatter(sector4_s, metric4x_s,log4x_s, metric4y_s,log4y_s, metric4i_
         cmax, cmin = dataset[zlabel].max(), dataset[zlabel].min()
     else:
         cmax, cmin = None, None
-    custom_data, dashed_line, label_var = ['country',custom1,zlabel,xlabel,ylabel,filtermetric4_s], int(changes4_s=='single year'), int(changes4_s=='difference')*' variation'
-    if changes4_s == 'difference':
+    custom_data, dashed_line, label_var = ['country',custom1,zlabel,xlabel,ylabel,filtermetric4_s], int(changes4_s=='single year'), int(changes4_s=='range of years')*' variation'
+    if changes4_s == 'range of years':
         year0, year1 = range4_s
         dataset_y0, dataset_y = dataset[dataset.year==year0][custom_data].reset_index(drop=True), dataset[dataset.year==year1][custom_data].reset_index(drop=True)
         dataset_y[[xlabel,ylabel]] = dataset_y[[xlabel,ylabel]].subtract(dataset_y0[[xlabel,ylabel]])

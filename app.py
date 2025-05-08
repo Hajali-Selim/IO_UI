@@ -298,7 +298,7 @@ def update_histogram(metric1,unit1,group1_s,group1_c,year1,order1,type1,range1,c
         fig = px.bar(dataset, x=metric1, y=unit1, orientation='h', color=color, custom_data=[decomp]).update_traces(hovertemplate='<b>%{customdata[0]} (%{y}, '+str(year1)+')</b><br>'+str(metric1)+': %{x:.2f}')
     else:
         fig = px.histogram(dataset, x=metric1, y=unit1, histfunc='avg', orientation='h').update_traces(hovertemplate='<b>%{y}, '+str(year1)+'</b><br>average '+str(metric1)+': %{x:.2f}')
-    fig.update_yaxes(categoryorder=order, autorange='reversed').update_layout(xaxis_title=xlabel, yaxis_title=unit1, font={'size':11}, height=820+1450*(unit1=='sector'), width=1600)
+    fig.update_yaxes(categoryorder=order, autorange='reversed').update_layout(xaxis_title=xlabel, yaxis_title=unit1, font={'size':11}, height=820+1450*(unit1=='sector'), width=1600, plot_bgcolor='white')#, paper_bgcolor='#e7f5ff')# background color inside the plot
     y = str(year1)
     if csv1:
         if changes1 == 'range of years':
@@ -412,10 +412,7 @@ def update_cscatter(country4_c, metric4x_c, metric4y_c, metric4i_c, year4_c, ran
     custom_data, dashed_line, label_var = ['sector',custom1,zlabel,xlabel,ylabel,filtermetric4_c], int(changes4_c=='single year'), int(changes4_c=='range of years')*' variation'
     if changes4_c == 'range of years':
         year0, year1 = range4_c
-        #dataset_y0, dataset_y = dataset[dataset.year==year0][custom_data].reset_index(drop=True), dataset[dataset.year==year1][custom_data].reset_index(drop=True)
-        #dataset_y[[xlabel,ylabel]] = dataset_y[[xlabel,ylabel]].subtract(dataset_y0[[xlabel,ylabel]])
         dataset = df[df.year==1995]
-        #dataset[xlabel] = three_year_difference(df, year0, year1, xlabel)
         metric_past = (df[df.year==year0-2][xlabel].reset_index(drop=True) + df[df.year==year0-1][xlabel].reset_index(drop=True) + df[df.year==year0][xlabel].reset_index(drop=True))/3
         metric_future = (df[df.year==year1-2][xlabel].reset_index(drop=True) + df[df.year==year1-1][xlabel].reset_index(drop=True) + df[df.year==year1][xlabel].reset_index(drop=True))/3
         dataset[xlabel] = (metric_future - metric_past).reset_index(drop=True)
@@ -423,7 +420,6 @@ def update_cscatter(country4_c, metric4x_c, metric4y_c, metric4i_c, year4_c, ran
         metric_past = (df[df.year==year0-2][ylabel].reset_index(drop=True) + df[df.year==year0-1][ylabel].reset_index(drop=True) + df[df.year==year0][ylabel].reset_index(drop=True))/3
         metric_future = (df[df.year==year1-2][ylabel].reset_index(drop=True) + df[df.year==year1-1][ylabel].reset_index(drop=True) + df[df.year==year1][ylabel].reset_index(drop=True))/3
         dataset[ylabel] = (metric_future - metric_past).reset_index(drop=True)
-        
     else:
         dataset = df[df.year==year4_c]
     color4_c = (color4_c=='vulnerability')*zlabel + (color4_c=='sector groups')*'group'

@@ -12,7 +12,7 @@ from random import shuffle
 from PIL import Image
 
 pd.options.mode.chained_assignment = None
-external_stylesheets = [dbc.themes.CERULEAN]
+external_stylesheets = dbc.themes.CERULEAN
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 
 server = app.server

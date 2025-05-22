@@ -12,7 +12,7 @@ from random import shuffle
 from PIL import Image
 
 pd.options.mode.chained_assignment = None
-external_stylesheets = dbc.themes.CERULEAN
+external_stylesheets = [dbc.themes.CERULEAN]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 
 server = app.server
@@ -53,6 +53,7 @@ data_cavg = H.groupby(['year','country'], observed=False)[metrics_list].mean().r
 data_cavg.insert(1, 'region', list(regions)*NY)
 data_s1avg = H.groupby(['year','sector'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','sector'])
 data_s1avg.insert(4, 'group', list(H.group.iloc[:NS])*NY)
+data_r1avg = H.groupby(['year','region'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','region'])
 data_s2avg = {c[0]:c[1].groupby(['year','sector'], observed=False)[metrics_list].mean().reset_index().sort_values(['year','sector']) for c in H.groupby('region', observed=False)}
 _ = [data_s2avg[r].insert(4, 'group', list(H.group.iloc[:NS])*NY) for r in regions_list]
 
@@ -192,20 +193,20 @@ app.layout = html.Div(children=[
             
             dbc.Tab([
     	    dbc.Row([dbc.Col(dcc.Markdown('**Select sector**', style={'textAlign':'right'}), width=2),
-                    dbc.Col(dcc.Dropdown(sectors_list+['average sector'], ['average sector'], id='sector4_s', multi=True), width=4)]),
+                    dbc.Col(dcc.Dropdown(sectors_list+['average sector'], ['average sector'], id='sector4_s', multi=True), width=4),
+                    dbc.Col(dmc.SegmentedControl(['country view', 'region view'], 'region view', id='view4_s'), width=3)]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select x-axis**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dcc.Dropdown(importance_list, 'forward linkage', id='metric4x_s'), width=3)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select y-axis**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dcc.Dropdown(importance_list, 'backward linkage', id='metric4y_s'), width=3)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select size and color**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dmc.SegmentedControl(vulnerability_list, 'fossil fuel vulnerability', id='metric4i_s'), width=4)]),
-            dbc.Row([dbc.Col(dcc.Markdown('**Set color boundaries**', style={'textAlign':'right'}), width=2),
+            dbc.Row([dbc.Col(dcc.Markdown('**Select color boundaries**', style={'textAlign':'right'}), width=2),
                     dbc.Col([dcc.Input(id='colorlow4_s', type='number', min=0, max=100, step=0.5, debounce=True, placeholder='min'),
                             dcc.Input(id='colorhigh4_s', type='number', min=1, max=100, step=0.5, debounce=True, placeholder='max')], width=2),]),
             dbc.Row([dbc.Col(dcc.Markdown('**Select regions**', style={'textAlign':'right'}), width=2),
                 dbc.Col(dcc.Checklist(regions_list, regions_list, inline=True, id='group4_s', inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), width=5)]),
             dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2),
-                
                 dbc.Col(dbc.Tabs([dbc.Tab(dcc.Slider(min=1995, max=1994+NY, step=1, value=2000, marks={1995:'1995', 1994+NY:str(1994+NY)}, tooltip={'placement':'bottom', 'always_visible':True}, id='year4_s'), label='single year', tab_id='single year', activeTabClassName='fw-bold'),
                     dbc.Tab(dcc.RangeSlider(min=1997, max=1994+NY, step=1, value=[2000,1994+NY], marks={1997:'1997', 1994+NY:str(1994+NY)}, tooltip={'placement':'bottom', 'always_visible':True}, id='range4_s'), label='range of years', tab_id='range of years', activeTabClassName='fw-bold'),], id='changes4_s', active_tab='single year'), width=5)]),
             dbc.Row([dbc.Col(dcc.Markdown('Note: Please click on a country data point to hide it and rescale the color-coding and marker sizes.'), width=7),
@@ -409,18 +410,28 @@ def delete_cscatter(clickData):
     else:
         return no_update
 
-@callback(Output('scatter4_s', 'figure'), Output('data4_s','data'), Output('csv4_s','n_clicks'), [Input(s, 'value') for s in ['sector4_s', 'metric4x_s','metric4y_s', 'metric4i_s', 'year4_s', 'range4_s','group4_s', 'colorlow4_s', 'colorhigh4_s']], Input('changes4_c','active_tab'), Input('click4_s', 'data'), Input('csv4_s', 'n_clicks'))
-def update_sscatter(sector4_s, metric4x_s, metric4y_s, metric4i_s, year4_s, range4_s, group4_s, colorlow4_s, colorhigh4_s, changes4_s, click4_s, csv4_s):  # SINGLE SECTOR select
+@callback(Output('scatter4_s', 'figure'), Output('data4_s','data'), Output('csv4_s','n_clicks'), [Input(s, 'value') for s in ['sector4_s','view4_s', 'metric4x_s','metric4y_s', 'metric4i_s', 'year4_s', 'range4_s','group4_s', 'colorlow4_s', 'colorhigh4_s']], Input('changes4_c','active_tab'), Input('click4_s', 'data'), Input('csv4_s', 'n_clicks'))
+def update_sscatter(sector4_s, view4_s, metric4x_s, metric4y_s, metric4i_s, year4_s, range4_s, group4_s, colorlow4_s, colorhigh4_s, changes4_s, click4_s, csv4_s):  # SINGLE SECTOR select
     global clicked_countries
     xlabel, ylabel, zlabel = metric4x_s, metric4y_s, metric4i_s
-    if 'average sector' in sector4_s:
-        df, custom1 = data_cavg.reset_index(drop=True), 'average sector'
-        df[custom1] = custom1
-    else:
-        df, custom1 = H[H.region.isin(group4_s)&H.sector.isin(sector4_s)].reset_index(drop=True), 'sector'
+    if view4_s == 'region view':
+        custom_data = ['region']
+        if 'average sector' in sector4_s:
+            df, custom1 = data_r1avg.reset_index(drop=True), 'average sector'
+        else:
+            df, custom1 = data_r1avg[data_r1avg.region.isin(group4_s)&data_r1avg.sector.isin(sector4_s)].reset_index(drop=True), 'sector'
+        
+    elif view4_s == 'country view':
+        custom_data = ['country']
+        if 'average sector' in sector4_s:
+            df, custom1 = data_cavg.reset_index(drop=True), 'average sector'
+        else:
+            df, custom1 = H[H.region.isin(group4_s)&H.sector.isin(sector4_s)].reset_index(drop=True), 'sector'
+    df[custom1] = custom1
     if click4_s:
         df = df[~df.country.isin(clicked_countries)]
-    custom_data = ['country',custom1,zlabel,xlabel,ylabel]
+    #custom_data = ['country',custom1,zlabel,xlabel,ylabel]
+    custom_data += [custom1,zlabel,xlabel,ylabel]
     if changes4_s == 'range of years':
         year0, year1 = range4_s
         dataset = df[df.year==1995]

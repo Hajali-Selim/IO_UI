@@ -17,7 +17,7 @@ app = Dash(__name__, external_stylesheets=external_stylesheets)
 
 server = app.server
 
-H = pd.read_csv('processed_data_non_normalised.csv', compression='bz2')
+H = pd.read_csv('processed_data.csv', compression='bz2')
 
 #worldmap_nodes, worldmap_table, worldmap_plot, sector_group_scheme = pd.read_csv('worldmap_nodes.csv'), pd.read_csv('worldmap_table.csv'), pd.read_csv('worldmap_plot.csv'), Image.open('worldmap_scheme.png')
 country_network_dynamics = pd.read_csv('country_network_dynamics.csv')
@@ -37,7 +37,7 @@ for c in countries:
     country_to_idx[c], k2 = k2, k2+1
 
 units_list = ['region', 'country', 'sector', 'group']
-vulnerability_list, importance_list = ['coal vulnerability', 'gas vulnerability', 'oil vulnerability', 'fossil fuel vulnerability'], ['forward linkage', 'backward linkage', 'weighted in-degree', 'weighted out-degree', 'out-degree', 'in-degree', 'betweenness']
+vulnerability_list, importance_list = ['coal vulnerability', 'gas vulnerability', 'oil vulnerability', 'fossil fuel vulnerability'], ['forward linkage', 'backward linkage', 'weighted in-degree', 'weighted out-degree', 'out-degree', 'in-degree', 'betweenness', 'betweenness/in-degree', 'betweenness/out-degree']
 metrics_list = vulnerability_list+importance_list
 country_metrics_list = ['modularity', 'in-conductance', 'out-conductance']
 ordering_list = ['original', 'descending', 'ascending']

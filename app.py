@@ -189,11 +189,11 @@ app.layout = html.Div(children=[
             dbc.Row([dbc.Col(dcc.Markdown('**Select color boundaries**', style={'textAlign':'right'}), width=2),
                     dbc.Col([dcc.Input(id='colorlow4_r', type='number', min=0, max=100, step=0.5, debounce=True, placeholder='min'),
                             dcc.Input(id='colorhigh4_r', type='number', min=1, max=100, step=0.5, debounce=True, placeholder='max')], width=2)]),
-            dbc.Row([dbc.Col(dcc.Markdown('**Select sector groups**', style={'textAlign':'right'}), width=2),
-                    dbc.Col(dcc.Checklist(groups_list, groups_list, inline=True, id='group4_r', inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}) )]),
+            dbc.Row([dbc.Col(dcc.Markdown('**Select sector group**', style={'textAlign':'right'}), width=2),
+                    dbc.Col(dcc.Checklist(groups_list, groups_list, inline=True, id='group4_r', inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), )]),
             
             dbc.Row([dbc.Col(dcc.Markdown('**Restrict sectors to**', style={'textAlign':'right'}), width=2),
-                    dbc.Col(dmc.SegmentedControl(['energy transition', 'decarbonization', 'circular economy', 'no restriction'], 'energy transition', id='restrict4_r'))]),
+                    dbc.Col(dmc.SegmentedControl(['energy transition', 'decarbonization', 'circular economy', 'no restriction'], 'no restriction', id='restrict4_r'))]),
             
             dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dbc.Tabs([dbc.Tab(dcc.Slider(min=1995, max=1994+NY, step=1, value=2020, marks={1995:'1995', 1994+NY:str(1994+NY)}, tooltip={'placement':'bottom', 'always_visible':True}, id='year4_r'), label='single year', tab_id='single year', activeTabClassName='fw-bold'),
@@ -216,11 +216,11 @@ app.layout = html.Div(children=[
             dbc.Row([dbc.Col(dcc.Markdown('**Select color boundaries**', style={'textAlign':'right'}), width=2),
                     dbc.Col([dcc.Input(id='colorlow4_c', type='number', min=0, max=100, step=0.5, debounce=True, placeholder='min'),
                             dcc.Input(id='colorhigh4_c', type='number', min=1, max=100, step=0.5, debounce=True, placeholder='max')], width=2)]),
-            dbc.Row([dbc.Col(dcc.Markdown('**Select sector groups**', style={'textAlign':'right'}), width=2),
+            dbc.Row([dbc.Col(dcc.Markdown('**Select sector group**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dcc.Checklist(groups_list, groups_list, inline=True, id='group4_c', inputStyle={'margin-top':'10px', 'margin-right':'5px', 'margin-left':'30px'}), )]),
             
             dbc.Row([dbc.Col(dcc.Markdown('**Restrict sectors to**', style={'textAlign':'right'}), width=2),
-                    dbc.Col(dmc.SegmentedControl(['energy transition', 'decarbonization', 'circular economy', 'no restriction'], 'energy transition', id='restrict4_c'))]),
+                    dbc.Col(dmc.SegmentedControl(['energy transition', 'decarbonization', 'circular economy', 'no restriction'], 'no restriction', id='restrict4_c'))]),
             
             dbc.Row([dbc.Col(dcc.Markdown('**Select year**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dbc.Tabs([dbc.Tab(dcc.Slider(min=1995, max=1994+NY, step=1, value=2020, marks={1995:'1995', 1994+NY:str(1994+NY)}, tooltip={'placement':'bottom', 'always_visible':True}, id='year4_c'), label='single year', tab_id='single year', activeTabClassName='fw-bold'),
@@ -417,11 +417,11 @@ def update_rscatter(region4_r, metric4x_r, metric4y_r, metric4i_r, restrict4_r, 
     global clicked_sectors2
     xlabel, ylabel, zlabel = metric4x_r, metric4y_r, metric4i_r
     df = data_savg[data_savg.group.isin(group4_r) & data_savg.region.isin(region4_r)].reset_index(drop=True)    
-    if restrict4_r == 'Energy transition':
+    if restrict4_r == 'energy transition':
         df = df[df.sector.isin(transition_sectors)]
-    elif restrict4_r == 'Decarbonization':
+    elif restrict4_r == 'decarbonization':
         df = df[df.sector.isin(decarb_sectors)]
-    elif restrict4_r == 'Circular economy':
+    elif restrict4_r == 'circular economy':
         df = df[df.sector.isin(circular_sectors)]
     if click4_r:
         df = df[~df.sector.isin(clicked_sectors2)]
@@ -472,11 +472,11 @@ def update_cscatter(country4_c, metric4x_c, metric4y_c, metric4i_c, restrict4_c,
     global clicked_sectors1
     xlabel, ylabel, zlabel = metric4x_c, metric4y_c, metric4i_c
     df = H[H.group.isin(group4_c) & H.country.isin(country4_c)].reset_index(drop=True)
-    if restrict4_c == 'Energy transition':
+    if restrict4_c == 'energy transition':
         df = df[df.sector.isin(transition_sectors)]
-    elif restrict4_c == 'Decarbonization':
+    elif restrict4_c == 'decarbonization':
         df = df[df.sector.isin(decarb_sectors)]
-    elif restrict4_c == 'Circular economy':
+    elif restrict4_c == 'circular economy':
         df = df[df.sector.isin(circular_sectors)]
     if click4_c:
         df = df[~df.sector.isin(clicked_sectors1)]

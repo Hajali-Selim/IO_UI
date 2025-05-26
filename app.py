@@ -184,7 +184,11 @@ app.layout = html.Div(children=[
 			        dbc.Col(dcc.Dropdown(importance_list, 'forward linkage', id='metric4x_r'), width=3)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select y-axis**', style={'textAlign':'right'}), width=2),
 			        dbc.Col(dcc.Dropdown(importance_list, 'backward linkage', id='metric4y_r'), width=3)]),
-			dbc.Row([dbc.Col(dcc.Markdown('**Select size and color**', style={'textAlign':'right'}), width=2),
+			
+            dbc.Row([dbc.Col(dcc.Markdown('**Select marker color**', style={'textAlign':'right'}), width=2),
+                    dbc.Col(dmc.SegmentedControl(['vulnerability', 'regions'], 'vulnerability', id='color4_r'), width=4)]),
+            
+            dbc.Row([dbc.Col(dcc.Markdown('**Select vulnerability (size)**', style={'textAlign':'right'}), width=2),
 			        dbc.Col(dmc.SegmentedControl(vulnerability_list, 'fossil fuel vulnerability', id='metric4i_r'), width=4)]),
             dbc.Row([dbc.Col(dcc.Markdown('**Select color boundaries**', style={'textAlign':'right'}), width=2),
                     dbc.Col([dcc.Input(id='colorlow4_r', type='number', min=0, max=100, step=0.5, debounce=True, placeholder='min'),
@@ -211,7 +215,11 @@ app.layout = html.Div(children=[
 			        dbc.Col(dcc.Dropdown(importance_list, 'forward linkage', id='metric4x_c'), width=3)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select y-axis**', style={'textAlign':'right'}), width=2),
 			        dbc.Col(dcc.Dropdown(importance_list, 'backward linkage', id='metric4y_c'), width=3)]),
-			dbc.Row([dbc.Col(dcc.Markdown('**Select size and color**', style={'textAlign':'right'}), width=2),
+			
+            dbc.Row([dbc.Col(dcc.Markdown('**Select marker color**', style={'textAlign':'right'}), width=2),
+                    dbc.Col(dmc.SegmentedControl(['vulnerability', 'regions'], 'vulnerability', id='color4_c'), width=4)]),
+            
+            dbc.Row([dbc.Col(dcc.Markdown('**Select vulnerability (size)**', style={'textAlign':'right'}), width=2),
 			        dbc.Col(dmc.SegmentedControl(vulnerability_list, 'fossil fuel vulnerability', id='metric4i_c'), width=4)]),
             dbc.Row([dbc.Col(dcc.Markdown('**Select color boundaries**', style={'textAlign':'right'}), width=2),
                     dbc.Col([dcc.Input(id='colorlow4_c', type='number', min=0, max=100, step=0.5, debounce=True, placeholder='min'),
@@ -239,7 +247,7 @@ app.layout = html.Div(children=[
                     dbc.Col(dcc.Dropdown(importance_list, 'forward linkage', id='metric4x_g'), width=3)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select y-axis**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dcc.Dropdown(importance_list, 'backward linkage', id='metric4y_g'), width=3)]),
-			dbc.Row([dbc.Col(dcc.Markdown('**Select size and color**', style={'textAlign':'right'}), width=2),
+			dbc.Row([dbc.Col(dcc.Markdown('**Select vulnerability (size)**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dmc.SegmentedControl(vulnerability_list, 'fossil fuel vulnerability', id='metric4i_g'), width=4)]),
             dbc.Row([dbc.Col(dcc.Markdown('**Select color boundaries**', style={'textAlign':'right'}), width=2),
                     dbc.Col([dcc.Input(id='colorlow4_g', type='number', min=0, max=100, step=0.5, debounce=True, placeholder='min'),
@@ -263,7 +271,7 @@ app.layout = html.Div(children=[
                     dbc.Col(dcc.Dropdown(importance_list, 'forward linkage', id='metric4x_s'), width=3)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select y-axis**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dcc.Dropdown(importance_list, 'backward linkage', id='metric4y_s'), width=3)]),
-			dbc.Row([dbc.Col(dcc.Markdown('**Select size and color**', style={'textAlign':'right'}), width=2),
+			dbc.Row([dbc.Col(dcc.Markdown('**Select vulnerability (size)**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dmc.SegmentedControl(vulnerability_list, 'fossil fuel vulnerability', id='metric4i_s'), width=4)]),
             dbc.Row([dbc.Col(dcc.Markdown('**Select color boundaries**', style={'textAlign':'right'}), width=2),
                     dbc.Col([dcc.Input(id='colorlow4_s', type='number', min=0, max=100, step=0.5, debounce=True, placeholder='min'),
@@ -412,8 +420,8 @@ def update_sline(metric3_s,unit3_s,group3_s,csv3_s):
     else:
         return fig, None, None
 
-@callback(Output('scatter4_r', 'figure'), Output('data4_r','data'), Output('csv4_r','n_clicks'), [Input(s, 'value') for s in ['region4_r', 'metric4x_r', 'metric4y_r', 'metric4i_r', 'restrict4_r', 'year4_r', 'range4_r', 'group4_r', 'colorlow4_r', 'colorhigh4_r']], Input('changes4_r','active_tab'), Input('click4_r','data'), Input('csv4_r', 'n_clicks'))
-def update_rscatter(region4_r, metric4x_r, metric4y_r, metric4i_r, restrict4_r, year4_r, range4_r, group4_r, colorlow4_r, colorhigh4_r, changes4_r, click4_r, csv4_r): # SINGLE REGION select
+@callback(Output('scatter4_r', 'figure'), Output('data4_r','data'), Output('csv4_r','n_clicks'), [Input(s, 'value') for s in ['region4_r', 'metric4x_r', 'metric4y_r', 'color4_r', 'metric4i_r', 'restrict4_r', 'year4_r', 'range4_r', 'group4_r', 'colorlow4_r', 'colorhigh4_r']], Input('changes4_r','active_tab'), Input('click4_r','data'), Input('csv4_r', 'n_clicks'))
+def update_rscatter(region4_r, metric4x_r, metric4y_r, color4_r, metric4i_r, restrict4_r, year4_r, range4_r, group4_r, colorlow4_r, colorhigh4_r, changes4_r, click4_r, csv4_r): # SINGLE REGION select
     global clicked_sectors2
     xlabel, ylabel, zlabel = metric4x_r, metric4y_r, metric4i_r
     df = data_savg[data_savg.group.isin(group4_r) & data_savg.region.isin(region4_r)].reset_index(drop=True)    
@@ -442,7 +450,10 @@ def update_rscatter(region4_r, metric4x_r, metric4y_r, metric4i_r, restrict4_r, 
         colorlow4_r = 0
     if colorhigh4_r == None:
         colorhigh4_r = dataset[zlabel].max()
-    fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=zlabel, labels={'x':xlabel, 'y':ylabel}, hover_name='region', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, range_color=[colorlow4_r, colorhigh4_r])
+    
+    color4_r = (color4_r=='vulnerability')*zlabel + (color4_r=='regions')*'region'
+    
+    fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=dataset[color4_r], labels={'x':xlabel, 'y':ylabel}, hover_name='region', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, range_color=[colorlow4_r, colorhigh4_r])
     fig.update_layout(width=900, height=650, font={'size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, hoverlabel={'font_size':14}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}, clickmode='event+select', plot_bgcolor='white').update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]} (%{customdata[1]})</b>', str(zlabel)+': %{customdata[2]:.2f}%', str(xlabel)+': %{customdata[3]:.2f}', str(ylabel)+': %{customdata[4]:.2f}<extra></extra>'])).add_hline(y=dashed_yline, line_width=3, line_dash='dash', line_color='red', opacity=.4).add_vline(x=dashed_xline, line_width=3, line_dash='dash', line_color='red', opacity=.4).update_xaxes(showgrid=True, gridcolor='#dbe9f2').update_yaxes(showgrid=True, gridcolor='#dbe9f2')
     if csv4_r:
         return fig, dcc.send_data_frame(dataset.to_csv, 'scatterplot_'+str('_'.join(c.replace(' ','') for r in region4_r)+str(year4_r)+'.csv')), None
@@ -467,8 +478,8 @@ def delete_rscatter(clickData):
     else:
         return no_update
 
-@callback(Output('scatter4_c', 'figure'), Output('data4_c','data'), Output('csv4_c','n_clicks'), [Input(s, 'value') for s in ['country4_c', 'metric4x_c', 'metric4y_c', 'metric4i_c', 'restrict4_c', 'year4_c', 'range4_c', 'group4_c', 'colorlow4_c', 'colorhigh4_c']], Input('changes4_c','active_tab'), Input('click4_c','data'), Input('csv4_c', 'n_clicks'))
-def update_cscatter(country4_c, metric4x_c, metric4y_c, metric4i_c, restrict4_c, year4_c, range4_c, group4_c, colorlow4_c, colorhigh4_c, changes4_c, click4_c, csv4_c): # SINGLE COUNTRY select
+@callback(Output('scatter4_c', 'figure'), Output('data4_c','data'), Output('csv4_c','n_clicks'), [Input(s, 'value') for s in ['country4_c', 'metric4x_c', 'metric4y_c', 'color4_c', 'metric4i_c', 'restrict4_c', 'year4_c', 'range4_c', 'group4_c', 'colorlow4_c', 'colorhigh4_c']], Input('changes4_c','active_tab'), Input('click4_c','data'), Input('csv4_c', 'n_clicks'))
+def update_cscatter(country4_c, metric4x_c, metric4y_c, color4_c, metric4i_c, restrict4_c, year4_c, range4_c, group4_c, colorlow4_c, colorhigh4_c, changes4_c, click4_c, csv4_c): # SINGLE COUNTRY select
     global clicked_sectors1
     xlabel, ylabel, zlabel = metric4x_c, metric4y_c, metric4i_c
     df = H[H.group.isin(group4_c) & H.country.isin(country4_c)].reset_index(drop=True)
@@ -497,7 +508,10 @@ def update_cscatter(country4_c, metric4x_c, metric4y_c, metric4i_c, restrict4_c,
         colorlow4_c = 0
     if colorhigh4_c == None:
         colorhigh4_c = dataset[zlabel].max()
-    fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=zlabel, labels={'x':xlabel, 'y':ylabel}, hover_name='country', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, range_color=[colorlow4_c, colorhigh4_c])
+    
+    color4_c = (color4_c=='vulnerability')*zlabel + (color4_c=='regions')*'region'
+    
+    fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=dataset[color4_c], labels={'x':xlabel, 'y':ylabel}, hover_name='country', opacity=.7, color_continuous_scale='Jet', custom_data=custom_data, range_color=[colorlow4_c, colorhigh4_c])
     fig.update_layout(width=900, height=650, font={'size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, hoverlabel={'font_size':14}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}, clickmode='event+select', plot_bgcolor='white').update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]} (%{customdata[1]})</b>', str(zlabel)+': %{customdata[2]:.2f}%', str(xlabel)+': %{customdata[3]:.2f}', str(ylabel)+': %{customdata[4]:.2f}<extra></extra>'])).add_hline(y=dashed_yline, line_width=3, line_dash='dash', line_color='red', opacity=.4).add_vline(x=dashed_xline, line_width=3, line_dash='dash', line_color='red', opacity=.4).update_xaxes(showgrid=True, gridcolor='#dbe9f2').update_yaxes(showgrid=True, gridcolor='#dbe9f2')
     if csv4_c:
         return fig, dcc.send_data_frame(dataset.to_csv, 'scatterplot_'+str('_'.join(c.replace(' ','') for c in country4_c)+'_')+str(year4_c)+'.csv'), None

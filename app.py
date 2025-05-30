@@ -181,9 +181,15 @@ app.layout = html.Div(children=[
 			dbc.Row([dbc.Col(dcc.Markdown('**Select region**', style={'textAlign':'right'}), width=2),
 			        dbc.Col(dcc.Dropdown(['Worldwide']+regions_list, ['Worldwide'], id='region4_r', multi=True), width=2)]),
             dbc.Row([dbc.Col(dcc.Markdown('**Select x-axis**', style={'textAlign':'right'}), width=2),
-			        dbc.Col(dcc.Dropdown(importance_list, 'forward linkage', id='metric4x_r'), width=3)]),
+			        dbc.Col(dcc.Dropdown(importance_list, 'forward linkage', id='metric4x_r'), width=3),
+                    dbc.Col(dcc.Markdown('**log10 scaling**', style={'textAlign':'right'}), width=2),
+                    dbc.Col(dbc.Checklist(id='scale4x_r', switch=True, value=[], options=[{'label':'', 'value':'On'}],
+                                                                                inputStyle={'margin-right':'10px'}), width=1)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select y-axis**', style={'textAlign':'right'}), width=2),
-			        dbc.Col(dcc.Dropdown(importance_list, 'backward linkage', id='metric4y_r'), width=3)]),
+			        dbc.Col(dcc.Dropdown(importance_list, 'backward linkage', id='metric4y_r'), width=3),
+                    dbc.Col(dcc.Markdown('**log10 scaling**', style={'textAlign':'right'}), width=2),
+                    dbc.Col(dbc.Checklist(id='scale4y_r', switch=True, value=[], options=[{'label':'', 'value':'On'}],
+                                                                                inputStyle={'margin-right':'10px'}), width=1)]),
 			
             dbc.Row([dbc.Col(dcc.Markdown('**Select marker color**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dmc.SegmentedControl(['vulnerability', 'regions'], 'vulnerability', id='color4_r'), width=4)]),
@@ -212,9 +218,15 @@ app.layout = html.Div(children=[
 			dbc.Row([dbc.Col(dcc.Markdown('**Select country**', style={'textAlign':'right'}), width=2),
 			        dbc.Col(dcc.Dropdown(countries_list, ['United States'], id='country4_c', multi=True), width=2)]),
             dbc.Row([dbc.Col(dcc.Markdown('**Select x-axis**', style={'textAlign':'right'}), width=2),
-			        dbc.Col(dcc.Dropdown(importance_list, 'forward linkage', id='metric4x_c'), width=3)]),
+			        dbc.Col(dcc.Dropdown(importance_list, 'forward linkage', id='metric4x_c'), width=3),
+                    dbc.Col(dcc.Markdown('**log10 scaling**', style={'textAlign':'right'}), width=2),
+                    dbc.Col(dbc.Checklist(id='scale4x_c', switch=True, value=[], options=[{'label':'', 'value':'On'}],
+                                                                                inputStyle={'margin-right':'10px'}), width=1)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select y-axis**', style={'textAlign':'right'}), width=2),
-			        dbc.Col(dcc.Dropdown(importance_list, 'backward linkage', id='metric4y_c'), width=3)]),
+			        dbc.Col(dcc.Dropdown(importance_list, 'backward linkage', id='metric4y_c'), width=3),
+                    dbc.Col(dcc.Markdown('**log10 scaling**', style={'textAlign':'right'}), width=2),
+                    dbc.Col(dbc.Checklist(id='scale4y_c', switch=True, value=[], options=[{'label':'', 'value':'On'}],
+                                                                                inputStyle={'margin-right':'10px'}), width=1)]),
 			
             dbc.Row([dbc.Col(dcc.Markdown('**Select marker color**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dmc.SegmentedControl(['vulnerability', 'regions'], 'vulnerability', id='color4_c'), width=4)]),
@@ -244,9 +256,16 @@ app.layout = html.Div(children=[
                     dbc.Col(dcc.Dropdown(['All sectors']+groups_list, ['All sectors'], id='group4_g', multi=True), width=4),
                     ]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select x-axis**', style={'textAlign':'right'}), width=2),
-                    dbc.Col(dcc.Dropdown(importance_list, 'forward linkage', id='metric4x_g'), width=3)]),
+                    dbc.Col(dcc.Dropdown(importance_list, 'forward linkage', id='metric4x_g'), width=3),
+                    dbc.Col(dcc.Markdown('**log10 scaling**', style={'textAlign':'right'}), width=2),
+                    dbc.Col(dbc.Checklist(id='scale4x_g', switch=True, value=[], options=[{'label':'', 'value':'On'}],
+                                                                                inputStyle={'margin-right':'10px'}), width=1)
+                    ]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select y-axis**', style={'textAlign':'right'}), width=2),
-                    dbc.Col(dcc.Dropdown(importance_list, 'backward linkage', id='metric4y_g'), width=3)]),
+                    dbc.Col(dcc.Dropdown(importance_list, 'backward linkage', id='metric4y_g'), width=3),
+                    dbc.Col(dcc.Markdown('**log10 scaling**', style={'textAlign':'right'}), width=2),
+                    dbc.Col(dbc.Checklist(id='scale4y_g', switch=True, value=[], options=[{'label':'', 'value':'On'}],
+                                                                                inputStyle={'margin-right':'10px'}), width=1)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select vulnerability (size)**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dmc.SegmentedControl(vulnerability_list, 'fossil fuel vulnerability', id='metric4i_g'), width=4)]),
             dbc.Row([dbc.Col(dcc.Markdown('**Select color boundaries**', style={'textAlign':'right'}), width=2),
@@ -268,9 +287,15 @@ app.layout = html.Div(children=[
                     dbc.Col(dcc.Dropdown(sectors_list, ['Mining of iron'], id='sector4_s', multi=True), width=4),
                     ]),
     		dbc.Row([dbc.Col(dcc.Markdown('**Select x-axis**', style={'textAlign':'right'}), width=2),
-                    dbc.Col(dcc.Dropdown(importance_list, 'forward linkage', id='metric4x_s'), width=3)]),
+                    dbc.Col(dcc.Dropdown(importance_list, 'forward linkage', id='metric4x_s'), width=3),
+                    dbc.Col(dcc.Markdown('**log10 scaling**', style={'textAlign':'right'}), width=2),
+                    dbc.Col(dbc.Checklist(id='scale4x_s', switch=True, value=[], options=[{'label':'', 'value':'On'}],
+                                                                                inputStyle={'margin-right':'10px'}), width=1)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select y-axis**', style={'textAlign':'right'}), width=2),
-                    dbc.Col(dcc.Dropdown(importance_list, 'backward linkage', id='metric4y_s'), width=3)]),
+                    dbc.Col(dcc.Dropdown(importance_list, 'backward linkage', id='metric4y_s'), width=3),
+                    dbc.Col(dcc.Markdown('**log10 scaling**', style={'textAlign':'right'}), width=2),
+                    dbc.Col(dbc.Checklist(id='scale4y_s', switch=True, value=[], options=[{'label':'', 'value':'On'}],
+                                                                                inputStyle={'margin-right':'10px'}), width=1)]),
 			dbc.Row([dbc.Col(dcc.Markdown('**Select vulnerability (size)**', style={'textAlign':'right'}), width=2),
                     dbc.Col(dmc.SegmentedControl(vulnerability_list, 'fossil fuel vulnerability', id='metric4i_s'), width=4)]),
             dbc.Row([dbc.Col(dcc.Markdown('**Select color boundaries**', style={'textAlign':'right'}), width=2),
@@ -416,12 +441,11 @@ def update_sline(metric3_s,unit3_s,group3_s,csv3_s):
     else:
         return fig, None, None
 
-@callback(Output('scatter4_r', 'figure'), Output('data4_r','data'), Output('csv4_r','n_clicks'), [Input(s, 'value') for s in ['region4_r', 'metric4x_r', 'metric4y_r', 'color4_r', 'metric4i_r', 'restrict4_r', 'year4_r', 'range4_r', 'group4_r', 'colorlow4_r', 'colorhigh4_r']], Input('changes4_r','active_tab'), Input('click4_r','data'), Input('csv4_r', 'n_clicks'))
-def update_rscatter(region4_r, metric4x_r, metric4y_r, color4_r, metric4i_r, restrict4_r, year4_r, range4_r, group4_r, colorlow4_r, colorhigh4_r, changes4_r, click4_r, csv4_r): # SINGLE REGION select
+@callback(Output('scatter4_r', 'figure'), Output('data4_r','data'), Output('csv4_r','n_clicks'), [Input(s, 'value') for s in ['region4_r', 'metric4x_r', 'scale4x_r', 'metric4y_r', 'scale4y_r', 'color4_r', 'metric4i_r', 'restrict4_r', 'year4_r', 'range4_r', 'group4_r', 'colorlow4_r', 'colorhigh4_r']], Input('changes4_r','active_tab'), Input('click4_r','data'), Input('csv4_r', 'n_clicks'))
+def update_rscatter(region4_r, metric4x_r, scale4x_r, metric4y_r, scale4y_r, color4_r, metric4i_r, restrict4_r, year4_r, range4_r, group4_r, colorlow4_r, colorhigh4_r, changes4_r, click4_r, csv4_r): # SINGLE REGION select
     global clicked_sectors2
     xlabel, ylabel, zlabel = metric4x_r, metric4y_r, metric4i_r
-    xscale = (xlabel[:11]=='betweenness')*'log' + (xlabel[:11]!='betweenness')*'linear'
-    yscale = (ylabel[:11]=='betweenness')*'log' + (ylabel[:11]!='betweenness')*'linear'
+    xscale, yscale = 'log' if scale4x_r else 'linear', 'log' if scale4y_r else 'linear'
     df = data_savg[data_savg.group.isin(group4_r) & data_savg.region.isin(region4_r)].reset_index(drop=True)    
     if restrict4_r == 'energy transition':
         df = df[df.sector.isin(transition_sectors)]
@@ -484,12 +508,11 @@ def delete_rscatter(clickData):
     else:
         return no_update
 
-@callback(Output('scatter4_c', 'figure'), Output('data4_c','data'), Output('csv4_c','n_clicks'), [Input(s, 'value') for s in ['country4_c', 'metric4x_c', 'metric4y_c', 'color4_c', 'metric4i_c', 'restrict4_c', 'year4_c', 'range4_c', 'group4_c', 'colorlow4_c', 'colorhigh4_c']], Input('changes4_c','active_tab'), Input('click4_c','data'), Input('csv4_c', 'n_clicks'))
-def update_cscatter(country4_c, metric4x_c, metric4y_c, color4_c, metric4i_c, restrict4_c, year4_c, range4_c, group4_c, colorlow4_c, colorhigh4_c, changes4_c, click4_c, csv4_c): # SINGLE COUNTRY select
+@callback(Output('scatter4_c', 'figure'), Output('data4_c','data'), Output('csv4_c','n_clicks'), [Input(s, 'value') for s in ['country4_c', 'metric4x_c', 'scale4x_c', 'metric4y_c', 'scale4y_c', 'color4_c', 'metric4i_c', 'restrict4_c', 'year4_c', 'range4_c', 'group4_c', 'colorlow4_c', 'colorhigh4_c']], Input('changes4_c','active_tab'), Input('click4_c','data'), Input('csv4_c', 'n_clicks'))
+def update_cscatter(country4_c, metric4x_c, scale4x_c, metric4y_c, scale4y_c, color4_c, metric4i_c, restrict4_c, year4_c, range4_c, group4_c, colorlow4_c, colorhigh4_c, changes4_c, click4_c, csv4_c): # SINGLE COUNTRY select
     global clicked_sectors1
     xlabel, ylabel, zlabel = metric4x_c, metric4y_c, metric4i_c
-    xscale = (xlabel[:11]=='betweenness')*'log' + (xlabel[:11]!='betweenness')*'linear'
-    yscale = (ylabel[:11]=='betweenness')*'log' + (ylabel[:11]!='betweenness')*'linear'
+    xscale, yscale = 'log' if scale4x_c else 'linear', 'log' if scale4y_c else 'linear'
     df = H[H.group.isin(group4_c) & H.country.isin(country4_c)].reset_index(drop=True)
     if restrict4_c == 'energy transition':
         df = df[df.sector.isin(transition_sectors)]
@@ -548,12 +571,11 @@ def delete_cscatter(clickData):
     else:
         return no_update
 
-@callback(Output('scatter4_g', 'figure'), Output('data4_g','data'), Output('csv4_g','n_clicks'), [Input(s, 'value') for s in ['group4_g', 'metric4x_g','metric4y_g', 'metric4i_g', 'year4_g', 'range4_g','region4_g', 'colorlow4_g', 'colorhigh4_g']], Input('changes4_c','active_tab'), Input('click4_g', 'data'), Input('csv4_g', 'n_clicks'))
-def update_gscatter(group4_g, metric4x_g, metric4y_g, metric4i_g, year4_g, range4_g, region4_g, colorlow4_g, colorhigh4_g, changes4_g, click4_g, csv4_g):  # SINGLE GROUP select
+@callback(Output('scatter4_g', 'figure'), Output('data4_g','data'), Output('csv4_g','n_clicks'), [Input(s, 'value') for s in ['group4_g', 'metric4x_g', 'scale4x_g', 'metric4y_g', 'scale4y_g', 'metric4i_g', 'year4_g', 'range4_g','region4_g', 'colorlow4_g', 'colorhigh4_g']], Input('changes4_c','active_tab'), Input('click4_g', 'data'), Input('csv4_g', 'n_clicks'))
+def update_gscatter(group4_g, metric4x_g, scale4x_g, metric4y_g, scale4y_g, metric4i_g, year4_g, range4_g, region4_g, colorlow4_g, colorhigh4_g, changes4_g, click4_g, csv4_g):  # SINGLE GROUP select
     global clicked_countries2
     xlabel, ylabel, zlabel = metric4x_g, metric4y_g, metric4i_g
-    xscale = (xlabel[:11]=='betweenness')*'log' + (xlabel[:11]!='betweenness')*'linear'
-    yscale = (ylabel[:11]=='betweenness')*'log' + (ylabel[:11]!='betweenness')*'linear'
+    xscale, yscale = 'log' if scale4x_g else 'linear', 'log' if scale4y_g else 'linear'
     df = data_cavg[data_cavg.region.isin(region4_g)&data_cavg.group.isin(group4_g)].reset_index(drop=True)
     if click4_g:
         df = df[~df.country.isin(clicked_countries2)]
@@ -599,12 +621,11 @@ def sync_selection_gscatter(reset):
     else:
         return no_update
 
-@callback(Output('scatter4_s', 'figure'), Output('data4_s','data'), Output('csv4_s','n_clicks'), [Input(s, 'value') for s in ['sector4_s', 'metric4x_s','metric4y_s', 'metric4i_s', 'year4_s', 'range4_s','group4_s', 'colorlow4_s', 'colorhigh4_s']], Input('changes4_c','active_tab'), Input('click4_s', 'data'), Input('csv4_s', 'n_clicks'))
-def update_sscatter(sector4_s, metric4x_s, metric4y_s, metric4i_s, year4_s, range4_s, group4_s, colorlow4_s, colorhigh4_s, changes4_s, click4_s, csv4_s):  # SINGLE SECTOR select
+@callback(Output('scatter4_s', 'figure'), Output('data4_s','data'), Output('csv4_s','n_clicks'), [Input(s, 'value') for s in ['sector4_s', 'metric4x_s','scale4x_s','metric4y_s','scale4y_s', 'metric4i_s', 'year4_s', 'range4_s','group4_s', 'colorlow4_s', 'colorhigh4_s']], Input('changes4_c','active_tab'), Input('click4_s', 'data'), Input('csv4_s', 'n_clicks'))
+def update_sscatter(sector4_s, metric4x_s, scale4x_s, metric4y_s, scale4y_s, metric4i_s, year4_s, range4_s, group4_s, colorlow4_s, colorhigh4_s, changes4_s, click4_s, csv4_s):  # SINGLE SECTOR select
     global clicked_countries1
     xlabel, ylabel, zlabel = metric4x_s, metric4y_s, metric4i_s
-    xscale = (xlabel[:11]=='betweenness')*'log' + (xlabel[:11]!='betweenness')*'linear'
-    yscale = (ylabel[:11]=='betweenness')*'log' + (ylabel[:11]!='betweenness')*'linear'
+    xscale, yscale = 'log' if scale4x_s else 'linear', 'log' if scale4y_s else 'linear'
     df = H[H.region.isin(group4_s)&H.sector.isin(sector4_s)].reset_index(drop=True)
     if click4_s:
         df = df[~df.country.isin(clicked_countries1)]

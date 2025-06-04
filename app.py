@@ -8,8 +8,6 @@ import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from copy import deepcopy
-from random import shuffle
-from PIL import Image
 
 pd.options.mode.chained_assignment = None
 external_stylesheets = [dbc.themes.CERULEAN]
@@ -17,9 +15,7 @@ app = Dash(__name__, external_stylesheets=external_stylesheets)
 
 server = app.server
 
-#H = pd.read_csv('processed_data.csv', compression='bz2')
-H = pd.read_csv('processed_data_2fuels.csv', compression='bz2')
-
+H = pd.read_csv('processed_data.csv', compression='bz2')
 
 #worldmap_nodes, worldmap_table, worldmap_plot, sector_group_scheme = pd.read_csv('worldmap_nodes.csv'), pd.read_csv('worldmap_table.csv'), pd.read_csv('worldmap_plot.csv'), Image.open('worldmap_scheme.png')
 country_network_dynamics = pd.read_csv('country_network_dynamics.csv')
@@ -41,7 +37,7 @@ for c in countries:
     country_to_idx[c], k2 = k2, k2+1
 
 units_list = ['region', 'country', 'sector', 'group']
-vulnerability_list, importance_list = ['coal vulnerability', 'gas vulnerability', 'oil vulnerability', 'fossil fuel vulnerability', 'fossil fuel vulnerability 2'], ['forward linkage', 'backward linkage', 'weighted in-degree', 'weighted out-degree', 'out-degree', 'in-degree', 'betweenness', 'betweenness/in-degree', 'betweenness/out-degree']
+vulnerability_list, importance_list = ['coal vulnerability', 'gas vulnerability', 'oil vulnerability', 'fossil fuel vulnerability'], ['forward linkage', 'backward linkage', 'weighted in-degree', 'weighted out-degree', 'out-degree', 'in-degree', 'betweenness', 'betweenness/in-degree', 'betweenness/out-degree']
 metrics_list = vulnerability_list+importance_list
 country_metrics_list = ['modularity', 'in-conductance', 'out-conductance']
 ordering_list = ['original', 'descending', 'ascending']

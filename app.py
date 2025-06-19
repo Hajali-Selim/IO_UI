@@ -8,6 +8,8 @@ import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from copy import deepcopy
+from random import shuffle
+from PIL import Image
 
 pd.options.mode.chained_assignment = None
 external_stylesheets = [dbc.themes.CERULEAN]
@@ -501,19 +503,11 @@ def update_rscatter(region4_r, metric4x_r, scale4x_r, xlow4_r, xhigh4_r, metric4
         colorlow4_r = 0
     if colorhigh4_r == None:
         colorhigh4_r = dataset[zlabel].max()
-    color4_r = (color4_r=='vulnerability')*zlabel + (color4_r=='regions')*'region'
-    #if color4_r == 'vulnerability':
-    #    fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=zlabel, labels={'x':xlabel, 'y':ylabel}, hover_name='region', opacity=.6, color_continuous_scale='Jet', custom_data=custom_data)
-    #elif color4_r == 'regions':
-    #    fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color='region', labels={'x':xlabel, 'y':ylabel}, hover_name='region', opacity=.6, color_discrete_sequence=px.colors.qualitative.Bold, custom_data=custom_data)
-    fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=dataset[color4_r], labels={'x':xlabel, 'y':ylabel}, hover_name='region', opacity=.6, color_continuous_scale='Jet', custom_data=custom_data, range_color=[colorlow4_r, colorhigh4_r])
-    #color4_r = (color4_r=='vulnerability')*zlabel + (color4_r=='regions')*'region'
     if color4_r == 'vulnerability':
         fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=zlabel, labels={'x':xlabel, 'y':ylabel}, hover_name='region', opacity=.6, color_continuous_scale='Jet', custom_data=custom_data, range_color=[colorlow4_r, colorhigh4_r])
     elif color4_r == 'regions':
         fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color='region', labels={'x':xlabel, 'y':ylabel}, hover_name='region', opacity=.6, color_discrete_sequence=px.colors.qualitative.Bold, custom_data=custom_data)
-    #fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=dataset[color4_r], labels={'x':xlabel, 'y':ylabel}, hover_name='region', opacity=.6, color_continuous_scale='Jet', custom_data=custom_data, range_color=[colorlow4_r, colorhigh4_r])
-    fig.update_layout(width=900, height=650, font={'size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, hoverlabel={'font_size':14}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}, clickmode='event+select', plot_bgcolor='white').update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]} (%{customdata[1]})</b>', str(zlabel)+': %{customdata[2]:.2f}%', str(xlabel)+': %{customdata[3]:.2f}', str(ylabel)+': %{customdata[4]:.2f}<extra></extra>'])).add_hline(y=dashed_yline, line_width=3, line_dash='dash', line_color='red', opacity=.4).add_vline(x=dashed_xline, line_width=3, line_dash='dash', line_color='red', opacity=.4).update_xaxes(showgrid=True, gridcolor='#dbe9f2', type=xscale).update_yaxes(showgrid=True, gridcolor='#dbe9f2', type=yscale)
+    fig.update_layout(width=900, height=650, font={'size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, hoverlabel={'font_size':14}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}, clickmode='event+select', plot_bgcolor='white').update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]} (%{customdata[1]})</b>', str(zlabel)+': %{customdata[2]:.2f}%', str(xlabel)+': %{customdata[3]:.2f}', str(ylabel)+': %{customdata[4]:.2f}<extra></extra>'])).add_hline(y=dashed_yline, line_width=3, line_dash='dash', line_color='red', opacity=.4).add_vline(x=dashed_xline, line_width=3, line_dash='dash', line_color='red', opacity=.4).update_xaxes(showgrid=True, gridcolor='#dbe9f2', type=xscale).update_yaxes(showgrid=True, gridcolor='#dbe9f2', type='log')
     if csv4_r:
         return fig, dcc.send_data_frame(dataset.to_csv, 'scatterplot_'+str('_'.join(c.replace(' ','') for r in region4_r)+str(year4_r)+'.csv')), None
     else:
@@ -570,12 +564,10 @@ def update_cscatter(country4_c, metric4x_c, scale4x_c, xlow4_c, xhigh4_c, metric
         colorhigh4_c = dataset[zlabel].max()
     color4_c = (color4_c=='vulnerability')*zlabel + (color4_c=='regions')*'region'
     fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=dataset[color4_c], labels={'x':xlabel, 'y':ylabel}, hover_name='country', opacity=.6, color_continuous_scale='Jet', custom_data=custom_data, range_color=[colorlow4_c, colorhigh4_c])
-    #color4_c = (color4_c=='vulnerability')*zlabel + (color4_c=='regions')*'region'
     if color4_c == 'vulnerability':
         fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=zlabel, labels={'x':xlabel, 'y':ylabel}, hover_name='region', opacity=.6, color_continuous_scale='Jet', custom_data=custom_data, range_color=[colorlow4_r, colorhigh4_r])
     elif color4_c == 'regions':
         fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color='region', labels={'x':xlabel, 'y':ylabel}, hover_name='region', opacity=.6, color_discrete_sequence=px.colors.qualitative.Bold, custom_data=custom_data)
-    #fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=dataset[color4_c], labels={'x':xlabel, 'y':ylabel}, hover_name='country', opacity=.6, color_continuous_scale='Jet', custom_data=custom_data, range_color=[colorlow4_c, colorhigh4_c])
     fig.update_layout(width=900, height=650, font={'size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, hoverlabel={'font_size':14}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}, clickmode='event+select', plot_bgcolor='white').update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]} (%{customdata[1]})</b>', str(zlabel)+': %{customdata[2]:.2f}%', str(xlabel)+': %{customdata[3]:.2f}', str(ylabel)+': %{customdata[4]:.2f}<extra></extra>'])).add_hline(y=dashed_yline, line_width=3, line_dash='dash', line_color='red', opacity=.4).add_vline(x=dashed_xline, line_width=3, line_dash='dash', line_color='red', opacity=.4).update_xaxes(showgrid=True, gridcolor='#dbe9f2', type=xscale).update_yaxes(showgrid=True, gridcolor='#dbe9f2', type=yscale)
     if csv4_c:
         return fig, dcc.send_data_frame(dataset.to_csv, 'scatterplot_'+str('_'.join(c.replace(' ','') for c in country4_c)+'_')+str(year4_c)+'.csv'), None

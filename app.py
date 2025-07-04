@@ -6,7 +6,10 @@ import numpy as np
 import pickle
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from copy import deepcopy
+from random import shuffle
+from PIL import Image
 
 pd.options.mode.chained_assignment = None
 external_stylesheets = [dbc.themes.CERULEAN]
@@ -504,9 +507,13 @@ def update_rscatter(region4_r, metric4x_r, scale4x_r, xlow4_r, xhigh4_r, metric4
         fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=zlabel, labels={'x':xlabel, 'y':ylabel}, hover_name='region', opacity=.6, color_continuous_scale='Jet', custom_data=custom_data, range_color=[colorlow4_r, colorhigh4_r])
     elif color4_r == 'regions':
         fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color='region', labels={'x':xlabel, 'y':ylabel}, hover_name='region', opacity=.6, color_discrete_sequence=px.colors.qualitative.Bold, custom_data=custom_data)
-    x_min, x_max = xlow4_r if xlow4_r is not None else dataset[xlabel].min(), xhigh4_r if xhigh4_r is not None else dataset[xlabel].max()
-    y_min, y_max = ylow4_r if ylow4_r is not None else dataset[ylabel].min(), yhigh4_r if yhigh4_r is not None else dataset[ylabel].max()
+    #x_min, x_max = xlow4_r if xlow4_r is not None else dataset[xlabel].min(), xhigh4_r if xhigh4_r is not None else dataset[xlabel].max()
+    #y_min, y_max = ylow4_r if ylow4_r is not None else dataset[ylabel].min(), yhigh4_r if yhigh4_r is not None else dataset[ylabel].max()
+    x_min, x_max = xlow4_r if xlow4_r is not None else min(fig.data[0].x), xhigh4_r if xhigh4_r is not None else max(fig.data[0].x)
+    y_min, y_max = ylow4_r if ylow4_r is not None else min(fig.data[0].y), yhigh4_r if yhigh4_r is not None else max(fig.data[0].y)
     fig.update_layout(width=900, height=650, font={'size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, hoverlabel={'font_size':14}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}, clickmode='event+select', plot_bgcolor='white', xaxis_range=[x_min, x_max], yaxis_range=[y_min, y_max]).update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]} (%{customdata[1]})</b>', str(zlabel)+': %{customdata[2]:.2f}%', str(xlabel)+': %{customdata[3]:.2f}', str(ylabel)+': %{customdata[4]:.2f}<extra></extra>'])).add_hline(y=dashed_yline, line_width=3, line_dash='dash', line_color='red', opacity=.4).add_vline(x=dashed_xline, line_width=3, line_dash='dash', line_color='red', opacity=.4).update_xaxes(showgrid=True, gridcolor='#dbe9f2', type=xscale).update_yaxes(showgrid=True, gridcolor='#dbe9f2', type='log')
+    
+    
     if csv4_r:
         return fig, dcc.send_data_frame(dataset.to_csv, 'scatterplot_'+str('_'.join(c.replace(' ','') for r in region4_r)+str(year4_r)+'.csv')), None
     else:
@@ -567,8 +574,8 @@ def update_cscatter(country4_c, metric4x_c, scale4x_c, xlow4_c, xhigh4_c, metric
         fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=zlabel, labels={'x':xlabel, 'y':ylabel}, hover_name='region', opacity=.6, color_continuous_scale='Jet', custom_data=custom_data, range_color=[colorlow4_r, colorhigh4_r])
     elif color4_c == 'regions':
         fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color='region', labels={'x':xlabel, 'y':ylabel}, hover_name='region', opacity=.6, color_discrete_sequence=px.colors.qualitative.Bold, custom_data=custom_data)
-    x_min, x_max = xlow4_c if xlow4_c is not None else dataset[xlabel].min(), xhigh4_c if xhigh4_c is not None else dataset[xlabel].max()
-    y_min, y_max = ylow4_c if ylow4_c is not None else dataset[ylabel].min(), yhigh4_c if yhigh4_c is not None else dataset[ylabel].max()
+    x_min, x_max = xlow4_c if xlow4_c is not None else min(fig.data[0].x), xhigh4_c if xhigh4_c is not None else max(fig.data[0].x)
+    y_min, y_max = ylow4_c if ylow4_c is not None else min(fig.data[0].y), yhigh4_c if yhigh4_c is not None else max(fig.data[0].y)
     fig.update_layout(width=900, height=650, font={'size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, hoverlabel={'font_size':14}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}, clickmode='event+select', plot_bgcolor='white', xaxis_range=[x_min, x_max], yaxis_range=[y_min, y_max]).update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]} (%{customdata[1]})</b>', str(zlabel)+': %{customdata[2]:.2f}%', str(xlabel)+': %{customdata[3]:.2f}', str(ylabel)+': %{customdata[4]:.2f}<extra></extra>'])).add_hline(y=dashed_yline, line_width=3, line_dash='dash', line_color='red', opacity=.4).add_vline(x=dashed_xline, line_width=3, line_dash='dash', line_color='red', opacity=.4).update_xaxes(showgrid=True, gridcolor='#dbe9f2', type=xscale).update_yaxes(showgrid=True, gridcolor='#dbe9f2', type=yscale)
     if csv4_c:
         return fig, dcc.send_data_frame(dataset.to_csv, 'scatterplot_'+str('_'.join(c.replace(' ','') for c in country4_c)+'_')+str(year4_c)+'.csv'), None
@@ -618,11 +625,9 @@ def update_gscatter(group4_g, metric4x_g, scale4x_g, xlow4_g, xhigh4_g, metric4y
         colorlow4_g = 0
     if colorlow4_g == None:
         colorlow4_g = dataset[zlabel].max()
-
-    x_min, x_max = xlow4_g if xlow4_g is not None else dataset[xlabel].min(), xhigh4_g if xhigh4_g is not None else dataset[xlabel].max()
-    y_min, y_max = ylow4_g if ylow4_g is not None else dataset[ylabel].min(), yhigh4_g if yhigh4_g is not None else dataset[ylabel].max()
-
     fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=zlabel, labels={'x':xlabel, 'y':ylabel}, hover_name='group', opacity=.6, color_continuous_scale='Jet', custom_data=custom_data, range_color=[colorlow4_g, colorhigh4_g])
+    x_min, x_max = xlow4_g if xlow4_g is not None else min(fig.data[0].x), xhigh4_g if xhigh4_g is not None else max(fig.data[0].x)
+    y_min, y_max = ylow4_g if ylow4_g is not None else min(fig.data[0].y), yhigh4_g if yhigh4_g is not None else max(fig.data[0].y)
     fig.update_layout(width=950, height=650, font={'size':14}, hoverlabel={'font_size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}, plot_bgcolor='white', xaxis_range=[x_min, x_max], yaxis_range=[y_min, y_max]).update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]} (%{customdata[1]})</b>', str(zlabel)+': %{customdata[2]:.2f}%', str(xlabel)+': %{customdata[3]:.2f}', str(ylabel)+': %{customdata[4]:.2f}<extra></extra>'])).add_hline(y=dashed_yline, line_width=3, line_dash='dash', line_color='red', opacity=.4).add_vline(x=dashed_xline, line_width=3, line_dash='dash', line_color='red', opacity=.4).update_xaxes(showgrid=True, gridcolor='#dbe9f2', type=xscale).update_yaxes(showgrid=True, gridcolor='#dbe9f2', type=yscale)
     if csv4_g:
         return fig, dcc.send_data_frame(dataset.to_csv, 'scatterplot_'+str('_'.join(c.replace(' ','') for s in group4_g)+'_')+'_'+str(year4_g)+'.csv'), None
@@ -673,8 +678,8 @@ def update_sscatter(sector4_s, metric4x_s, scale4x_s, xlow4_s, xhigh4_s, metric4
     if colorlow4_s == None:
         colorlow4_s = dataset[zlabel].max()
     fig = px.scatter(dataset, x=xlabel, y=ylabel, size=zlabel, color=zlabel, labels={'x':xlabel, 'y':ylabel}, hover_name='sector', opacity=.6, color_continuous_scale='Jet', custom_data=custom_data, range_color=[colorlow4_s, colorhigh4_s])
-    x_min, x_max = xlow4_s if xlow4_s is not None else dataset[xlabel].min(), xhigh4_s if xhigh4_s is not None else dataset[xlabel].max()
-    y_min, y_max = ylow4_s if ylow4_s is not None else dataset[ylabel].min(), yhigh4_s if yhigh4_s is not None else dataset[ylabel].max()
+    x_min, x_max = xlow4_s if xlow4_s is not None else min(fig.data[0].x), xhigh4_s if xhigh4_s is not None else max(fig.data[0].x)
+    y_min, y_max = ylow4_s if ylow4_s is not None else min(fig.data[0].y), yhigh4_s if yhigh4_s is not None else max(fig.data[0].y)
     fig.update_layout(width=950, height=650, font={'size':14}, hoverlabel={'font_size':14}, coloraxis_colorbar={'title':'vulnerability (%)', 'orientation':'v', 'len':.8, 'thickness':15}, legend={'orientation':'h', 'yanchor':'bottom', 'y':1.02, 'entrywidth':200, 'title':None}, plot_bgcolor='white', xaxis_range=[x_min, x_max], yaxis_range=[y_min, y_max]).update_traces(hovertemplate='<br>'.join(['<b>%{customdata[0]} (%{customdata[1]})</b>', str(zlabel)+': %{customdata[2]:.2f}%', str(xlabel)+': %{customdata[3]:.2f}', str(ylabel)+': %{customdata[4]:.2f}<extra></extra>'])).add_hline(y=dashed_yline, line_width=3, line_dash='dash', line_color='red', opacity=.4).add_vline(x=dashed_xline, line_width=3, line_dash='dash', line_color='red', opacity=.4).update_xaxes(showgrid=True, gridcolor='#dbe9f2', type=xscale).update_yaxes(showgrid=True, gridcolor='#dbe9f2', type=yscale)
     if csv4_s:
         return fig, dcc.send_data_frame(dataset.to_csv, 'scatterplot_'+str('_'.join(c.replace(' ','') for s in sector4_s)+'_')+'_'+str(year4_s)+'.csv'), None

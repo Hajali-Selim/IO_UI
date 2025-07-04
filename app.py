@@ -6,10 +6,7 @@ import numpy as np
 import pickle
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 from copy import deepcopy
-from random import shuffle
-from PIL import Image
 
 pd.options.mode.chained_assignment = None
 external_stylesheets = [dbc.themes.CERULEAN]
